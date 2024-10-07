@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 const currencyPairs = [
@@ -9,6 +10,8 @@ const currencyPairs = [
 const vendors = ["Vendor A", "Vendor B", "Vendor C", "Vendor D", "Vendor E"];
 
 const ExchangeRates = () => {
+  const navigate = useNavigate();
+
   // In a real app, you'd fetch this data from an API
   const generateMockRates = () => {
     return vendors.map(vendor => ({
@@ -18,6 +21,10 @@ const ExchangeRates = () => {
   };
 
   const exchangeRates = generateMockRates();
+
+  const handleRowClick = (pair) => {
+    navigate(`/currency-pair/${pair}`);
+  };
 
   return (
     <div className="container mx-auto py-10">
@@ -34,10 +41,15 @@ const ExchangeRates = () => {
           </TableHeader>
           <TableBody>
             {exchangeRates.map(({ vendor, rates }) => (
-              <TableRow key={vendor}>
+              <TableRow key={vendor} className="cursor-pointer hover:bg-gray-100">
                 <TableCell className="font-medium">{vendor}</TableCell>
                 {rates.map((rate, index) => (
-                  <TableCell key={index}>{rate}</TableCell>
+                  <TableCell 
+                    key={index} 
+                    onClick={() => handleRowClick(currencyPairs[index])}
+                  >
+                    {rate}
+                  </TableCell>
                 ))}
               </TableRow>
             ))}

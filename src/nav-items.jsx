@@ -3,6 +3,7 @@ import Index from "./pages/Index.jsx";
 import ExchangeRates from "./pages/ExchangeRates.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
+import CurrencyPairAnalysis from "./pages/CurrencyPairAnalysis.jsx";
 
 export const navItems = [
   {
@@ -28,5 +29,11 @@ export const navItems = [
     to: "/register",
     icon: <UserIcon className="h-4 w-4" />,
     page: <Register />,
+  },
+  {
+    title: "Currency Pair Analysis",
+    to: "/currency-pair/:pair",
+    icon: <ArrowLeftRightIcon className="h-4 w-4" />,
+    page: <CurrencyPairAnalysis />,
   },
 ];
