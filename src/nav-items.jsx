@@ -1,6 +1,7 @@
 import { HomeIcon, ArrowLeftRightIcon, UserIcon } from "lucide-react";
 import Index from "./pages/Index.jsx";
 import ExchangeRates from "./pages/ExchangeRates.jsx";
+import TapExchangeRates from "./pages/TapExchangeRates.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import CurrencyPairAnalysis from "./pages/CurrencyPairAnalysis.jsx";
@@ -32,8 +33,14 @@ export const navItems = [
   },
   {
     title: "Currency Pair Analysis",
-    to: "/currency-pair/:pair",
+    to: "/currency-pair/:pairs",
     icon: <ArrowLeftRightIcon className="h-4 w-4" />,
     page: <CurrencyPairAnalysis />,
+  }, 
+  {
+    title: "History Rates",
+    to: "/prev-exchange-rates",
+    icon: <ArrowLeftRightIcon className="h-4 w-4" />,
+    page: <TapExchangeRates />,
   },
 ];

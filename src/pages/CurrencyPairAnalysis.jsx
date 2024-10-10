@@ -1,33 +1,84 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const CurrencyPairAnalysis = () => {
-  const { pair } = useParams();
+  const { pairs } = useParams(); // Extract pair from URL params
   const navigate = useNavigate();
+  const [historyData, setHistoryData] = useState([]);
+  const [currentRate, setCurrentRate] = useState(null);
+  const [prediction, setPrediction] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Mock data - in a real app, you'd fetch this data from an API
-  const historyData = Array.from({ length: 30 }, (_, i) => ({
-    date: `2023-${(i + 1).toString().padStart(2, '0')}-01`,
-    rate: (Math.random() * (1.5 - 0.5) + 0.5).toFixed(4)
-  }));
+  const pair = splitCurrencyPair(pairs);
 
-  const prediction = (parseFloat(historyData[historyData.length - 1].rate) * (1 + (Math.random() - 0.5) * 0.1)).toFixed(4);
+  function splitCurrencyPair(pair) {
+    const [baseCurrency, quoteCurrency] = pair.split('-');
+    return `${baseCurrency}/${quoteCurrency}`;
+  }
+
+  // Function to fetch data from the API
+  const fetchRates = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await axios.get(`http://localhost:5000/api/rates/dbrates/pairs?pair=${pair}`);
+      const data = response.data.data[0];
+      const rates = data.rates;
+
+      // Prepare the historical data (using 'createdAt' as date)
+      const historicalRates = Object.entries(rates)
+        .filter(([vendor, rate]) => vendor !== "undefined" && rate !== null)
+        .map(([vendor, rate], index) => ({
+          date: `2024-10-${index + 1}` , // Mocking date for simplicity, assuming index for day
+          rate: parseFloat(rate).toFixed(4)
+        }));
+
+      setHistoryData(historicalRates);
+
+      // Set the current rate as the latest in the historical data
+      const latestRate = historicalRates[historicalRates.length - 1].rate;
+      setCurrentRate(latestRate);
+
+      // Simple prediction logic (random fluctuation for demonstration purposes)
+      const predictedRate = (parseFloat(latestRate) * (1 + (Math.random() - 0.5) * 0.1)).toFixed(4);
+      setPrediction(predictedRate);
+    } catch (err) {
+      setError("Failed to fetch rates.");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRates();
+  }, [pair]);
+
+  if (loading) {
+    return <p>Loading...</p>;
+  }
+
+  if (error) {
+    return <p>{error}</p>;
+  }
 
   return (
     <div className="container mx-auto py-10">
       <Button onClick={() => navigate(-1)} className="mb-5">Go Back</Button>
       <h1 className="text-3xl font-bold mb-5">Analysis for {pair}</h1>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
         <Card>
           <CardHeader>
             <CardTitle>Current Rate</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-4xl font-bold">{historyData[historyData.length - 1].rate}</p>
+            <p className="text-4xl font-bold">{currentRate}</p>
           </CardContent>
         </Card>
         <Card>

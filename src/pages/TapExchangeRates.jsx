@@ -4,28 +4,34 @@ import axios from 'axios';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { fetchDbRates, getRates } from '@/utils/api';
 
-function convertCurrencyPair(currencyPair) {
-  const [baseCurrency, quoteCurrency] = currencyPair.split("/");
-  return `${baseCurrency}-${quoteCurrency}`;
-}
-
-const currencyPairs = [
-  "USD/AOA", "USD/GHS", "USD/CAD", "USD/NGN", "USD/SLL", 
-  "USD/XOF", "USD/GBP", "USD/EUR", "USD/CNY"
+// Define the list of all vendors
+const vendorsList = [
+  "Lemfi",
+  "Wise_Exchange",
+  "TransferGo_Exchange",
+  "twelveData_Exchange",
+  "alphaVantage_Exchange",
+  "xchangeRt_Exchange",
+  "undefined" // Include 'undefined' as a vendor
 ];
 
-const ExchangeRates = () => {
+function convertCurrencyPair(currencyPair) {
+    const [baseCurrency, quoteCurrency] = currencyPair.split("/");
+    return `${baseCurrency}-${quoteCurrency}`;
+  }
+
+const TapExchangeRates = () => {
   const navigate = useNavigate();
-  const [exchangeRates, setExchangeRates] = useState(null);
+  const [exchangeRates, setExchangeRates] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Function to fetch rates from the API
   const fetchRates = async () => {
     setLoading(true);
     try {
-      const response = await getRates();
+      const response = await fetchDbRates();
       console.log("rates/: ", response);
-      setExchangeRates(response.data); // Assuming the response structure has "data"
+      setExchangeRates(response.data); // Set the rates data directly
     } catch (error) {
       console.error("Failed to fetch exchange rates:", error);
     } finally {
@@ -63,26 +69,24 @@ const ExchangeRates = () => {
             <TableHeader>
               <TableRow>
                 <TableHead>Currency Pair</TableHead>
-                {Object.keys(exchangeRates[currencyPairs[0]])
-                  .filter(vendor => vendor !== "undefined") // Exclude 'undefined' vendor
-                  .map(vendor => (
-                    <TableHead key={vendor}>{vendor}</TableHead>
-                  ))
-                }
+                {/* Render all vendors as table headers */}
+                {vendorsList.map(vendor => (
+                  <TableHead key={vendor}>{vendor}</TableHead>
+                ))}
               </TableRow>
             </TableHeader>
             <TableBody>
-              {currencyPairs.map(pair => (
-                <TableRow key={pair} className="cursor-pointer hover:bg-gray-100">
-                  <TableCell className="font-medium" onClick={() => handleRowClick(pair)}>{pair}</TableCell>
-                  {Object.entries(exchangeRates[pair])
-                    .filter(([vendor]) => vendor !== "undefined") // Exclude 'undefined' vendor
-                    .map(([vendor, rate], index) => (
-                      <TableCell key={index}>
+              {exchangeRates.map(({ pair }) => (
+                <TableRow key={pair} className="cursor-pointer hover:bg-gray-100" onClick={() => handleRowClick(pair)}>
+                  <TableCell className="font-medium" >{pair}</TableCell>
+                  {vendorsList.map(vendor => {
+                    const rate = exchangeRates.find(rate => rate.pair === pair)?.rates[vendor] || null; // Get the rate or set to null
+                    return (
+                      <TableCell key={vendor}>
                         {rate !== null ? rate : "N/A"}
                       </TableCell>
-                    ))
-                  }
+                    );
+                  })}
                 </TableRow>
               ))}
             </TableBody>
@@ -93,4 +97,4 @@ const ExchangeRates = () => {
   );
 };
 
-export default ExchangeRates;
+export default TapExchangeRates;
