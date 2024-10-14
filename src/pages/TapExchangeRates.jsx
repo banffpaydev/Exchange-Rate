@@ -7,12 +7,12 @@ import { fetchDbRates, getRates } from '@/utils/api';
 // Define the list of all vendors
 const vendorsList = [
   "Lemfi",
-  "Wise_Exchange",
-  "TransferGo_Exchange",
-  "twelveData_Exchange",
-  "alphaVantage_Exchange",
-  "xchangeRt_Exchange",
-  "undefined" // Include 'undefined' as a vendor
+  "Wise Exchange",
+  "TransferGo Exchange",
+  "twelveData Exchange",
+  "alphaVantage Exchange",
+  "xchangeRt Exchange",
+  "Xe Exchange" // Include 'undefined' as a vendor
 ];
 
 function convertCurrencyPair(currencyPair) {
@@ -65,32 +65,48 @@ const TapExchangeRates = () => {
         <p>Loading...</p>
       ) : (
         <div className="overflow-x-auto">
+
           <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Currency Pair</TableHead>
-                {/* Render all vendors as table headers */}
-                {vendorsList.map(vendor => (
-                  <TableHead key={vendor}>{vendor}</TableHead>
-                ))}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {exchangeRates.map(({ pair }) => (
-                <TableRow key={pair} className="cursor-pointer hover:bg-gray-100" onClick={() => handleRowClick(pair)}>
-                  <TableCell className="font-medium" >{pair}</TableCell>
-                  {vendorsList.map(vendor => {
-                    const rate = exchangeRates.find(rate => rate.pair === pair)?.rates[vendor] || null; // Get the rate or set to null
-                    return (
-                      <TableCell key={vendor}>
-                        {rate !== null ? rate : "N/A"}
-                      </TableCell>
-                    );
-                  })}
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+            {/* Iterate through the dates (keys) in the API response */}
+            {Object.keys(exchangeRates).map(date => (
+              <>
+                {/* Date Section Header */}
+                <thead>
+                  <tr>
+                    <th colSpan={vendorsList.length + 1} className="text-left text-xl font-bold py-2">
+                      Rates for {new Date(date).toLocaleDateString()}
+                    </th>
+                  </tr>
+                  <tr>
+                    <TableHead>Currency Pair</TableHead>
+                    {/* Render all vendors as table headers */}
+                    {vendorsList.map(vendor => (
+                      <TableHead key={vendor}>{vendor}</TableHead>
+                    ))}
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {/* Iterate over exchange rates for this date */}
+                  {exchangeRates[date].map(({ pair, rates }) => (
+                    <TableRow key={pair} className="cursor-pointer hover:bg-gray-100" onClick={() => handleRowClick(pair)} >
+                      <TableCell className="font-medium">{pair}</TableCell>
+                      {/* Render rates for each vendor */}
+                      {vendorsList.map(vendor => {
+                        const rate = rates[vendor] || null; // Get the rate or set to null if undefined
+                        return (
+                          <TableCell key={vendor}>
+                            {rate !== null ? rate : "N/A"}
+                          </TableCell>
+                        );
+                      })}
+                    </TableRow>
+                  ))}
+                </tbody>
+              </>
+            ))}
+          </Table>;
+
         </div>
       )}
     </div>

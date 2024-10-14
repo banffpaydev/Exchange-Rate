@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-// Base URL for your backend API  process.env.REACT_APP_API_BASE_URL || 
+// Base URL for your backend API  process.env.REACT_APP_API_BASE_URL ||  'https://xchangerate-banf.onrender.com' || ''http://localhost:5000'
 const BASE_URL = 'https://xchangerate-banf.onrender.com/api/rates'; // Make sure to set this in your .env file
 
 // Helper function to handle all POST requests
