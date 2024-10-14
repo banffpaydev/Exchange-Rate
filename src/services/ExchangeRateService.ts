@@ -288,19 +288,55 @@ export const getRatesFromDBPairs = async (pair: string) => {
 }
 
 
+// export const getRatesFromDB = async () => {
+//     try {
+//         const exchangeRate = await ExchangeRate.findAll({ raw: true });
+
+//         if (!exchangeRate) {
+//             throw new Error(`Exchange rates not found`);
+//         }
+
+//         return exchangeRate;
+//     } catch (error: any) {
+//         throw new Error(`Failed to fetch exchange rate: ${error.message}`);
+//     }
+// }
+
 export const getRatesFromDB = async () => {
     try {
-        const exchangeRate = await ExchangeRate.findAll({ raw: true });
+        // Fetch all exchange rates with raw data
+        const exchangeRates = await ExchangeRate.findAll({
+            raw: true,
+            attributes: ['id', 'pair', 'rates', 'createdAt', 'updatedAt'],
+            order: [['createdAt', 'ASC']] // Ensure the rates are ordered by creation date
+        });
 
-        if (!exchangeRate) {
+        if (!exchangeRates || exchangeRates.length === 0) {
             throw new Error(`Exchange rates not found`);
         }
 
-        return exchangeRate;
+        // Grouping the data by 'createdAt' date
+        const groupedByDate = exchangeRates.reduce((acc, rate) => {
+            // Get the date in 'YYYY-MM-DD' format (ignoring time)
+            const dateKey = new Date(rate.createdAt).toISOString().split('T')[0];
+
+            // If the date key doesn't exist in the accumulator, create an empty array for it
+            if (!acc[dateKey]) {
+                acc[dateKey] = [];
+            }
+
+            // Push the current rate into the corresponding date group
+            acc[dateKey].push(rate);
+
+            return acc;
+        }, {} as { [key: string]: any[] }); // Initial accumulator is an empty object
+
+        return groupedByDate;
     } catch (error: any) {
-        throw new Error(`Failed to fetch exchange rate: ${error.message}`);
+        throw new Error(`Failed to fetch exchange rates: ${error.message}`);
     }
-}
+};
+
 
 
 

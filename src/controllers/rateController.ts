@@ -70,21 +70,19 @@ class RateController {
         try {
             // Fetch all rates from the database
             const rates = await getRatesFromDB();
-
-            console.log(rates);
     
             // Parse rates field in each record from JSON string to object
-            const parsedRates = rates.map((rate: any) => {
-                return {
-                    ...rate,
-                    rates: parseCustomJSONString(rate.rates) // Convert rates to JSON object
-                };
-            });
+            // const parsedRates = rates.map((rate: any) => {
+            //     return {
+            //         ...rate,
+            //         rates: parseCustomJSONString(rate.rates) // Convert rates to JSON object
+            //     };
+            // });
     
             return res.status(200).json({
                 message: "Rate Fetched from Database",
                 success: true,
-                data: parsedRates
+                data: rates
             });
         } catch (error: any) {
             return res.status(500).json({
@@ -121,7 +119,7 @@ class RateController {
                     
                     // Parse the rates from the database (assuming vamp.rates is a JSON string)
                     // @ts-ignore
-                    vamp.rates = parseCustomJSONString(vamp.rates);
+                    // vamp.rates = parseCustomJSONString(vamp.rates);
     
                     return vamp;
                 })
