@@ -34,7 +34,7 @@ const sequelize = new Sequelize(
   process.env.DB_USER || 'backendapiMt1',
   process.env.DB_PASSWORD || 'm80meCoreMKsaGH90',
   {
-    host: process.env.DB_HOST || 'bpaybackend.chqkma826ygl.eu-west-2.rds.amazonaws.',//com
+    host: process.env.DB_HOST || 'bpaybackend.chqkma826ygl.eu-west-2.rds.amazonaws.com',
     dialect: 'postgres',
     port: Number(process.env.DB_PORT) || 5432,
     dialectOptions: {
