@@ -26,6 +26,7 @@ const afriXchangeRate = async (from: string, to: string) => {
     try {
         const response = await axios.get(`https://client.africhange.com/api/Rate?sendingCurrencyCode=${from}&receivingCurrencyCode=${to}`);
         const data = response.data.data;
+        console.log('afriXChange: ', data);
         return { name: 'Afri Exchange', rate: Number(data.exchangeRateToDisplay) };
     } catch (err: any) {
         // console.error('Error fetching Afri Exchange rate:', err);
@@ -33,11 +34,42 @@ const afriXchangeRate = async (from: string, to: string) => {
     }
 }
 
+const getRateByCurrency = (data: any, isoCode: string) => {
+    const upperCaseIsoCode = isoCode.toUpperCase();
+    
+    // Find the currency rate
+    const rate = data.rates[upperCaseIsoCode];
+  
+    // Return the rate if found, or a message if the currency is not available
+    return rate
+  };
+
+
+const xeRates = async (from: string, to: string) => {
+    try {
+        const response = await axios.get(`https://www.xe.com/api/protected/midmarket-converter/`, {
+            headers: {
+                'Authorization': 'Basic bG9kZXN0YXI6cHVnc25heA==',
+            }
+        });
+        const data = response.data;
+        const ratings = getRateByCurrency(data, to);
+        // console.log('xeRates: ', ratings);
+        return { name: 'Xe Exchange', rate: Number(ratings) };
+    } catch (err: any) {
+        // console.error('Error fetching Afri Exchange rate:', err);
+        return {msg: "error message", err}
+    }
+}
+
+
 // Under Review``
 const remitlyRate =  async (from: string, to: string) => {
     try {
         const response = await axios.get(`https://api.remitly.io/v3/calculator/estimate?conduit=USA%3AUSD-NGA%3ANGN&anchor=SEND&amount=&purpose=OTHER&customer_segment=UNRECOGNIZED&strict_promo=false`);
         const data = response.data.data;
+        
+        // console.log('rately: ', data);
         return { name: 'Afri Exchange', rate: Number(data.exchangeRateToDisplay) };
     } catch (err: any) {
         // console.error('Error fetching Afri Exchange rate:', err);
@@ -53,6 +85,7 @@ const cadrRemitRate =  async (from: string, to: string) => {
         const response = await axios.get(`https://corsproxy.io/?https%3A%2F%2Fapi.cadremit.com%2Fv1%2Fadmin%2Fsettings`);
         const data = response.data.data;
         const rates = data.rates;
+        console.log('cadrRemit: ', data);
 
         if (rates[from] && rates[from][to]) {
             const exchangeInfo = rates[from][to];
@@ -106,6 +139,7 @@ const transfergoRate =  async (from: string, to: string) => {
         return { name: 'TransferGo Exchange', rate: Number(data.rate) };
     } catch (err: any) {
         // console.error('Error fetching Afri Exchange rate:', err);
+        // return { name: 'TransferGo Exchange', rate: 'N/A' }
         return {msg: "error message", err}
     }
 }
@@ -117,6 +151,7 @@ const twelveDataRate =  async (from: string, to: string) => {
         return { name: 'twelveData Exchange', rate: Number(data.rate) };
     } catch (err: any) {
         // console.error('Error fetching twelveData Exchange rate:', err);
+        // return { name: 'twelveData Exchange', rate: 'N/A' }
         return {msg: "error message", err}
     }
 }
@@ -129,6 +164,7 @@ const alphaVantageRate =  async (from: string, to: string) => {
         return { name: 'alphaVantage Exchange', rate: Number(treansferty) };
     } catch (err: any) {
         // console.error('Error fetching alphaVantage Exchange rate:', err);
+        // return { name: 'alphaVantage Exchange', rate: 'N/A' }
         return {msg: "error message", err}
     }
 }
@@ -141,6 +177,7 @@ const xchangeRtRate =  async (from: string, to: string) => {
         return { name: 'xchangeRt Exchange', rate: Number(data.conversion_rate) };
     } catch (err: any) {
         // console.error('Error fetching xchangeRtRate Exchange rate:', err);
+        // return { name: 'xchangeRt Exchange', rate: 'N/A' }
         return {msg: "error message", err}
     }
 }
@@ -186,7 +223,7 @@ const fetchExchangeRate = async (pair: string) => {
 // Handle ALl fetch
 export const handleAllFetch = async () => {
     const pairs = ['USD/AOA', 'USD/GHS', 'USD/CAD', 'USD/NGN', 'USD/SLL', 'USD/XOF', 'USD/GBP', 'USD/EUR', 'USD/CNY'];
-    const apis = [lemfiRate, afriXchangeRate, wiseRate, transfergoRate, twelveDataRate, alphaVantageRate, xchangeRtRate];
+    const apis = [lemfiRate, afriXchangeRate, wiseRate, transfergoRate, twelveDataRate, alphaVantageRate, xchangeRtRate, xeRates];
     
     const results: Record<string, Record<string, number | null>> = {};
 

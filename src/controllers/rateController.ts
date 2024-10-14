@@ -70,6 +70,8 @@ class RateController {
         try {
             // Fetch all rates from the database
             const rates = await getRatesFromDB();
+
+            console.log(rates);
     
             // Parse rates field in each record from JSON string to object
             const parsedRates = rates.map((rate: any) => {
