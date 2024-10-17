@@ -38,7 +38,7 @@ const CurrencyPairAnalysis = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.get(`http://localhost:5000/api/rates/dbrates/pairs?pair=${pair}`);
+      const response = await axios.get(`https://xchangerate-banf.onrender.com/api/rates/dbrates/pairs?pair=${pair}`);
       const data = response.data.data[0];
 
       const historicalRates = data.map(entry => ({
