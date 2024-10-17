@@ -1,5 +1,5 @@
 const postMessage = (message) => {
-  window.top.postMessage(message, "https://gptengineer.app");
+  // window.top.postMessage(message, "https://gptengineer.app");
   window.top.postMessage(message, "http://localhost:3000");
 };
 

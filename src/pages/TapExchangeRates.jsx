@@ -12,6 +12,7 @@ const vendorsList = [
   "twelveData Exchange",
   "alphaVantage Exchange",
   "xchangeRt Exchange",
+  "Exchange-Rate Org Exchange",
   "Xe Exchange" // Include 'undefined' as a vendor
 ];
 
@@ -43,6 +44,15 @@ const TapExchangeRates = () => {
   useEffect(() => {
     fetchRates();
   }, []);
+
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      // Redirect to login if no token is found
+      navigate('/login');
+    }
+  }, [navigate]);
 
   const handleRowClick = (pair) => {
     navigate(`/currency-pair/${convertCurrencyPair(pair)}`);

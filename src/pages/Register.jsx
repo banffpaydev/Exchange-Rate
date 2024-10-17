@@ -1,20 +1,53 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import axios from 'axios';
 
 const Register = () => {
   const form = useForm();
+  const [loading, setLoading] = useState(false);
+  const [notification, setNotification] = useState(null); // To store success or error message
 
-  const onSubmit = (data) => {
-    console.log(data);
-    // Here you would typically send the data to your backend
+  // Function to handle the form submission
+  const onSubmit = async (data) => {
+    setLoading(true); // Show loading state
+    setNotification(null); // Clear previous notifications
+
+    try {
+      // Send registration data to the backend
+      const response = await axios.post('http://localhost:5000/api/users/register', {
+        email: data.email,
+        username: data.username,
+        password: data.password,
+      });
+
+      // If registration is successful
+      setNotification({ type: 'success', message: 'Registration successful!' });
+    } catch (error) {
+      // Handle registration error
+      setNotification({ type: 'error', message: error.response?.data?.message || 'Registration failed!' });
+    } finally {
+      setLoading(false); // Hide loading state
+    }
   };
 
   return (
     <div className="container mx-auto max-w-sm py-10">
       <h1 className="text-2xl font-bold mb-5">Register</h1>
+
+      {/* Show notifications for success or error */}
+      {notification && (
+        <div
+          className={`p-4 mb-4 text-sm rounded ${
+            notification.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+          }`}
+        >
+          {notification.message}
+        </div>
+      )}
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
@@ -56,7 +89,9 @@ const Register = () => {
               </FormItem>
             )}
           />
-          <Button type="submit" className="w-full">Register</Button>
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? 'Registering...' : 'Register'}
+          </Button>
         </form>
       </Form>
     </div>

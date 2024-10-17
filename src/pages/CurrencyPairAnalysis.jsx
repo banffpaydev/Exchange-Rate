@@ -4,15 +4,21 @@ import axios from 'axios';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import RateModal from '@/lib/Modal';
 
 const CurrencyPairAnalysis = () => {
-  const { pairs } = useParams(); // Extract pair from URL params
+  const { pairs } = useParams();
   const navigate = useNavigate();
   const [historyData, setHistoryData] = useState([]);
   const [currentRate, setCurrentRate] = useState(null);
   const [prediction, setPrediction] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [highestRates, setHighestRates] = useState([]);
+  const [lowestRates, setLowestRates] = useState([]);
+  const [highestRateVendors, setHighestRateVendors] = useState([]);
+  const [lowestRateVendors, setLowestRateVendors] = useState([]);
+  const [modalOpen, setModalOpen] = useState(false);
 
   const pair = splitCurrencyPair(pairs);
 
@@ -21,32 +27,50 @@ const CurrencyPairAnalysis = () => {
     return `${baseCurrency}/${quoteCurrency}`;
   }
 
-  // Function to fetch data from the API
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/login');
+    }
+  }, [navigate]);
+
   const fetchRates = async () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.get(`https://xchangerate-banf.onrender.com/api/rates/dbrates/pairs?pair=${pair}`);
+      const response = await axios.get(`http://localhost:5000/api/rates/dbrates/pairs?pair=${pair}`);
       const data = response.data.data[0];
-      const rates = data.rates;
 
-      // Prepare the historical data (using 'createdAt' as date)
-      const historicalRates = Object.entries(rates)
-        .filter(([vendor, rate]) => vendor !== "undefined" && rate !== null)
-        .map(([vendor, rate], index) => ({
-          date: `2024-10-${index + 1}` , // Mocking date for simplicity, assuming index for day
-          rate: parseFloat(rate).toFixed(4)
-        }));
+      const historicalRates = data.map(entry => ({
+        id: entry.id,
+        date: new Date(entry.createdAt).toLocaleDateString(),
+        rate: parseFloat(entry.rates['Wise Exchange']).toFixed(2),
+        vendors: Object.keys(entry.rates)
+          .filter(vendor => vendor !== 'undefined' && entry.rates[vendor] !== null)
+          .map(vendor => ({
+            name: vendor,
+            rate: parseFloat(entry.rates[vendor]).toFixed(2)
+          }))
+      }));
 
       setHistoryData(historicalRates);
-
-      // Set the current rate as the latest in the historical data
       const latestRate = historicalRates[historicalRates.length - 1].rate;
       setCurrentRate(latestRate);
 
-      // Simple prediction logic (random fluctuation for demonstration purposes)
-      const predictedRate = (parseFloat(latestRate) * (1 + (Math.random() - 0.5) * 0.1)).toFixed(4);
+      const predictedRate = (parseFloat(latestRate) * (1 + (Math.random() - 0.5) * 0.1)).toFixed(2);
       setPrediction(predictedRate);
+
+      const allRates = historicalRates.flatMap(entry => entry.vendors.map(vendor => parseFloat(vendor.rate)));
+      const highestRates = allRates.sort((a, b) => b - a).slice(0, 3);
+      const lowestRates = allRates.sort((a, b) => a - b).slice(0, 3);
+
+      const highestRateVendors = historicalRates.flatMap(entry => entry.vendors.filter(vendor => highestRates.includes(parseFloat(vendor.rate))));
+      const lowestRateVendors = historicalRates.flatMap(entry => entry.vendors.filter(vendor => lowestRates.includes(parseFloat(vendor.rate))));
+
+      setHighestRates(highestRates);
+      setLowestRates(lowestRates);
+      setHighestRateVendors(highestRateVendors);
+      setLowestRateVendors(lowestRateVendors);
     } catch (err) {
       setError("Failed to fetch rates.");
       console.error(err);
@@ -100,29 +124,25 @@ const CurrencyPairAnalysis = () => {
             <LineChart data={historyData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="date" />
-              <YAxis />
-              <Tooltip />
+              <YAxis domain={['dataMin - 0.05', 'dataMax + 0.05']} tickFormatter={(value) => value.toFixed(2)} />
+              <Tooltip formatter={(value) => value.toFixed(2)} />
               <Legend />
-              <Line type="monotone" dataKey="rate" stroke="#8884d8" />
+              <Line type="monotone" dataKey="rate" stroke="#8884d8" activeDot={{ r: 8 }} />
             </LineChart>
           </ResponsiveContainer>
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Additional Information</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ul className="list-disc pl-5">
-            <li>Currency Pair: {pair}</li>
-            <li>Volatility: {(Math.random() * 5).toFixed(2)}%</li>
-            <li>24h Change: {((Math.random() - 0.5) * 2).toFixed(2)}%</li>
-            <li>7d Change: {((Math.random() - 0.5) * 5).toFixed(2)}%</li>
-            <li>30d Change: {((Math.random() - 0.5) * 10).toFixed(2)}%</li>
-          </ul>
-        </CardContent>
-      </Card>
+      <Button onClick={() => setModalOpen(true)} className="mb-5">View Rate Analysis</Button>
+
+      <RateModal
+        isOpen={modalOpen}
+        toggle={() => setModalOpen(false)}
+        highestRates={highestRates}
+        lowestRates={lowestRates}
+        highestRateVendors={highestRateVendors}
+        lowestRateVendors={lowestRateVendors}
+      />
     </div>
   );
 };
