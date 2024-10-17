@@ -1,7 +1,6 @@
 import axios from "axios";
 import dotenv from 'dotenv';
 import ExchangeRate from "../models/ExchangeRate";
-import { getRepository } from "typeorm";
 
 dotenv.config();
 
@@ -24,6 +23,7 @@ const lemfiRate = async (from: string, to: string) => {
 
 const afriXchangeRate = async (from: string, to: string) => {
     try {
+        // https://client.africhange.com/api/Rate?sendingCurrencyCode=NGN&receivingCurrencyCode=GBP
         const response = await axios.get(`https://client.africhange.com/api/Rate?sendingCurrencyCode=${from}&receivingCurrencyCode=${to}`);
         const data = response.data.data;
         console.log('afriXChange: ', data);
@@ -182,6 +182,21 @@ const xchangeRtRate =  async (from: string, to: string) => {
     }
 }
 
+
+const xchangeRtOrgRate =  async (from: string, to: string) => {
+    try {
+        const response = await axios.get(`https://www.exchange-rates.org/api/v2/rates/lookup?isoTo=${to}&isoFrom=${from}&amount=1&pageCode=Home`);
+        const data = response.data;
+        return { name: 'Exchange-Rate Org Exchange', rate: Number(data.Rate) };
+    } catch (err: any) {
+        // console.error('Error fetching xchangeRtRate Exchange rate:', err);
+        // return { name: 'xchangeRt Exchange', rate: 'N/A' }
+        return {msg: "error message", err}
+    }
+}
+
+// https://www.exchange-rates.org/api/v2/rates/lookup?isoTo=NGN&isoFrom=USD&amount=1&pageCode=Home
+
 // Saving Data to Database
 
 // const saveExchangeRates = async (data: any) => {
@@ -221,40 +236,75 @@ const fetchExchangeRate = async (pair: string) => {
 
 
 // Handle ALl fetch
+// export const handleAllFetch = async () => {
+//     const pairs = ['USD/AOA', 'USD/GHS', 'USD/CAD', 'USD/NGN', 'USD/SLL', 'USD/XOF', 'USD/GBP', 'USD/EUR', 'USD/CNY'];
+//     const apis = [lemfiRate, afriXchangeRate, wiseRate, transfergoRate, twelveDataRate, alphaVantageRate, xchangeRtRate, xeRates, xchangeRtOrgRate];
+    
+//     const results: Record<string, Record<string, number | null>> = {};
+
+//     // Iterate over each currency pair
+//     for (const pair of pairs) {
+//         const [from, to] = pair.split('/');
+        
+//         results[pair] = {};
+
+//         // Iterate over each API and fetch rates
+//         for (const api of apis) {
+//             try {
+//                 const rateData = await api(from, to);
+
+//                 // Ensure rate is present, otherwise return null
+//                 if (rateData && rateData.rate !== undefined) {
+//                     results[pair][rateData.name] = rateData.rate;
+
+//                 } else {
+//                     // @ts-ignore
+//                     results[pair][rateData.name] = null; // Return null for missing rate
+//                 }
+
+//             } catch (err: any) {
+//                 // // console.error(`Error fetching rate for ${pair} from ${api.name}:`, err);
+//                 results[pair][api.name] = null; // Return null if API fails
+//             }
+//         }
+//         // await saveExchangeRate(pair, results[pair]);
+//     }
+//     // await saveExchangeRate(results);
+//     await saveDatatoDb(results);
+//     return results;
+// };
+
+
 export const handleAllFetch = async () => {
-    const pairs = ['USD/AOA', 'USD/GHS', 'USD/CAD', 'USD/NGN', 'USD/SLL', 'USD/XOF', 'USD/GBP', 'USD/EUR', 'USD/CNY'];
-    const apis = [lemfiRate, afriXchangeRate, wiseRate, transfergoRate, twelveDataRate, alphaVantageRate, xchangeRtRate, xeRates];
+    const pairs = [
+        'USD/NGN', 'EUR/NGN', 'GBP/NGN', 'CAD/NGN', 'CNY/NGN',
+        'USD/LRD', 'EUR/LRD', 'GBP/LRD', 'CAD/LRD', 'CNY/LRD'
+    ];
+    const apis = [lemfiRate, afriXchangeRate, wiseRate, transfergoRate, twelveDataRate, alphaVantageRate, xchangeRtRate, xeRates, xchangeRtOrgRate];
     
     const results: Record<string, Record<string, number | null>> = {};
 
-    // Iterate over each currency pair
     for (const pair of pairs) {
         const [from, to] = pair.split('/');
-        
         results[pair] = {};
 
-        // Iterate over each API and fetch rates
         for (const api of apis) {
             try {
                 const rateData = await api(from, to);
 
-                // Ensure rate is present, otherwise return null
                 if (rateData && rateData.rate !== undefined) {
                     results[pair][rateData.name] = rateData.rate;
-
                 } else {
                     // @ts-ignore
-                    results[pair][rateData.name] = null; // Return null for missing rate
+                    results[pair][rateData.name] = null;
                 }
-
             } catch (err: any) {
-                // // console.error(`Error fetching rate for ${pair} from ${api.name}:`, err);
-                results[pair][api.name] = null; // Return null if API fails
+                results[pair][api.name] = null;
             }
         }
-        // await saveExchangeRate(pair, results[pair]);
+        await saveExchangeRate(pair, results[pair]);
     }
-    // await saveExchangeRate(results);
+
     await saveDatatoDb(results);
     return results;
 };
@@ -275,7 +325,7 @@ export const saveDatatoDb = async (data: any) => {
 
 export const getRatesFromDBPairs = async (pair: string) => {
     try {
-        const exchangeRate = await ExchangeRate.findOne({ where: { pair } });
+        const exchangeRate = await ExchangeRate.findAll({ where: { pair } });
 
         if (!exchangeRate) {
             throw new Error(`Exchange rate for pair ${pair} not found`);
