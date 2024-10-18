@@ -125,7 +125,8 @@ const CurrencyPairAnalysis = () => {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="date" />
               <YAxis domain={['dataMin - 0.05', 'dataMax + 0.05']} tickFormatter={(value) => value.toFixed(2)} />
-              <Tooltip formatter={(value) => value.toFixed(2)} />
+              {/* formatter={(value) => value.toFixed(2)}  */}
+              <Tooltip/>
               <Legend />
               <Line type="monotone" dataKey="rate" stroke="#8884d8" activeDot={{ r: 8 }} />
             </LineChart>
