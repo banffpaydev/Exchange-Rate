@@ -1,38 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { fetchDbRates, getRates } from '@/utils/api';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DatePicker } from "@/components/ui/date-picker";
+import { Button } from "@/components/ui/button";
+import { CSVLink } from "react-csv";
+import { fetchDbRates } from '@/utils/api';
 
-// Define the list of all vendors
-const vendorsList = [
-  "Lemfi",
-  "Wise Exchange",
-  "TransferGo Exchange",
-  "twelveData Exchange",
-  "alphaVantage Exchange",
-  "xchangeRt Exchange",
-  "Exchange-Rate Org Exchange",
-  "Xe Exchange" // Include 'undefined' as a vendor
+const currencyPairs = [
+  'USD/NGN', 'EUR/NGN', 'GBP/NGN', 'CAD/NGN', 'CNY/NGN',
+  'USD/LRD', 'EUR/LRD', 'GBP/LRD', 'CAD/LRD', 'CNY/LRD'
 ];
 
 function convertCurrencyPair(currencyPair) {
-    const [baseCurrency, quoteCurrency] = currencyPair.split("/");
-    return `${baseCurrency}-${quoteCurrency}`;
-  }
+  const [baseCurrency, quoteCurrency] = currencyPair.split("/");
+  return `${baseCurrency}-${quoteCurrency}`;
+}
 
 const TapExchangeRates = () => {
   const navigate = useNavigate();
-  const [exchangeRates, setExchangeRates] = useState([]);
+  const [exchangeRates, setExchangeRates] = useState({});
   const [loading, setLoading] = useState(true);
+  const [selectedPair, setSelectedPair] = useState(currencyPairs[0]);
+  const [startDate, setStartDate] = useState(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000));
+  const [endDate, setEndDate] = useState(new Date());
+  const [vendors, setVendors] = useState([]);
 
-  // Function to fetch rates from the API
   const fetchRates = async () => {
     setLoading(true);
     try {
       const response = await fetchDbRates();
-      console.log("rates/: ", response);
-      setExchangeRates(response.data); // Set the rates data directly
+      const data = response.data;
+      setExchangeRates(data);
+      setVendors(Object.keys(data[Object.keys(data)[0]][0].rates).filter(v => v !== 'undefined'));
     } catch (error) {
       console.error("Failed to fetch exchange rates:", error);
     } finally {
@@ -40,16 +40,13 @@ const TapExchangeRates = () => {
     }
   };
 
-  // Fetch rates on component mount
   useEffect(() => {
     fetchRates();
-  }, []);
-
+  }, [selectedPair, startDate, endDate]);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
-      // Redirect to login if no token is found
       navigate('/login');
     }
   }, [navigate]);
@@ -58,65 +55,79 @@ const TapExchangeRates = () => {
     navigate(`/currency-pair/${convertCurrencyPair(pair)}`);
   };
 
+  const getCSVData = () => {
+    if (!exchangeRates || !exchangeRates[selectedPair]) return [];
+    return exchangeRates[selectedPair].map(entry => ({
+      date: new Date(entry.createdAt).toLocaleDateString(),
+      ...entry.rates
+    }));
+  };
+
   return (
     <div className="container mx-auto py-10">
-      <h1 className="text-2xl font-bold mb-5">Exchange Rates</h1>
+      <h1 className="text-2xl font-bold mb-5">Historical Exchange Rates</h1>
       
-      {/* Refresh Button */}
-      <button 
-        className="mb-5 px-4 py-2 bg-blue-500 text-white rounded" 
-        onClick={fetchRates}
-      >
-        Refresh
-      </button>
+      <div className="flex space-x-4 mb-5">
+        <Select onValueChange={setSelectedPair} value={selectedPair}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Select currency pair" />
+          </SelectTrigger>
+          <SelectContent>
+            {currencyPairs.map((pair) => (
+              <SelectItem key={pair} value={pair}>{pair}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <DatePicker
+          date={startDate}
+          onDateChange={setStartDate}
+          className="w-[180px]"
+        />
+        <DatePicker
+          date={endDate}
+          onDateChange={setEndDate}
+          className="w-[180px]"
+        />
+        <Button onClick={fetchRates}>Refresh</Button>
+        <CSVLink
+          data={getCSVData()}
+          filename={`historical_rates_${selectedPair}_${startDate.toISOString().split('T')[0]}_${endDate.toISOString().split('T')[0]}.csv`}
+          className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors"
+        >
+          Download CSV
+        </CSVLink>
+      </div>
 
-      {/* Show loading text */}
       {loading ? (
         <p>Loading...</p>
       ) : (
         <div className="overflow-x-auto">
-
           <Table>
-            {/* Iterate through the dates (keys) in the API response */}
-            {Object.keys(exchangeRates).map(date => (
-              <>
-                {/* Date Section Header */}
-                <thead>
-                  <tr>
-                    <th colSpan={vendorsList.length + 1} className="text-left text-xl font-bold py-2">
-                      Rates for {new Date(date).toLocaleDateString()}
-                    </th>
-                  </tr>
-                  <tr>
-                    <TableHead>Currency Pair</TableHead>
-                    {/* Render all vendors as table headers */}
-                    {vendorsList.map(vendor => (
-                      <TableHead key={vendor}>{vendor}</TableHead>
-                    ))}
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {/* Iterate over exchange rates for this date */}
-                  {exchangeRates[date].map(({ pair, rates }) => (
-                    <TableRow key={pair} className="cursor-pointer hover:bg-gray-100" onClick={() => handleRowClick(pair)} >
-                      <TableCell className="font-medium">{pair}</TableCell>
-                      {/* Render rates for each vendor */}
-                      {vendorsList.map(vendor => {
-                        const rate = rates[vendor] || null; // Get the rate or set to null if undefined
-                        return (
-                          <TableCell key={vendor}>
-                            {rate !== null ? rate : "N/A"}
-                          </TableCell>
-                        );
-                      })}
-                    </TableRow>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Date</TableHead>
+                {vendors.map(vendor => (
+                  <TableHead key={vendor}>{vendor}</TableHead>
+                ))}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {exchangeRates[selectedPair] && exchangeRates[selectedPair].map((entry, index) => (
+                <TableRow key={index} className="cursor-pointer hover:bg-gray-100">
+                  <TableCell className="font-medium">{new Date(entry.createdAt).toLocaleDateString()}</TableCell>
+                  {vendors.map((vendor, index) => (
+                    <TableCell key={index}>
+                      {
+                        entry.rates[vendor] !== undefined && entry.rates[vendor] !== null 
+                          ? parseFloat(entry.rates[vendor]).toFixed(2)
+                          : "N/A"
+                      }
+                    </TableCell>
                   ))}
-                </tbody>
-              </>
-            ))}
-          </Table>;
-
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
       )}
     </div>
