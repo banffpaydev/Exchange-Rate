@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import axios from 'axios';
+import { basisUrl } from '@/utils/api';
 
 const Login = () => {
   const form = useForm();
@@ -19,7 +20,7 @@ const Login = () => {
 
     try {
       // Send login data to the backend
-      const response = await axios.post('https://xchangerate-banf.onrender.com/api/users/login', {
+      const response = await axios.post(`${basisUrl}/api/users/login`, {
         email: data.email,
         password: data.password,
       });

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import axios from 'axios';
+import { basisUrl } from '@/utils/api';
 
 const Register = () => {
   const form = useForm();
@@ -17,7 +18,7 @@ const Register = () => {
 
     try {
       // Send registration data to the backend
-      const response = await axios.post('https://xchangerate-banf.onrender.com/api/users/register', {
+      const response = await axios.post(`${basisUrl}/api/users/register`, {
         email: data.email,
         username: data.username,
         password: data.password,
