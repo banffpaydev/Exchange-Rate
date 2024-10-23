@@ -17,7 +17,7 @@ const Register = () => {
 
     try {
       // Send registration data to the backend
-      const response = await axios.post('http://localhost:5000/api/users/register', {
+      const response = await axios.post('https://xchangerate-banf.onrender.com/api/users/register', {
         email: data.email,
         username: data.username,
         password: data.password,
