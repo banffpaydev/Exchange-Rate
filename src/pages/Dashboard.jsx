@@ -11,7 +11,6 @@ const currencyPairs = [
   'USD/LRD', 'EUR/LRD', 'GBP/LRD', 'CAD/LRD', 'CNY/LRD'
 ];
 
-// Generate random colors for each currency pair
 const colors = {
   'USD/NGN': '#8884d8',
   'EUR/NGN': '#82ca9d',
@@ -39,7 +38,6 @@ const Dashboard = () => {
       const response = await getRates();
       setRates(response.data);
       
-      // Add new data point to historical data
       const newDataPoint = {
         timestamp: new Date().toLocaleTimeString(),
         ...Object.keys(response.data).reduce((acc, pair) => ({
@@ -50,9 +48,10 @@ const Dashboard = () => {
 
       setHistoricalData(prevData => {
         const newData = [...prevData, newDataPoint];
-        // Keep only last 50 data points to prevent excessive memory usage
-        return newData.slice(-50);
+        // Keep only last 20 data points
+        return newData.slice(-20);
       });
+      setLoading(false);
     } catch (error) {
       toast.error("Failed to fetch rates");
       console.error("Failed to fetch rates:", error);
@@ -121,7 +120,7 @@ const Dashboard = () => {
                 />
                 <YAxis label={{ value: 'Exchange Rate', angle: -90, position: 'insideLeft' }} />
                 <Tooltip />
-                <Legend />
+                <Legend onClick={(e) => togglePair(e.dataKey)} />
                 {currencyPairs.map((pair) => (
                   selectedPairs[pair] && (
                     <Line
