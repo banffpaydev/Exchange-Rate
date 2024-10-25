@@ -1,46 +1,45 @@
-import { HomeIcon, ArrowLeftRightIcon, UserIcon } from "lucide-react";
-import Index from "./pages/Index.jsx";
-import ExchangeRates from "./pages/ExchangeRates.jsx";
-import TapExchangeRates from "./pages/TapExchangeRates.jsx";
-import Login from "./pages/Login.jsx";
-import Register from "./pages/Register.jsx";
-import CurrencyPairAnalysis from "./pages/CurrencyPairAnalysis.jsx";
+import { lazy } from "react";
+
+const Index = lazy(() => import("./pages/Index"));
+const Login = lazy(() => import("./pages/Login"));
+const Register = lazy(() => import("./pages/Register"));
+const ExchangeRates = lazy(() => import("./pages/ExchangeRates"));
+const TapExchangeRates = lazy(() => import("./pages/TapExchangeRates"));
+const CurrencyPairAnalysis = lazy(() => import("./pages/CurrencyPairAnalysis"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
 
 export const navItems = [
   {
-    title: "Home",
+    title: "Dashboard",
     to: "/",
-    icon: <HomeIcon className="h-4 w-4" />,
-    page: <Index />,
+    page: <Dashboard />
   },
   {
     title: "Exchange Rates",
     to: "/exchange-rates",
-    icon: <ArrowLeftRightIcon className="h-4 w-4" />,
-    page: <ExchangeRates />,
+    page: <ExchangeRates />
+  },
+  {
+    title: "Historical Rates",
+    to: "/historical-rates",
+    page: <TapExchangeRates />
   },
   {
     title: "Login",
     to: "/login",
-    icon: <UserIcon className="h-4 w-4" />,
-    page: <Login />,
+    page: <Login />
   },
   {
     title: "Register",
     to: "/register",
-    icon: <UserIcon className="h-4 w-4" />,
-    page: <Register />,
-  },
+    page: <Register />
+  }
+];
+
+// Add a route that won't show in navigation
+export const hiddenRoutes = [
   {
-    title: "Currency Pair Analysis",
     to: "/currency-pair/:pairs",
-    icon: <ArrowLeftRightIcon className="h-4 w-4" />,
-    page: <CurrencyPairAnalysis />,
-  }, 
-  {
-    title: "History Rates",
-    to: "/prev-exchange-rates",
-    icon: <ArrowLeftRightIcon className="h-4 w-4" />,
-    page: <TapExchangeRates />,
-  },
+    page: <CurrencyPairAnalysis />
+  }
 ];
