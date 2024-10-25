@@ -7,12 +7,18 @@ const ExchangeRates = lazy(() => import("./pages/ExchangeRates"));
 const TapExchangeRates = lazy(() => import("./pages/TapExchangeRates"));
 const CurrencyPairAnalysis = lazy(() => import("./pages/CurrencyPairAnalysis"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
+const HeatmapDashboard = lazy(() => import("./pages/HeatmapDashboard"));
 
 export const navItems = [
   {
     title: "Dashboard",
     to: "/",
     page: <Dashboard />
+  },
+  {
+    title: "Heatmap",
+    to: "/heatmap",
+    page: <HeatmapDashboard />
   },
   {
     title: "Exchange Rates",
