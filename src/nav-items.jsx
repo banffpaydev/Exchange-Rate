@@ -8,6 +8,7 @@ const TapExchangeRates = lazy(() => import("./pages/TapExchangeRates"));
 const CurrencyPairAnalysis = lazy(() => import("./pages/CurrencyPairAnalysis"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const HeatmapDashboard = lazy(() => import("./pages/HeatmapDashboard"));
+const AdminRates = lazy(() => import("./pages/AdminRates"));
 
 export const navItems = [
   {
@@ -29,6 +30,11 @@ export const navItems = [
     title: "Historical Rates",
     to: "/historical-rates",
     page: <TapExchangeRates />
+  },
+  {
+    title: "Admin",
+    to: "/admin/rates",
+    page: <AdminRates />
   },
   {
     title: "Login",
