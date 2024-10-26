@@ -31,6 +31,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [rates, setRates] = useState({});
   const [historicalData, setHistoricalData] = useState([]);
+  const [sparklineData, setSparklineData] = useState({});
   const [loading, setLoading] = useState(true);
   const [selectedTimeframe, setSelectedTimeframe] = useState('1D');
   const [selectedPairs, setSelectedPairs] = useState(
@@ -55,6 +56,20 @@ const Dashboard = () => {
         const newData = [...prevData, newDataPoint];
         return newData.slice(-20);
       });
+
+      // Update sparkline data for each pair
+      setSparklineData(prevData => {
+        const newSparklineData = { ...prevData };
+        Object.keys(response.data).forEach(pair => {
+          const rate = response.data[pair]?.['Wise Exchange'] || 0;
+          newSparklineData[pair] = [
+            ...(prevData[pair] || []),
+            { value: rate, timestamp: new Date().toLocaleTimeString() }
+          ].slice(-10);
+        });
+        return newSparklineData;
+      });
+
       setLoading(false);
     } catch (error) {
       toast.error("Failed to fetch rates");
@@ -89,9 +104,17 @@ const Dashboard = () => {
     setCurrentPairIndex(prev => (prev < currencyPairs.length - 1 ? prev + 1 : 0));
   };
 
-  const currentPair = currencyPairs[currentPairIndex];
-  const currentRate = rates[currentPair]?.['Wise Exchange'];
-  const percentageChange = ((currentRate - (historicalData[0]?.[currentPair] || currentRate)) / currentRate * 100).toFixed(2);
+  const getPercentageChange = (pair) => {
+    const pairData = sparklineData[pair] || [];
+    if (pairData.length < 2) return 0;
+    const lastRate = pairData[pairData.length - 1].value;
+    const previousRate = pairData[pairData.length - 2].value;
+    return ((lastRate - previousRate) / previousRate * 100).toFixed(2);
+  };
+
+  const isPositiveChange = (pair) => {
+    return parseFloat(getPercentageChange(pair)) >= 0;
+  };
 
   if (loading) {
     return <div className="container mx-auto py-10">Loading...</div>;
@@ -118,13 +141,28 @@ const Dashboard = () => {
                   className={`p-4 min-w-[200px] cursor-pointer ${index === currentPairIndex ? 'bg-blue-50' : ''}`}
                   onClick={() => setCurrentPairIndex(index)}
                 >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="font-semibold">{pair}</div>
-                      <div className="text-2xl">{rates[pair]?.['Wise Exchange']?.toFixed(4) || 'N/A'}</div>
+                  <div className="flex flex-col">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="font-semibold">{pair}</div>
+                        <div className="text-2xl">{rates[pair]?.['Wise Exchange']?.toFixed(4) || 'N/A'}</div>
+                      </div>
+                      <div className={`text-sm ${isPositiveChange(pair) ? 'text-green-500' : 'text-red-500'}`}>
+                        {getPercentageChange(pair)}%
+                      </div>
                     </div>
-                    <div className={`text-sm ${percentageChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                      {percentageChange}%
+                    <div className="h-[40px] mt-2">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={sparklineData[pair] || []}>
+                          <Line
+                            type="monotone"
+                            dataKey="value"
+                            stroke={isPositiveChange(pair) ? '#22c55e' : '#ef4444'}
+                            dot={false}
+                            strokeWidth={1}
+                          />
+                        </LineChart>
+                      </ResponsiveContainer>
                     </div>
                   </div>
                 </Card>
