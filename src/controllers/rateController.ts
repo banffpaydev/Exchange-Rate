@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
-import { getRatesFromDB, getRatesFromDBPairs, handleAllFetch, saveDatatoDb } from '../services/ExchangeRateService';
+import { getAnalyzedRates, getRatesFromDB, getRatesFromDBPairs, handleAllFetch, saveDatatoDb } from '../services/ExchangeRateService';
+import { createCurrencyPair } from "../services/currencyPairService";
 
 
 function removeFirstAndLastChar(str: string) {
@@ -138,6 +139,27 @@ class RateController {
             });
         }
     }
+    
+    static async getRatesAnalysis(req: Request, res: Response) {
+        const { currency, startDate, endDate, save } = req.query;
+    
+        if (!currency || !startDate || !endDate) {
+            return res.status(400).json({ message: 'Please provide currency, startDate, and endDate' });
+        }
+    
+        try {
+            const analysis = await getAnalyzedRates(currency as string, startDate as string, endDate as string);
+            if (save === 'yes') {
+                await createCurrencyPair({
+                    currencyPair: currency,
+                    exchangeRate: analysis.Avgrate,
+                })
+            }
+            res.status(200).json(analysis);
+        } catch (error) {
+            res.status(500).json({ message: 'Error fetching exchange rates', error });
+        }
+    };
     
 
 }

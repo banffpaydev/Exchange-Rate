@@ -1,6 +1,7 @@
 import axios from "axios";
 import dotenv from 'dotenv';
 import ExchangeRate from "../models/ExchangeRate";
+import { Op } from "sequelize";
 
 dotenv.config();
 
@@ -385,6 +386,66 @@ export const getRatesFromDB = async () => {
     } catch (error: any) {
         throw new Error(`Failed to fetch exchange rates: ${error.message}`);
     }
+};
+
+
+export const getAnalyzedRates = async (currency: string, startDate: string, endDate: string) => {
+    // Query for matching currency pairs within the given date range
+    const rates = await ExchangeRate.findAll({
+        where: {
+            pair: { [Op.like]: `%${currency}%` },
+            createdAt: {
+                [Op.between]: [new Date(startDate), new Date(endDate)]
+            }
+        },
+        order: [['createdAt', 'ASC']]  // Sort by date ascending
+    });
+
+
+    // Extract rates from results
+    // const rateValues = rates.map((rate: any) => rate.rates[currency] || 0);
+
+    const rateValues = rates.map((rate: any) => rate.rates);
+
+
+    const exchangeRates: number[] = rateValues.flatMap(entry =>
+        Object.values(entry).filter((rate): rate is number => rate !== null && rate !== 0)
+    );
+
+    const calculateAverage = (rates: number[]): number =>
+        rates.reduce((sum, rate) => sum + rate, 0) / rates.length;
+
+    const sortedRates = [...exchangeRates].sort((a, b) => a - b);
+
+    // Get the lowest five rates
+    const lowestFiveRates = sortedRates.slice(0, 5);
+
+    // Get the highest five rates
+    const highestFiveRates = sortedRates.slice(-5).reverse();
+
+    // console.log("Lowest five rates:", lowestFiveRates);
+    // console.log("Highest five rates:", highestFiveRates);
+
+    // // Sort rates from lowest to highest
+    // rateValues.sort((a: number, b: number) => a - b);
+
+    // // Get top 5 highest rates
+    // const top5Rates = rateValues.slice(-5);
+    // const top5Avg = top5Rates.reduce((acc, rate) => acc + rate, 0) / top5Rates.length;
+
+    // // Get bottom 5 lowest rates
+    // const bottom5Rates = rateValues.slice(0, 5);
+    // const bottom5Avg = bottom5Rates.reduce((acc, rate) => acc + rate, 0) / bottom5Rates.length;
+
+
+
+    return {
+        lows: lowestFiveRates,
+        highs: highestFiveRates,
+        lowAvg: calculateAverage(lowestFiveRates),
+        highAvg: calculateAverage(highestFiveRates),
+        Avgrate: calculateAverage([calculateAverage(lowestFiveRates), calculateAverage(highestFiveRates)])
+    };
 };
 
 
