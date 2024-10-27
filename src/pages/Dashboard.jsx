@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { ChevronLeft, ChevronRight, Maximize2 } from 'lucide-react';
-import { getRates } from '@/utils/api';
+import { fetchDbRates, getRates } from '@/utils/api';
 
 const timeframes = ['1D', '1M', '3M', '1Y', '5Y', 'All'];
 
@@ -37,13 +37,105 @@ const Dashboard = () => {
   const [selectedPairs, setSelectedPairs] = useState(
     currencyPairs.reduce((acc, pair) => ({ ...acc, [pair]: true }), {})
   );
+  const [displayedRates, setDisplayedRates] = useState(null);
   const [currentPairIndex, setCurrentPairIndex] = useState(0);
+
+  const calculateMean = (rates) => {
+    return rates.reduce((sum, rate) => sum + rate, 0) / rates.length;
+  };
+  
+  const calculateMedian = (rates) => {
+    const sorted = [...rates].sort((a, b) => a - b);
+    const mid = Math.floor(sorted.length / 2);
+    return sorted.length % 2 !== 0
+      ? sorted[mid]
+      : (sorted[mid - 1] + sorted[mid]) / 2;
+  };
+  
+  // Main function to process data
+  const calculateStats = (data) => {
+    const result = {};
+  
+    for (const [currencyPair, ratesObj] of Object.entries(data)) {
+      // Extract rates, filtering out null or zero values
+      const rates = Object.values(ratesObj).filter((rate) => rate !== null && rate !== 0);
+  
+      if (rates.length > 0) {
+        // Calculate statistics
+        const mean = calculateMean(rates);
+        const median = calculateMedian(rates);
+  
+        // Sort rates to find highest and lowest two
+        const sortedRates = [...rates].sort((a, b) => a - b);
+        const lowestTwo = sortedRates.slice(0, 2);
+        const highestTwo = sortedRates.slice(-2);
+  
+        result[currencyPair] = { mean, median, highestTwo, lowestTwo };
+      }
+    }
+  
+    return result;
+  };
+
+  // const fetchRates = async () => {
+  //   try {
+  //     const response = await getRates();
+  //     setRates(response.data);
+  //     console.log(calculateStats(response.data))
+      
+  //     const newDataPoint = {
+  //       timestamp: new Date().toLocaleTimeString(),
+  //       ...Object.keys(response.data).reduce((acc, pair) => ({
+  //         ...acc,
+  //         [pair]: response.data[pair]?.['Wise Exchange'] || 0
+  //       }), {})
+  //     };
+
+  //     setHistoricalData(prevData => {
+  //       const newData = [...prevData, newDataPoint];
+  //       return newData.slice(-20);
+  //     });
+
+  //     // Update sparkline data for each pair
+  //     setSparklineData(prevData => {
+  //       const newSparklineData = { ...prevData };
+  //       Object.keys(response.data).forEach(pair => {
+  //         const rate = response.data[pair]?.['Wise Exchange'] || 0;
+  //         newSparklineData[pair] = [
+  //           ...(prevData[pair] || []),
+  //           { value: rate, timestamp: new Date().toLocaleTimeString() }
+  //         ].slice(-10);
+  //       });
+  //       return newSparklineData;
+  //     });
+
+  //     setLoading(false);
+  //   } catch (error) {
+  //     toast.error("Failed to fetch rates");
+  //     console.error("Failed to fetch rates:", error);
+  //   }
+  // };
 
   const fetchRates = async () => {
     try {
+      // Fetch historical data from the database
+      const dbResponse = await fetchDbRates();
+      const dbData = dbResponse.data || {};
+
+      // Initialize historicalData with data from DB
+      const formattedDbData = Object.entries(dbData).map(([date, pairs]) => {
+        return {
+          timestamp: date,
+          ...pairs.reduce((acc, pairData) => {
+            acc[pairData.pair] = pairData.rates["Wise Exchange"] || 0;
+            return acc;
+          }, {})
+        };
+      });
+      setHistoricalData(formattedDbData);
+
+      // Fetch real-time data
       const response = await getRates();
-      setRates(response.data);
-      
       const newDataPoint = {
         timestamp: new Date().toLocaleTimeString(),
         ...Object.keys(response.data).reduce((acc, pair) => ({
@@ -52,12 +144,17 @@ const Dashboard = () => {
         }), {})
       };
 
+      const tribe = calculateStats(response.data);
+      console.log(tribe)
+      setDisplayedRates(tribe);
+
+      // Append real-time data to historical data
       setHistoricalData(prevData => {
         const newData = [...prevData, newDataPoint];
-        return newData.slice(-20);
+        return newData.slice(-100); // Keep the most recent 100 points
       });
 
-      // Update sparkline data for each pair
+      // Update sparkline data with real-time data
       setSparklineData(prevData => {
         const newSparklineData = { ...prevData };
         Object.keys(response.data).forEach(pair => {
@@ -65,7 +162,7 @@ const Dashboard = () => {
           newSparklineData[pair] = [
             ...(prevData[pair] || []),
             { value: rate, timestamp: new Date().toLocaleTimeString() }
-          ].slice(-10);
+          ].slice(-10); // Keep the latest 10 points
         });
         return newSparklineData;
       });
@@ -75,7 +172,8 @@ const Dashboard = () => {
       toast.error("Failed to fetch rates");
       console.error("Failed to fetch rates:", error);
     }
-  };
+};
+
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -123,7 +221,7 @@ const Dashboard = () => {
   return (
     <div className="container mx-auto py-6 px-4">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold mb-2">Forex market</h1>
+        {/* <h1 className="text-2xl font-bold mb-2">Forex market</h1> */}
         <h2 className="text-3xl font-bold mb-6">Overview</h2>
       </div>
 
@@ -146,6 +244,9 @@ const Dashboard = () => {
                       <div>
                         <div className="font-semibold">{pair}</div>
                         <div className="text-2xl">{rates[pair]?.['Wise Exchange']?.toFixed(4) || 'N/A'}</div>
+                        <div className="text-2xl">
+                        {displayedRates[pair]?.mean?.toFixed(2) || 'N/A'}
+                        </div>
                       </div>
                       <div className={`text-sm ${isPositiveChange(pair) ? 'text-green-500' : 'text-red-500'}`}>
                         {getPercentageChange(pair)}%

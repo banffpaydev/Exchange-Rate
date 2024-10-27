@@ -6,19 +6,24 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { getRates, fetchDbRates } from '@/utils/api';
+import { getRates, fetchDbRates, basisUrl } from '@/utils/api';
 import { AdminRateRow } from '@/components/admin/AdminRateRow';
 import { SaveRatesDialog } from '@/components/admin/SaveRatesDialog';
+import axios from 'axios';
+import { AdminRateRowChn } from '@/components/admin/AdminRateRowChn';
 
-const AdminRates = () => {
+const AdminRatesChn = () => {
   const navigate = useNavigate();
   const [editedRates, setEditedRates] = useState({});
+  const [rates, setRates] = useState(null);
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
-  const { data: rates, isLoading } = useQuery({
-    queryKey: ['admin-rates'],
-    queryFn: fetchDbRates,
-  });
+  // const { data: rates, isLoading } = useQuery({
+  //   queryKey: ['admin-rates'],
+  //   queryFn: fetchDbRates,
+  // });
 
   React.useEffect(() => {
     const isAdmin = localStorage.getItem('isAdmin') === 'true';
@@ -38,6 +43,22 @@ const AdminRates = () => {
     }));
   };
 
+  const fetchRecentRates = async() => {
+    try {
+      const response = await axios.get(`${basisUrl}/api/current/pairs`)
+      setRates(response.data);
+      setIsLoading(false);
+      toast.success("Rate data fetched")
+    } catch (error) {
+      setIsLoading(false)
+      setError("Unable to fetch Rates!!");
+      toast.error("Unable to fetch Rates!!")
+    }
+  } 
+  React.useEffect(() => {
+    fetchRecentRates();
+  }, [])
+
   const handleSave = async () => {
     setShowConfirmDialog(false);
     try {
@@ -49,6 +70,7 @@ const AdminRates = () => {
   };
 
   if (isLoading) return <div>Loading...</div>;
+  if (!isLoading && error) return <div>{error}</div>
 
   return (
     <div className="container mx-auto py-10">
@@ -68,7 +90,18 @@ const AdminRates = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {Object.entries(rates?.data || {}).map(([pair, rateData]) => (
+            {rates.map((data, index) => (
+              <AdminRateRowChn
+                key={data.id}
+                id={data.id}
+                pair={data.currencyPair}
+                rateData={data.exchangeRate}
+                editedRates={editedRates}
+                onRateChange={handleRateChange}
+              />
+            ))}
+           
+            {/* {Object.entries(rates?.data || {}).map(([pair, rateData]) => (
               <AdminRateRow
                 key={pair}
                 pair={pair}
@@ -76,7 +109,7 @@ const AdminRates = () => {
                 editedRates={editedRates}
                 onRateChange={handleRateChange}
               />
-            ))}
+            ))} */}
           </TableBody>
         </Table>
       </div>
@@ -91,4 +124,4 @@ const AdminRates = () => {
   );
 };
 
-export default AdminRates;
+export default AdminRatesChn;

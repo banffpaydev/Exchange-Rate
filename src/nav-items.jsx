@@ -1,4 +1,5 @@
 import { lazy } from "react";
+import AdminRatesChn from "./pages/AdminRates copy";
 
 const Index = lazy(() => import("./pages/Index"));
 const Login = lazy(() => import("./pages/Login"));
@@ -34,7 +35,7 @@ export const navItems = [
   {
     title: "Admin",
     to: "/admin/rates",
-    page: <AdminRates />
+    page: <AdminRatesChn />
   },
   {
     title: "Login",
