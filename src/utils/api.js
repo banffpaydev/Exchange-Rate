@@ -2,8 +2,8 @@ import axios from 'axios';
 // import dotenv from 'dotenv';
 // dotenv.config();
 
-// export const basisUrl = "http://localhost:5000";
-export const basisUrl = "https://xchangerate-banf.onrender.com"
+export const basisUrl = "http://localhost:5000";
+// export const basisUrl = "https://xchangerate-banf.onrender.com"
 
 
 const bases =  'http://localhost:5000';//process.env.REACT_APP_API_URL ||

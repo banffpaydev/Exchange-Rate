@@ -71,23 +71,23 @@ export const AdminRateRowChn = ({ pair, rateData, id }) => {
       {analysis && (
         <TableRow>
           <TableCell colSpan="5">
-            <div className="p-2 flex gap-2 relative">
+            <div className="p-2 flex gap-4 relative">
               <h4 className='absolute top-0 left-2 mb-3'>Analysis Data</h4>
-              <div>
-                <strong>Lows:</strong>
+              <div className='mt-4'>
+                <strong className='font-semibold'>Lows:</strong>
                 {analysis.lows.map((low, index) => (
                   <div key={index}>Low {index + 1}: {low.toFixed(2)}</div>
                 ))}
               </div>
-              <div>
-                <strong>Highs:</strong>
+              <div  className='mt-4'>
+                <strong className='font-semibold'>Highs:</strong>
                 {analysis.highs.map((high, index) => (
                   <div key={index}>High {index + 1}: {high.toFixed(2)}</div>
                 ))}
               </div>
-              <div><strong>Average Low:</strong> {analysis.lowAvg.toFixed(2)}</div>
-              <div><strong>Average High:</strong> {analysis.highAvg.toFixed(2)}</div>
-              <div><strong>Overall Average Rate:</strong> {analysis.Avgrate.toFixed(2)}</div>
+              <div  className='mt-4'><strong className='font-semibold'>Average Low:</strong> {analysis.lowAvg.toFixed(2)}</div>
+              <div  className='mt-4'><strong className='font-semibold'>Average High:</strong> {analysis.highAvg.toFixed(2)}</div>
+              <div  className='mt-4'><strong className='font-semibold'>Overall Average Rate:</strong> {analysis.Avgrate.toFixed(2)}</div>
             </div>
           </TableCell>
         </TableRow>
