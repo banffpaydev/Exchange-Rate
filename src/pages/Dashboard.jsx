@@ -243,7 +243,7 @@ const Dashboard = () => {
                     <div className="flex items-center justify-between">
                       <div>
                         <div className="font-semibold">{pair}</div>
-                        <div className="text-2xl">{rates[pair]?.['Wise Exchange']?.toFixed(4) || 'N/A'}</div>
+                        {/* <div className="text-2xl">{rates[pair]?.['Wise Exchange']?.toFixed(4) || 'N/A'}</div> */}
                         <div className="text-2xl">
                         {displayedRates[pair]?.mean?.toFixed(2) || 'N/A'}
                         </div>

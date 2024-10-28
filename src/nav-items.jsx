@@ -46,6 +46,11 @@ export const navItems = [
     title: "Register",
     to: "/register",
     page: <Register />
+  },
+  {
+    title: "",
+    to: "/currency-pair/:pairs",
+    page: <CurrencyPairAnalysis />
   }
 ];
 
