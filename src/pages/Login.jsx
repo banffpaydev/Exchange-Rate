@@ -1,62 +1,48 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from "react-hook-form";
-import { useNavigate } from 'react-router-dom'; // Import useNavigate for routing
+import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import axios from 'axios';
 import { basisUrl } from '@/utils/api';
+import { toast } from 'sonner';
 
 const Login = () => {
   const form = useForm();
   const [loading, setLoading] = useState(false);
-  const [notification, setNotification] = useState(null); // To store success or error message
-  const navigate = useNavigate(); // Initialize useNavigate for routing
+  const navigate = useNavigate();
 
-  // Function to handle the form submission
   const onSubmit = async (data) => {
-    setLoading(true); // Show loading state
-    setNotification(null); // Clear previous notifications
+    setLoading(true);
 
     try {
-      // Send login data to the backend
       const response = await axios.post(`${basisUrl}/api/users/login`, {
         email: data.email,
         password: data.password,
       });
 
-      // Handle success
-      setNotification({ type: 'success', message: 'Login successful! Redirecting...' });
-
-      // Save the token in localStorage
+      // Check if user is admin
+      const isAdmin = data.email === "banffpay@bpay.africa";
+      localStorage.setItem('isAdmin', isAdmin);
       localStorage.setItem('token', response.data.token);
-
-      // Redirect to the home page after 3 seconds
+      
+      toast.success('Login successful! Redirecting...');
+      
+      // Redirect after successful login
       setTimeout(() => {
-        navigate('/'); // Redirect to home page
-      }, 3000);
+        navigate(isAdmin ? '/admin/rates' : '/');
+      }, 1000);
     } catch (error) {
-      // Handle login error
-      setNotification({ type: 'error', message: error.response?.data?.message || 'Login failed!' });
+      toast.error(error.response?.data?.message || 'Login failed!');
     } finally {
-      setLoading(false); // Hide loading state
+      setLoading(false);
     }
   };
 
   return (
     <div className="container mx-auto max-w-sm py-10">
       <h1 className="text-2xl font-bold mb-5">Login</h1>
-
-      {/* Show notifications for success or error */}
-      {notification && (
-        <div
-          className={`p-4 mb-4 text-sm rounded ${
-            notification.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-          }`}
-        >
-          {notification.message}
-        </div>
-      )}
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">

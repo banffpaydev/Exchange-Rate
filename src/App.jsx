@@ -1,31 +1,53 @@
+import { Suspense } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Link, useNavigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Link, Navigate } from "react-router-dom";
+import { ErrorBoundary } from 'react-error-boundary';
 import { navItems } from "./nav-items";
+import { ErrorFallback } from "./components/ErrorBoundary";
+import { Loader2 } from "lucide-react";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      suspense: true,
+    },
+  },
+});
+
+const LoadingSpinner = () => (
+  <div className="flex items-center justify-center min-h-[200px]">
+    <Loader2 className="h-8 w-8 animate-spin" />
+  </div>
+);
 
 const Layout = ({ children }) => {
-
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="bg-gray-800 text-white p-4">
+      <header className="bg-gray-800 text-white p-4 sticky top-0 z-50">
         <nav>
           <ul className="flex space-x-4">
             {navItems.map(({ title, to }) => (
-              <li key={to}>
-                <Link to={to} className="hover:text-gray-300">{title}</Link>
-              </li>
+              title && (
+                <li key={to}>
+                  <Link to={to} className="hover:text-gray-300">{title}</Link>
+                </li>
+              )
             ))}
           </ul>
         </nav>
       </header>
       <main className="flex-grow">
-        {children}
+        <ErrorBoundary FallbackComponent={ErrorFallback}>
+          <Suspense fallback={<LoadingSpinner />}>
+            {children}
+          </Suspense>
+        </ErrorBoundary>
       </main>
     </div>
-  )
+  );
 };
 
 const App = () => (
@@ -38,6 +60,7 @@ const App = () => (
             {navItems.map(({ to, page }) => (
               <Route key={to} path={to} element={page} />
             ))}
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Layout>
       </BrowserRouter>
@@ -46,4 +69,3 @@ const App = () => (
 );
 
 export default App;
-
