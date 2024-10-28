@@ -2,6 +2,8 @@ import axios from "axios";
 import dotenv from 'dotenv';
 import ExchangeRate from "../models/ExchangeRate";
 import { Op } from "sequelize";
+import { calculateStats } from "../controllers/treps";
+import { createCurrencyPair } from "./currencyPairService";
 
 dotenv.config();
 
@@ -27,7 +29,7 @@ const afriXchangeRate = async (from: string, to: string) => {
         // https://client.africhange.com/api/Rate?sendingCurrencyCode=NGN&receivingCurrencyCode=GBP
         const response = await axios.get(`https://client.africhange.com/api/Rate?sendingCurrencyCode=${from}&receivingCurrencyCode=${to}`);
         const data = response.data.data;
-        console.log('afriXChange: ', data);
+        // console.log('afriXChange: ', data);
         return { name: 'Afri Exchange', rate: Number(data.exchangeRateToDisplay) };
     } catch (err: any) {
         // console.error('Error fetching Afri Exchange rate:', err);
@@ -303,6 +305,13 @@ export const handleAllFetch = async () => {
                 results[pair][api.name] = null;
             }
         }
+        const stats = calculateStats({ [pair]: results[pair] });
+
+        const pairData = {
+            currencyPair: pair,
+            exchangeRate: stats[pair].mean
+        }
+        await createCurrencyPair(pairData);
         await saveExchangeRate(pair, results[pair]);
     }
 
