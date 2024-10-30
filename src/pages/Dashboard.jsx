@@ -71,12 +71,11 @@ const Dashboard = () => {
     <div className="container mx-auto py-4 px-2">
       <ScrollingRates rates={rates} />
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mt-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mt-4">
         {currencyPairs.map(pair => (
           <CurrencyAnalysis key={pair} pair={pair} />
         ))}
       </div>
-
       <Card className="mt-4 p-2">
         <div className="h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
