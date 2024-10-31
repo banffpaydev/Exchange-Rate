@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import axios from 'axios';
 import { basisUrl } from '@/utils/api';
 import { toast } from 'sonner';
 
 export const CurrencyAnalysis = ({ pair }) => {
-  const [analysis, setAnalysis] = useState(null);
+  const [analysis, setAnalysis] = React.useState(null);
 
   const fetchAnalysis = async () => {
     try {
@@ -38,42 +37,33 @@ export const CurrencyAnalysis = ({ pair }) => {
   const trendColor = percentageChange > 0 ? 'text-green-500' : 'text-red-500';
 
   return (
-    <HoverCard>
-      <HoverCardTrigger>
-        <Card className="p-2">
-          <CardContent className="p-2 text-xs">
-            <h4 className="font-bold mb-2 text-sm">{pair}</h4>
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <div className="font-semibold">Avg: {analysis.Avgrate.toFixed(2)}</div>
-                <div>Low: {Math.min(...analysis.lows).toFixed(2)}</div>
-              </div>
-              <div>
-                <div>High: {Math.max(...analysis.highs).toFixed(2)}</div>
-                <div className={`font-bold ${trendColor}`}>
-                  {percentageChange}%
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </HoverCardTrigger>
-      <HoverCardContent className="w-80">
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <h5 className="font-bold mb-2">Rate Analysis</h5>
-            <div className="space-y-1 text-sm">
-              <div>Average: {analysis.Avgrate.toFixed(4)}</div>
-              <div>Low Avg: {analysis.lowAvg.toFixed(4)}</div>
-              <div>High Avg: {analysis.highAvg.toFixed(4)}</div>
-              <div className={trendColor}>Change: {percentageChange}%</div>
-            </div>
+    <Card className="p-4">
+      <CardContent className="p-0">
+        <div className="space-y-4">
+          <div className="flex justify-between items-center">
+            <h4 className="font-bold text-lg">{pair}</h4>
+            <span className={`font-bold ${trendColor}`}>{percentageChange}%</span>
           </div>
-          <div>
-            <h5 className="font-bold mb-2">Historical Data</h5>
-            <div className="space-y-2 text-sm">
+          
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div className="space-y-2">
               <div>
-                <div className="text-green-600">Top 5:</div>
+                <span className="font-semibold">Average:</span>
+                <span className="ml-2">{analysis.Avgrate.toFixed(4)}</span>
+              </div>
+              <div>
+                <span className="font-semibold">Low Avg:</span>
+                <span className="ml-2">{analysis.lowAvg.toFixed(4)}</span>
+              </div>
+              <div>
+                <span className="font-semibold">High Avg:</span>
+                <span className="ml-2">{analysis.highAvg.toFixed(4)}</span>
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <div>
+                <div className="font-semibold text-green-600">Top 5:</div>
                 <div className="grid grid-cols-5 gap-1">
                   {analysis.highs.slice(0, 5).map((rate, idx) => (
                     <div key={idx}>{rate.toFixed(2)}</div>
@@ -81,7 +71,7 @@ export const CurrencyAnalysis = ({ pair }) => {
                 </div>
               </div>
               <div>
-                <div className="text-red-600">Bottom 5:</div>
+                <div className="font-semibold text-red-600">Bottom 5:</div>
                 <div className="grid grid-cols-5 gap-1">
                   {analysis.lows.slice(0, 5).map((rate, idx) => (
                     <div key={idx}>{rate.toFixed(2)}</div>
@@ -91,7 +81,7 @@ export const CurrencyAnalysis = ({ pair }) => {
             </div>
           </div>
         </div>
-      </HoverCardContent>
-    </HoverCard>
+      </CardContent>
+    </Card>
   );
 };
