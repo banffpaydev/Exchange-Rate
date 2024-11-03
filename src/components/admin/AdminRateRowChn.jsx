@@ -35,17 +35,14 @@ export const AdminRateRowChn = ({ pair, rateData, id }) => {
       });
   
       if (response.data) {
-        // toast.success("Rate Analysis fetched");
         setAnalysis(response.data);
       } else {
         throw new Error("Empty response data");
       }
     } catch (error) {
-      console.error("Error fetching Rate Analysis:", error); // Provides details of the actual error
-      // toast.error("Unable to fetch Rate Analysis!");
+      console.error("Error fetching Rate Analysis:", error);
     }
   };
-  
 
   return (
     <>
@@ -71,23 +68,46 @@ export const AdminRateRowChn = ({ pair, rateData, id }) => {
       {analysis && (
         <TableRow>
           <TableCell colSpan="5">
-            <div className="p-2 flex gap-4 relative">
-              <h4 className='absolute top-0 left-2 mb-3'>Analysis Data</h4>
-              <div className='mt-4'>
-                <strong className='font-semibold'>Lows:</strong>
-                {analysis.lows.map((low, index) => (
-                  <div key={index}>Low {index + 1}: {low.toFixed(2)}</div>
-                ))}
+            <div className="p-4 space-y-4">
+              <h4 className="font-semibold text-lg mb-4">Analysis Data</h4>
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <h5 className="font-semibold text-green-600 mb-2">Top Rates:</h5>
+                  <div className="space-y-2">
+                    {analysis.top5.map((item, index) => (
+                      <div key={index} className="flex justify-between">
+                        <span className="font-medium">{item.vendor.toUpperCase()}:</span>
+                        <span>{item.rate.toFixed(4)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <h5 className="font-semibold text-red-600 mb-2">Bottom Rates:</h5>
+                  <div className="space-y-2">
+                    {analysis.bottom5.map((item, index) => (
+                      <div key={index} className="flex justify-between">
+                        <span className="font-medium">{item.vendor.toUpperCase()}:</span>
+                        <span>{item.rate.toFixed(4)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
-              <div  className='mt-4'>
-                <strong className='font-semibold'>Highs:</strong>
-                {analysis.highs.map((high, index) => (
-                  <div key={index}>High {index + 1}: {high.toFixed(2)}</div>
-                ))}
+              <div className="grid grid-cols-3 gap-4 mt-4">
+                <div>
+                  <span className="font-semibold">Top 5 Average:</span>
+                  <span className="ml-2">{analysis.top5Avg.toFixed(4)}</span>
+                </div>
+                <div>
+                  <span className="font-semibold">Bottom 5 Average:</span>
+                  <span className="ml-2">{analysis.bottom5Avg.toFixed(4)}</span>
+                </div>
+                <div>
+                  <span className="font-semibold">Minimum Average:</span>
+                  <span className="ml-2">{analysis.minAvg.toFixed(4)}</span>
+                </div>
               </div>
-              <div  className='mt-4'><strong className='font-semibold'>Average Low:</strong> {analysis.lowAvg.toFixed(2)}</div>
-              <div  className='mt-4'><strong className='font-semibold'>Average High:</strong> {analysis.highAvg.toFixed(2)}</div>
-              <div  className='mt-4'><strong className='font-semibold'>Overall Average Rate:</strong> {analysis.Avgrate.toFixed(2)}</div>
             </div>
           </TableCell>
         </TableRow>

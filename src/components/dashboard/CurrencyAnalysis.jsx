@@ -45,41 +45,40 @@ export const CurrencyAnalysis = ({ pair }) => {
             <span className={`font-bold ${trendColor}`}>{percentageChange}%</span>
           </div>
           
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div className="space-y-2">
-              <div>
-                <span className="font-semibold">Top 5 Avg:</span>
-                <span className="ml-2">{analysis.top5Avg.toFixed(4)}</span>
+          <div className="grid grid-cols-1 gap-4 text-sm">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <div className="font-semibold text-green-600">Top Vendors:</div>
+                {analysis.top5.map((item, idx) => (
+                  <div key={idx} className="flex justify-between">
+                    <span className="uppercase font-medium">{item.vendor}</span>
+                    <span>{item.rate.toFixed(4)}</span>
+                  </div>
+                ))}
               </div>
-              <div>
-                <span className="font-semibold">Bottom 5 Avg:</span>
-                <span className="ml-2">{analysis.bottom5Avg.toFixed(4)}</span>
+              
+              <div className="space-y-2">
+                <div className="font-semibold text-red-600">Bottom Vendors:</div>
+                {analysis.bottom5.map((item, idx) => (
+                  <div key={idx} className="flex justify-between">
+                    <span className="uppercase font-medium">{item.vendor}</span>
+                    <span>{item.rate.toFixed(4)}</span>
+                  </div>
+                ))}
               </div>
-              <div>
-                <span className="font-semibold">Min Avg:</span>
-                <span className="ml-2">{analysis.minAvg.toFixed(4)}</span>
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <div>
-                <div className="font-semibold text-green-600">Top 5:</div>
-                <div className="space-y-1">
-                  {analysis.top5.map((item, idx) => (
-                    <div key={idx} className="text-xs">
-                      <span className="uppercase font-medium">{item.vendor}:</span> {item.rate.toFixed(2)}
-                    </div>
-                  ))}
+
+              <div className="grid grid-cols-1 gap-2 pt-2 border-t">
+                <div className="flex justify-between">
+                  <span className="font-semibold">Top 5 Average:</span>
+                  <span>{analysis.top5Avg.toFixed(4)}</span>
                 </div>
-              </div>
-              <div>
-                <div className="font-semibold text-red-600">Bottom 5:</div>
-                <div className="space-y-1">
-                  {analysis.bottom5.map((item, idx) => (
-                    <div key={idx} className="text-xs">
-                      <span className="uppercase font-medium">{item.vendor}:</span> {item.rate.toFixed(2)}
-                    </div>
-                  ))}
+                <div className="flex justify-between">
+                  <span className="font-semibold">Bottom 5 Average:</span>
+                  <span>{analysis.bottom5Avg.toFixed(4)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-semibold">Minimum Average:</span>
+                  <span>{analysis.minAvg.toFixed(4)}</span>
                 </div>
               </div>
             </div>
