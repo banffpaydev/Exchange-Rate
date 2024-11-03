@@ -6,8 +6,8 @@ import { ScrollingRates } from '@/components/dashboard/ScrollingRates';
 import { CurrencyAnalysis } from '@/components/dashboard/CurrencyAnalysis';
 
 const currencyPairs = [
-  'USD/NGN', 'EUR/NGN', 'GBP/NGN', 'CAD/NGN', 'CNY/NGN',
-  'USD/LRD', 'EUR/LRD', 'GBP/LRD', 'CAD/LRD', 'CNY/LRD'
+  'USD/NGN', 'EUR/NGN', 'GBP/NGN', 'CAD/NGN',
+  'USD/LRD', 'EUR/LRD', 'GBP/LRD', 'CAD/LRD'
 ];
 
 const Dashboard = () => {

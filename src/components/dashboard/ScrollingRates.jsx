@@ -41,17 +41,18 @@ export const ScrollingRates = ({ rates, lastUpdateTime }) => {
           const quoteFlag = getCountryFlag(quoteCurrency);
           
           return (
-            <div key={`${pair}-${index}`} className="inline-flex items-center px-4">
+            <div key={`${pair}-${index}`} className="flex items-center px-4">
               <span className="text-xs text-gray-500">@{lastUpdateTime}</span>
-              <span className="font-bold ml-2">
+              <span className="flex items-center font-bold ml-2">
                 {baseFlag && <img src={baseFlag} alt={baseCurrency} className="inline h-3 w-4 mr-1" />}
                 {currencySymbols[baseCurrency]}/
                 {quoteFlag && <img src={quoteFlag} alt={quoteCurrency} className="inline h-3 w-4 mx-1" />}
                 {currencySymbols[quoteCurrency]}:
-              </span>
-              <span className="ml-2">
+                <span className="ml-2">
                 {formatNumber(data?.['Wise Exchange'] || 0)}
               </span>
+              </span>
+              
             </div>
           );
         })}
