@@ -47,19 +47,37 @@ export const CurrencyAnalysis = ({ pair }) => {
           
           <div className="text-xs space-y-2">
             <div>
-              <div className="text-green-600 font-medium mb-1">Top Rates</div>
-              {analysis.top5.slice(0, 3).map((item, idx) => (
+              <div className="text-green-600 font-medium mb-1">Top 5 Rates</div>
+              {analysis.top5.map((item, idx) => (
                 <div key={idx} className="flex justify-between">
                   <span>{item.vendor}</span>
-                  <span>{item.rate.toFixed(2)}</span>
+                  <span>{item.rate.toFixed(4)}</span>
                 </div>
               ))}
             </div>
             
-            <div className="text-xs border-t pt-1">
+            <div className="mt-2">
+              <div className="text-red-600 font-medium mb-1">Bottom 5 Rates</div>
+              {analysis.bottom5.map((item, idx) => (
+                <div key={idx} className="flex justify-between">
+                  <span>{item.vendor}</span>
+                  <span>{item.rate.toFixed(4)}</span>
+                </div>
+              ))}
+            </div>
+            
+            <div className="text-xs border-t pt-1 space-y-1">
               <div className="flex justify-between">
-                <span>Avg Rate:</span>
-                <span>{analysis.top5Avg.toFixed(2)}</span>
+                <span>Top 5 Avg:</span>
+                <span>{analysis.top5Avg.toFixed(4)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Bottom 5 Avg:</span>
+                <span>{analysis.bottom5Avg.toFixed(4)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Min Avg:</span>
+                <span>{analysis.minAvg.toFixed(4)}</span>
               </div>
             </div>
           </div>
