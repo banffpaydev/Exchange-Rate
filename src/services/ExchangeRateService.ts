@@ -280,10 +280,17 @@ const fetchExchangeRate = async (pair: string) => {
 
 export const handleAllFetch = async () => {
     const pairs = [
-        'USD/NGN', 'EUR/NGN', 'GBP/NGN', 'CAD/NGN', 'CNY/NGN',
-        'USD/LRD', 'EUR/LRD', 'GBP/LRD', 'CAD/LRD', 'CNY/LRD'
+        'USD/NGN', 'EUR/NGN', 'GBP/NGN', 'CAD/NGN',
+        'USD/LRD', 'EUR/LRD', 'GBP/LRD', 'CAD/LRD',
+        'GHS/NGN', 'CNY/NGN', 'AED/NGN', 'SLL/NGN', 'RWF/NGN',
+        'GHS/LRD', 'CNY/LRD', 'AED/LRD', 'SLL/LRD', 'RWF/LRD'
     ];
-    const apis = [lemfiRate, afriXchangeRate, wiseRate, transfergoRate, twelveDataRate, alphaVantageRate, xchangeRtRate, xeRates, xchangeRtOrgRate];
+    
+    // const pairs = [
+    //     'USD/NGN', 'EUR/NGN', 'GBP/NGN', 'CAD/NGN', 'CNY/NGN',
+    //     'USD/LRD', 'EUR/LRD', 'GBP/LRD', 'CAD/LRD', 'CNY/LRD'
+    // ];
+    const apis = [lemfiRate, afriXchangeRate, wiseRate, transfergoRate, xchangeRtRate, xeRates];
     
     const results: Record<string, Record<string, number | null>> = {};
 
@@ -414,6 +421,63 @@ export const getAnalyzedRates = async (currency: string, startDate: string, endD
     // Extract rates from results
     // const rateValues = rates.map((rate: any) => rate.rates[currency] || 0);
 
+    const rateVendorPairs = rates.flatMap((rate: any) => {
+        return Object.entries(rate.rates).filter(([vendor, rateValue]) => {
+            return rateValue !== null && rateValue !== 0;
+        }).map(([vendor, rateValue]) => ({
+            vendor,
+            rate: rateValue as number
+        }));
+    });
+
+    type VendorRate = {
+        vendor: string;
+        rate: number;
+      };
+      
+    //   function sortAndRemoveDuplicates(rates: VendorRate[]): VendorRate[] {
+    //     // Sort rates in ascending order by rate
+    //     const sortedRates = rates.slice().sort((a, b) => a.rate - b.rate);
+      
+    //     // Remove duplicates based on the 'rate' property
+    //     const uniqueRates = sortedRates.filter((item, index, arr) => 
+    //       index === 0 || item.rate !== arr[index - 1].rate
+    //     );
+      
+    //     return uniqueRates;
+    //   }
+
+    function getTopAndBottomRatesWithAverages(rates: VendorRate[]): { 
+        top5: VendorRate[], 
+        bottom5: VendorRate[], 
+        top5Avg: number, 
+        bottom5Avg: number,
+        minAvg: number,
+      } {
+        // Sort rates in ascending order by rate and remove duplicates
+        const sortedRates = rates.slice().sort((a, b) => a.rate - b.rate);
+        const uniqueRates = sortedRates.filter((item, index, arr) => 
+          index === 0 || item.rate !== arr[index - 1].rate
+        );
+      
+        // Get the bottom 5 (smallest rates) and top 5 (largest rates)
+        const bottom5 = uniqueRates.slice(0, 5);
+        const top5 = uniqueRates.slice(-5).reverse(); // Get last 5 and reverse for descending order
+      
+        // Helper function to calculate average
+        const calculateAverage = (items: VendorRate[]): number => 
+          items.reduce((sum, item) => sum + item.rate, 0) / items.length;
+      
+        // Calculate averages
+        const top5Avg = calculateAverage(top5);
+        const bottom5Avg = calculateAverage(bottom5);
+        const minAvg = (top5Avg + bottom5Avg) / 2
+      
+        return { top5, bottom5, top5Avg, bottom5Avg, minAvg };
+      }
+
+    console.log(getTopAndBottomRatesWithAverages(rateVendorPairs))
+
     const rateValues = rates.map((rate: any) => rate.rates);
 
 
@@ -446,15 +510,15 @@ export const getAnalyzedRates = async (currency: string, startDate: string, endD
     // const bottom5Rates = rateValues.slice(0, 5);
     // const bottom5Avg = bottom5Rates.reduce((acc, rate) => acc + rate, 0) / bottom5Rates.length;
 
+    const answer = getTopAndBottomRatesWithAverages(rateVendorPairs);
 
 
-    return {
-        lows: lowestFiveRates,
-        highs: highestFiveRates,
-        lowAvg: calculateAverage(lowestFiveRates),
-        highAvg: calculateAverage(highestFiveRates),
-        Avgrate: calculateAverage([calculateAverage(lowestFiveRates), calculateAverage(highestFiveRates)])
-    };
+    return answer;
+        // lows: lowestFiveRates,
+        // highs: highestFiveRates,
+        // lowAvg: calculateAverage(lowestFiveRates),
+        // highAvg: calculateAverage(highestFiveRates),
+        // Avgrate: calculateAverage([calculateAverage(lowestFiveRates), calculateAverage(highestFiveRates)]);
 };
 
 

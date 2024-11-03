@@ -152,7 +152,7 @@ class RateController {
             if (save === 'yes') {
                 await createCurrencyPair({
                     currencyPair: currency,
-                    exchangeRate: analysis.Avgrate,
+                    exchangeRate: analysis.minAvg,
                 })
             }
             res.status(200).json(analysis);
