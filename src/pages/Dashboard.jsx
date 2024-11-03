@@ -5,10 +5,8 @@ import { getRates } from '@/utils/api';
 import { ScrollingRates } from '@/components/dashboard/ScrollingRates';
 import { CurrencyAnalysis } from '@/components/dashboard/CurrencyAnalysis';
 
-const currencyPairs = [
-  'USD/NGN', 'EUR/NGN', 'GBP/NGN', 'CAD/NGN',
-  'USD/LRD', 'EUR/LRD', 'GBP/LRD', 'CAD/LRD'
-];
+const ngnPairs = ['USD/NGN', 'EUR/NGN', 'GBP/NGN', 'CAD/NGN'];
+const lrdPairs = ['USD/LRD', 'EUR/LRD', 'GBP/LRD', 'CAD/LRD'];
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -48,10 +46,24 @@ const Dashboard = () => {
     <div className="container mx-auto py-4 px-2">
       <ScrollingRates rates={rates} lastUpdateTime={lastUpdateTime} />
       
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mt-4">
-        {currencyPairs.map(pair => (
-          <CurrencyAnalysis key={pair} pair={pair} />
-        ))}
+      <div className="grid grid-cols-1 gap-6 mt-4">
+        <div>
+          <h3 className="text-lg font-semibold mb-2">NGN Exchange Rates</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+            {ngnPairs.map(pair => (
+              <CurrencyAnalysis key={pair} pair={pair} />
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <h3 className="text-lg font-semibold mb-2">LRD Exchange Rates</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+            {lrdPairs.map(pair => (
+              <CurrencyAnalysis key={pair} pair={pair} />
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );

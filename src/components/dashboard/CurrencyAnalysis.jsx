@@ -37,49 +37,29 @@ export const CurrencyAnalysis = ({ pair }) => {
   const trendColor = percentageChange > 0 ? 'text-green-500' : 'text-red-500';
 
   return (
-    <Card className="p-4">
+    <Card className="p-2">
       <CardContent className="p-0">
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h4 className="font-bold text-lg">{pair}</h4>
-            <span className={`font-bold ${trendColor}`}>{percentageChange}%</span>
+        <div className="space-y-2">
+          <div className="flex justify-between items-center border-b pb-1">
+            <h4 className="font-semibold">{pair}</h4>
+            <span className={`text-sm ${trendColor}`}>{percentageChange}%</span>
           </div>
           
-          <div className="grid grid-cols-1 gap-4 text-sm">
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <div className="font-semibold text-green-600">Top Vendors:</div>
-                {analysis.top5.map((item, idx) => (
-                  <div key={idx} className="flex justify-between">
-                    <span className="uppercase font-medium">{item.vendor}</span>
-                    <span>{item.rate.toFixed(4)}</span>
-                  </div>
-                ))}
-              </div>
-              
-              <div className="space-y-2">
-                <div className="font-semibold text-red-600">Bottom Vendors:</div>
-                {analysis.bottom5.map((item, idx) => (
-                  <div key={idx} className="flex justify-between">
-                    <span className="uppercase font-medium">{item.vendor}</span>
-                    <span>{item.rate.toFixed(4)}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="grid grid-cols-1 gap-2 pt-2 border-t">
-                <div className="flex justify-between">
-                  <span className="font-semibold">Top 5 Average:</span>
-                  <span>{analysis.top5Avg.toFixed(4)}</span>
+          <div className="text-xs space-y-2">
+            <div>
+              <div className="text-green-600 font-medium mb-1">Top Rates</div>
+              {analysis.top5.slice(0, 3).map((item, idx) => (
+                <div key={idx} className="flex justify-between">
+                  <span>{item.vendor}</span>
+                  <span>{item.rate.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="font-semibold">Bottom 5 Average:</span>
-                  <span>{analysis.bottom5Avg.toFixed(4)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-semibold">Minimum Average:</span>
-                  <span>{analysis.minAvg.toFixed(4)}</span>
-                </div>
+              ))}
+            </div>
+            
+            <div className="text-xs border-t pt-1">
+              <div className="flex justify-between">
+                <span>Avg Rate:</span>
+                <span>{analysis.top5Avg.toFixed(2)}</span>
               </div>
             </div>
           </div>
