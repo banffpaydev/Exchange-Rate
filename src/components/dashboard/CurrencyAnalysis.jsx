@@ -33,7 +33,7 @@ export const CurrencyAnalysis = ({ pair }) => {
 
   if (!analysis) return null;
 
-  const percentageChange = ((analysis.Avgrate - Math.min(...analysis.lows)) / Math.min(...analysis.lows) * 100).toFixed(2);
+  const percentageChange = ((analysis.top5Avg - analysis.minAvg) / analysis.minAvg * 100).toFixed(2);
   const trendColor = percentageChange > 0 ? 'text-green-500' : 'text-red-500';
 
   return (
@@ -48,33 +48,37 @@ export const CurrencyAnalysis = ({ pair }) => {
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div className="space-y-2">
               <div>
-                <span className="font-semibold">Average:</span>
-                <span className="ml-2">{analysis.Avgrate.toFixed(4)}</span>
+                <span className="font-semibold">Top 5 Avg:</span>
+                <span className="ml-2">{analysis.top5Avg.toFixed(4)}</span>
               </div>
               <div>
-                <span className="font-semibold">Low Avg:</span>
-                <span className="ml-2">{analysis.lowAvg.toFixed(4)}</span>
+                <span className="font-semibold">Bottom 5 Avg:</span>
+                <span className="ml-2">{analysis.bottom5Avg.toFixed(4)}</span>
               </div>
               <div>
-                <span className="font-semibold">High Avg:</span>
-                <span className="ml-2">{analysis.highAvg.toFixed(4)}</span>
+                <span className="font-semibold">Min Avg:</span>
+                <span className="ml-2">{analysis.minAvg.toFixed(4)}</span>
               </div>
             </div>
             
             <div className="space-y-2">
               <div>
                 <div className="font-semibold text-green-600">Top 5:</div>
-                <div className="grid grid-cols-5 gap-1">
-                  {analysis.highs.slice(0, 5).map((rate, idx) => (
-                    <div key={idx}>{rate.toFixed(2)}</div>
+                <div className="space-y-1">
+                  {analysis.top5.map((item, idx) => (
+                    <div key={idx} className="text-xs">
+                      <span className="uppercase font-medium">{item.vendor}:</span> {item.rate.toFixed(2)}
+                    </div>
                   ))}
                 </div>
               </div>
               <div>
                 <div className="font-semibold text-red-600">Bottom 5:</div>
-                <div className="grid grid-cols-5 gap-1">
-                  {analysis.lows.slice(0, 5).map((rate, idx) => (
-                    <div key={idx}>{rate.toFixed(2)}</div>
+                <div className="space-y-1">
+                  {analysis.bottom5.map((item, idx) => (
+                    <div key={idx} className="text-xs">
+                      <span className="uppercase font-medium">{item.vendor}:</span> {item.rate.toFixed(2)}
+                    </div>
                   ))}
                 </div>
               </div>
