@@ -149,12 +149,16 @@ class RateController {
     
         try {
             const analysis = await getAnalyzedRates(currency as string, startDate as string, endDate as string);
-            if (save === 'yes') {
-                await createCurrencyPair({
-                    currencyPair: currency,
-                    exchangeRate: analysis.minAvg,
-                })
-            }
+            // if (save === 'yes') {
+            //     await createCurrencyPair({
+            //         currencyPair: currency,
+            //         exchangeRate: analysis.minAvg,
+            //     })
+            // }
+            await createCurrencyPair({
+                currencyPair: currency,
+                exchangeRate: analysis.minAvg,
+            })
             res.status(200).json(analysis);
         } catch (error) {
             res.status(500).json({ message: 'Error fetching exchange rates', error });

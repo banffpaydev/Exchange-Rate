@@ -476,7 +476,7 @@ export const getAnalyzedRates = async (currency: string, startDate: string, endD
         return { top5, bottom5, top5Avg, bottom5Avg, minAvg };
       }
 
-    console.log(getTopAndBottomRatesWithAverages(rateVendorPairs))
+    // console.log(getTopAndBottomRatesWithAverages(rateVendorPairs))
 
     const rateValues = rates.map((rate: any) => rate.rates);
 
