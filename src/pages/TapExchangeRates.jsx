@@ -34,9 +34,16 @@ export function filterRates(
   return filteredRates;
 }
 
+// const currencyPairs = [
+//   'USD/NGN', 'EUR/NGN', 'GBP/NGN', 'CAD/NGN', 'CNY/NGN',
+//   'USD/LRD', 'EUR/LRD', 'GBP/LRD', 'CAD/LRD', 'CNY/LRD'
+// ];
+
 const currencyPairs = [
-  'USD/NGN', 'EUR/NGN', 'GBP/NGN', 'CAD/NGN', 'CNY/NGN',
-  'USD/LRD', 'EUR/LRD', 'GBP/LRD', 'CAD/LRD', 'CNY/LRD'
+  'USD/NGN', 'EUR/NGN', 'GBP/NGN', 'CAD/NGN',
+  'USD/LRD', 'EUR/LRD', 'GBP/LRD', 'CAD/LRD',
+  'GHS/NGN', 'CNY/NGN', 'AED/NGN', 'SLL/NGN', 'RWF/NGN',
+  'GHS/LRD', 'CNY/LRD', 'AED/LRD', 'SLL/LRD', 'RWF/LRD'
 ];
 
 function convertCurrencyPair(currencyPair) {
