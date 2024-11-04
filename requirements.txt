@@ -3,5 +3,7 @@ numpy
 requests
 psycopg2-binary
 selenium
+flask
 chromedriver-autoinstaller
 python-dotenv
+
