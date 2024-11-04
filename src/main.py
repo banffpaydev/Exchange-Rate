@@ -17,7 +17,7 @@ load_dotenv()
 
 def main():
     # Connect to the database
-    conn, cursor = connect_db()
+    # conn, cursor = connect_db()
 
     # Define currencies
     from_list = ['CAD', 'USD', 'GBP', 'EUR', 'CNY', 'AED']
@@ -29,14 +29,14 @@ def main():
             if from_currency != to_currency:
                 rate = scrape_exchange_rates(from_currency, to_currency)
                 if rate is not None:
-                    save_rate_to_db(cursor, from_currency, to_currency, rate)
+                    # save_rate_to_db(cursor, from_currency, to_currency, rate)
                     print(f"{from_currency} to {to_currency}: {rate}")
                 time.sleep(1)
 
     # Commit and close the connection
-    conn.commit()
-    cursor.close()
-    conn.close()
+    # conn.commit()
+    # cursor.close()
+    # conn.close()
 
 if __name__ == "__main__":
     main()
