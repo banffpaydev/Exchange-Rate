@@ -16,7 +16,7 @@ def connect_db():
         )
         cursor = conn.cursor()
         cursor.execute('''
-            CREATE TABLE IF NOT EXISTS exchange_rates (
+            CREATE TABLE IF NOT EXISTS exchange_rateey (
                 id SERIAL PRIMARY KEY,
                 from_currency VARCHAR(10),
                 to_currency VARCHAR(10),
