@@ -1,12 +1,12 @@
 import time
-import chromedriver_autoinstaller
+# import chromedriver_autoinstaller
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 
 # Automatically download the correct ChromeDriver version
-chromedriver_autoinstaller.install()
+# chromedriver_autoinstaller.install()
 
 def create_driver():
     """Set up Chrome driver with options suitable for headless environments like Render."""
