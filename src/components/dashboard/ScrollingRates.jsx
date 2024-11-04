@@ -5,7 +5,8 @@ const getCountryFlag = (currency) => {
   const countryCode = {
     'USD': 'us', 'EUR': 'eu', 'GBP': 'gb',
     'CAD': 'ca', 'CNY': 'cn', 'NGN': 'ng',
-    'LRD': 'lr'
+    'LRD': 'lr', 'AED': 'ae', 'GHS': 'gh',
+    'SLL': 'sl', 'RWF': 'rw'
   }[currency];
   
   return countryCode ? 

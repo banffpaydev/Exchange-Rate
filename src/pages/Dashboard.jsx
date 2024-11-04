@@ -7,9 +7,9 @@ import { CurrencyAnalysis } from '@/components/dashboard/CurrencyAnalysis';
 
 
 const ngnPairs = ['USD/NGN', 'EUR/NGN', 'GBP/NGN', 'CAD/NGN',
-  'GHS/NGN', 'CNY/NGN', 'AED/NGN', 'SLL/NGN', 'RWF/NGN'];
+  'GHS/NGN', 'AED/NGN', 'SLL/NGN', 'RWF/NGN'];
 const lrdPairs = ['USD/LRD', 'EUR/LRD', 'GBP/LRD', 'CAD/LRD',
-  'GHS/LRD', 'CNY/LRD', 'AED/LRD', 'SLL/LRD', 'RWF/LRD'];
+  'GHS/LRD', 'AED/LRD', 'SLL/LRD', 'RWF/LRD'];
 
 const Dashboard = () => {
   const navigate = useNavigate();
