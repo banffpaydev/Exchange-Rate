@@ -37,6 +37,42 @@ const afriXchangeRate = async (from: string, to: string) => {
     }
 }
 
+
+
+
+export const abokifxng = async (from: string, to: string) => {
+  try {
+    const response = await axios.get(`https://abokifx.com/usd_to_ngn.json?days=1`);
+    const data = response.data;
+
+    // if (String(to.toLowerCase()) !== 'ngn') {
+    //     console.log(false)
+    //     return { name: 'Abokifx', rate: null };
+    // }
+    // Check if the requested currency exists in the response data
+    if (!data[to.toLowerCase()] && String(to.toLowerCase()) !== 'ngn') {
+      return { name: 'Abokifx', rate: null };
+    }
+
+    
+
+    // Get the rates for the specified currency
+    const rates = data[from.toLowerCase()];
+    
+    // Find the most recent rate by sorting rates based on timestamp in descending order
+    // const mostRecentRate = rates
+    //   .sort((a: [number, number], b: [number, number]) => b[0] - a[0])[0];
+    // console.log("most rescnt: ", mostRecentRate);
+    // Return the most recent rate information
+    const druie = rates[rates.length - 1]
+
+    return { name: 'Abokifx', rate: druie[druie.length - 1] };
+  } catch (err: any) {
+    return { msg: "Error fetching rate", err };
+  }
+};
+
+
 const getRateByCurrency = (data: any, isoCode: string) => {
     const upperCaseIsoCode = isoCode.toUpperCase();
     
@@ -290,7 +326,9 @@ export const handleAllFetch = async () => {
     //     'USD/NGN', 'EUR/NGN', 'GBP/NGN', 'CAD/NGN', 'CNY/NGN',
     //     'USD/LRD', 'EUR/LRD', 'GBP/LRD', 'CAD/LRD', 'CNY/LRD'
     // ];
-    const apis = [lemfiRate, afriXchangeRate, wiseRate, transfergoRate, xchangeRtRate, xeRates];
+    const apis = [lemfiRate, afriXchangeRate, wiseRate, transfergoRate, xchangeRtRate, xeRates, abokifxng];
+
+    // const apis = [abokifxng];
     
     const results: Record<string, Record<string, number | null>> = {};
 
@@ -303,6 +341,7 @@ export const handleAllFetch = async () => {
                 const rateData = await api(from, to);
 
                 if (rateData && rateData.rate !== undefined) {
+                    // @ts-ignore
                     results[pair][rateData.name] = rateData.rate;
                 } else {
                     // @ts-ignore

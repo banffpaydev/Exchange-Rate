@@ -3,6 +3,7 @@ import rateRoutes from './routes/rateRoutes';
 import userRoutes from './routes/userRoutes';
 import currentPlay from './routes/currencyPairRoutes'
 import cors from 'cors'
+import { abokifxng } from './services/ExchangeRateService';
 // import momoRoutes from './routes/momoRoutes';
 
 const app = express();
@@ -10,6 +11,7 @@ const app = express();
 // Middleware
 app.use(express.json());
 app.use(cors());
+
 
 // Routes
 app.use('/api/rates', rateRoutes);
