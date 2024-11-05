@@ -3,14 +3,14 @@ import threading
 from utils.scraper import scrape_exchange_rate
 from utils.scrapertwin import cardremit_conv, ria_conv, bnb_conv, remitly_conv
 from db_config import connect_db, save_rate_to_db
-# from flask import Flask, jsonify
+from flask import Flask, jsonify
 import os
 from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
 
-# app = Flask(__name__)
+app = Flask(__name__)
 
 def main():
     # Connect to the database
@@ -70,9 +70,9 @@ def index():
     return jsonify({"message": "Exchange rate scraper is running."})
 
 
-if __name__ == "__main__":
-    main()
-
 # if __name__ == "__main__":
-#     port = int(os.getenv("PORT", 5000))  # Port set by Render or defaults to 5000
-#     app.run(host="0.0.0.0", port=port)
+#     main()
+
+if __name__ == "__main__":
+    port = int(os.getenv("PORT", 5000))  # Port set by Render or defaults to 5000
+    app.run(host="0.0.0.0", port=port)
