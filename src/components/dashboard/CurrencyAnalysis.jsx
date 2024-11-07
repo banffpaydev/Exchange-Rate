@@ -67,16 +67,16 @@ export const CurrencyAnalysis = ({ pair }) => {
             </div>
             
             <div className="text-xs border-t pt-1 space-y-1">
-              <div className="flex justify-between">
+              {/* <div className="flex justify-between">
                 <span>Top 5 Avg:</span>
                 <span>{analysis.top5Avg.toFixed(4)}</span>
               </div>
               <div className="flex justify-between">
                 <span>Bottom 5 Avg:</span>
                 <span>{analysis.bottom5Avg.toFixed(4)}</span>
-              </div>
+              </div> */}
               <div className="flex justify-between">
-                <span>Min Avg:</span>
+                <span>Rate Avg:</span>
                 <span>{analysis.minAvg.toFixed(4)}</span>
               </div>
             </div>

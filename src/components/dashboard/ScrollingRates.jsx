@@ -9,6 +9,7 @@ const getCountryFlag = (currency) => {
     'SLL': 'sl', 'RWF': 'rw'
   }[currency];
   
+
   return countryCode ? 
     `https://flagcdn.com/16x12/${countryCode}.png` : 
     null;
@@ -16,8 +17,8 @@ const getCountryFlag = (currency) => {
 
 const formatNumber = (number) => {
   return new Intl.NumberFormat('en-US', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
+    minimumFractionDigits: 4,
+    maximumFractionDigits: 4
   }).format(number);
 };
 

@@ -43,7 +43,11 @@ const currencyPairs = [
   'USD/NGN', 'EUR/NGN', 'GBP/NGN', 'CAD/NGN',
   'USD/LRD', 'EUR/LRD', 'GBP/LRD', 'CAD/LRD',
   'GHS/NGN', 'AED/NGN', 'SLL/NGN', 'RWF/NGN',
-  'GHS/LRD', 'AED/LRD', 'SLL/LRD', 'RWF/LRD'
+  'GHS/LRD', 'AED/LRD', 'SLL/LRD', 'RWF/LRD',
+  'NGN/USD', 'NGN/EUR', 'NGN/GBP', 'NGN/CAD',
+  'LRD/USD', 'LRD/EUR', 'LRD/GBP', 'LRD/CAD',
+  'NGN/GHS', 'NGN/AED', 'NGN/SLL', 'NGN/RWF',
+  'LRD/GHS', 'LRD/AED', 'LRD/SLL', 'LRD/RWF'
 ];
 
 function convertCurrencyPair(currencyPair) {

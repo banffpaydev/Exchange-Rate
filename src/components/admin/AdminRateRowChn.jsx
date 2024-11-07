@@ -54,9 +54,9 @@ export const AdminRateRowChn = ({ pair, rateData, id }) => {
           <Input
             type="number"
             step="0.0001"
+            className='bg-slate-400 w-32'
             value={editedRates || ''}
             onChange={(e) => setEditedRates(e.target.value)}
-            className="w-32"
           />
         </TableCell>
         <TableCell>
