@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { getAnalyzedRates, getRatesFromDB, getRatesFromDBPairs, handleAllFetch, saveDatatoDb } from '../services/ExchangeRateService';
+import { analysisReVamp, getAnalyzedRates, getRatesFromDB, getRatesFromDBPairs, handleAllFetch, saveDatatoDb } from '../services/ExchangeRateService';
 import { createCurrencyPair } from "../services/currencyPairService";
 
 
@@ -163,7 +163,34 @@ class RateController {
         } catch (error) {
             res.status(500).json({ message: 'Error fetching exchange rates', error });
         }
-    };
+    }
+
+    static async getDems(req: Request, res: Response) {
+        const pairs = req.query.pair;
+
+        if (!pairs) {
+            return res.status(400).json({
+                message: "Currency pair is required",
+                success: false,
+            });
+        }
+
+        try {
+            const dems = await analysisReVamp(pairs as string);
+
+            return res.status(200).json({
+                message: "Rates Fetched from Database",
+                success: true,
+                data: dems,
+            });
+        } catch (error: any) {
+            return res.status(500).json({
+                message: "Unable to fetch rates from DB",
+                success: false,
+                error: error.message,
+            });
+        }
+    }
     
 
 }

@@ -16,4 +16,7 @@ router.post("/dbsave", RateController.saveData);
 // @ts-ignore
 router.get('/getrates', RateController.getRatesAnalysis);
 
+// @ts-ignore
+router.get('/getdems', RateController.getDems);
+
 export default router;

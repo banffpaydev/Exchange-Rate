@@ -27,10 +27,14 @@ const lemfiRate = async (from: string, to: string) => {
 const afriXchangeRate = async (from: string, to: string) => {
     try {
         // https://client.africhange.com/api/Rate?sendingCurrencyCode=NGN&receivingCurrencyCode=GBP
-        const response = await axios.get(`https://client.africhange.com/api/Rate?sendingCurrencyCode=${from}&receivingCurrencyCode=${to}`);
+        const response = await axios.get(`https://client.africhange.com/api/Rate?sendingCurrencyCode=${to}&receivingCurrencyCode=${from}`);
         const data = response.data.data;
         // console.log('afriXChange: ', data);
-        return { name: 'Afri Exchange', rate: Number(data.exchangeRateToDisplay) };
+        if (data.exchangeRateToDisplay) {
+            return { name: 'Afri Exchange', rate: Number(data.exchangeRateToDisplay) };
+        } else {
+            return { name: 'Afri Exchange', rate: null }; 
+        }
     } catch (err: any) {
         // console.error('Error fetching Afri Exchange rate:', err);
         return {msg: "error message", err}
@@ -73,18 +77,24 @@ export const abokifxng = async (from: string, to: string) => {
 };
 
 
-const getRateByCurrency = (data: any, isoCode: string) => {
+const getRateByCurrency = (data: any, isoCode: string, from: string) => {
     const upperCaseIsoCode = isoCode.toUpperCase();
+    const upperFrom = from.toUpperCase();
     
     // Find the currency rate
     const rate = data.rates[upperCaseIsoCode];
+    const fromRate = data.rates[upperFrom];
+
+    const realRate =  rate / fromRate
+
+    // console.log('realRate: ', realRate, 'from: ', from ,fromRate, 'to: ', isoCode, rate);
   
     // Return the rate if found, or a message if the currency is not available
-    return rate
+    return realRate
   };
 
 
-const xeRates = async (from: string, to: string) => {
+export const xeRates = async (from: string, to: string) => {
     try {
         const response = await axios.get(`https://www.xe.com/api/protected/midmarket-converter/`, {
             headers: {
@@ -92,7 +102,7 @@ const xeRates = async (from: string, to: string) => {
             }
         });
         const data = response.data;
-        const ratings = getRateByCurrency(data, to);
+        const ratings = getRateByCurrency(data, to, from);
         // console.log('xeRates: ', ratings);
         return { name: 'Xe Exchange', rate: Number(ratings) };
     } catch (err: any) {
@@ -319,14 +329,26 @@ export const handleAllFetch = async () => {
         'USD/NGN', 'EUR/NGN', 'GBP/NGN', 'CAD/NGN',
         'USD/LRD', 'EUR/LRD', 'GBP/LRD', 'CAD/LRD',
         'GHS/NGN', 'AED/NGN', 'SLL/NGN', 'RWF/NGN',
-        'GHS/LRD', 'AED/LRD', 'SLL/LRD', 'RWF/LRD'
+        'GHS/LRD', 'AED/LRD', 'SLL/LRD', 'RWF/LRD',
+        'NGN/USD', 'NGN/EUR', 'NGN/GBP', 'NGN/CAD',
+        'LRD/USD', 'LRD/EUR', 'LRD/GBP', 'LRD/CAD',
+        'NGN/GHS', 'NGN/AED', 'NGN/SLL', 'NGN/RWF',
+        'LRD/GHS', 'LRD/AED', 'LRD/SLL', 'LRD/RWF'
     ];
     
+
+    // [
+    //     'NGN/USD', 'NGN/EUR', 'NGN/GBP', 'NGN/CAD',
+    //     'LRD/USD', 'LRD/EUR', 'LRD/GBP', 'LRD/CAD',
+    //     'NGN/GHS', 'NGN/AED', 'NGN/SLL', 'NGN/RWF',
+    //     'LRD/GHS', 'LRD/AED', 'LRD/SLL', 'LRD/RWF'
+    //   ]
+
     // const pairs = [
     //     'USD/NGN', 'EUR/NGN', 'GBP/NGN', 'CAD/NGN', 'CNY/NGN',
     //     'USD/LRD', 'EUR/LRD', 'GBP/LRD', 'CAD/LRD', 'CNY/LRD'
     // ];
-    const apis = [lemfiRate, afriXchangeRate, wiseRate, transfergoRate, xchangeRtRate, xeRates, abokifxng];
+    const apis = [lemfiRate, afriXchangeRate, wiseRate, transfergoRate, xeRates, abokifxng];
 
     // const apis = [abokifxng];
     
@@ -447,14 +469,19 @@ export const getRatesFromDB = async () => {
 export const getAnalyzedRates = async (currency: string, startDate: string, endDate: string) => {
     // Query for matching currency pairs within the given date range
     const rates = await ExchangeRate.findAll({
-        where: {
-            pair: { [Op.like]: `%${currency}%` },
-            createdAt: {
-                [Op.between]: [new Date(startDate), new Date(endDate)]
-            }
-        },
-        order: [['createdAt', 'ASC']]  // Sort by date ascending
-    });
+        where: { pair: currency },
+        limit: 1,
+        order: [['createdAt', 'DESC']]
+    })
+    // await ExchangeRate.findAll({
+    //     where: {
+    //         pair: { [Op.like]: `%${currency}%` },
+    //         createdAt: {
+    //             [Op.between]: [new Date(startDate), new Date(endDate)]
+    //         }
+    //     },
+    //     order: [['createdAt', 'ASC']]  // Sort by date ascending
+    // });
 
 
     // Extract rates from results
@@ -559,6 +586,17 @@ export const getAnalyzedRates = async (currency: string, startDate: string, endD
         // highAvg: calculateAverage(highestFiveRates),
         // Avgrate: calculateAverage([calculateAverage(lowestFiveRates), calculateAverage(highestFiveRates)]);
 };
+
+
+export const analysisReVamp = async (currency: string) => {
+    const recentRate = await ExchangeRate.findAll({
+        where: { pair: currency },
+        limit: 1,
+        order: [['createdAt', 'DESC']]
+    })
+
+    return recentRate;
+}
 
 
 
