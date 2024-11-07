@@ -3,10 +3,9 @@ import time
 import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from db_config import connect_db, save_rate_to_db
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import NoSuchElementException, WebDriverException, TimeoutException
-import logging
 import warnings 
 warnings.filterwarnings('ignore')
 
@@ -65,11 +64,18 @@ rate_df['run_time']=time.strftime("%Y-%m-%d %H:%M:%S")
 
 def create_driver():
     """Set up Chrome driver with options suitable for headless environments like Render."""
+
     options = webdriver.ChromeOptions()
     options.add_argument('--headless')
     options.add_argument('--no-sandbox')  # Necessary for running in server environments like Render
-    options.add_argument('--disable-dev-shm-usage')  # Overcome limited resource problems
-    options.add_argument('--disable-gpu')  # Optional: May improve performance in some environments
+    options.add_argument('--disable-dev-shm-usage')  # Overcome limited resource problems # Needed for some environments
+    options.add_argument('--disable-dev-shm-usage')  # Prevents issues on low memory environments
+    options.add_argument('--disable-accelerated-2d-canvas')  # Avoids GPU rendering issues
+    options.add_argument('--disable-accelerated-video-decode')
+    options.add_argument('--disable-software-rasterizer')  # Disables software rasterizer
+    options.add_argument('--disable-webgl') 
+    options.add_argument('--disable-gpu')  # Optional: May improve performance in some  
+    options.add_argument('--disable-extensions')  
     return webdriver.Chrome(options=options)
 
 def select_currency(driver, element_id, currency_code):
@@ -106,229 +112,245 @@ def scrape_exchange_rate(from_currency, to_currency):
 
 
 def cardremit_conv():
-    # Set up logging
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger(__name__)
+    # options = webdriver.ChromeOptions()
+    # options.add_argument('--headless')
+    # driver = webdriver.Chrome(options=options)
 
-    conv_rate_list = []
+    driver=webdriver.Chrome()
 
-    # Initialize the WebDriver with error handling
-    try:
-        driver = create_driver()  # Assume create_driver() initializes the driver with desired options
-        driver.get("https://cadremit.com/")
-        time.sleep(5)
+    conv_rate_list=[]
 
-        # Retry mechanism for fetching conversion rate
-        retry_attempts = 3
-        for attempt in range(retry_attempts):
-            try:
-                # Perform clicks and retrieve the conversion rate
-                element = driver.find_element(By.XPATH, "//*[@id='__nuxt']/div/div[3]/div/div/div/div/div[2]/div/div[1]/div[2]/div/div")
-                driver.execute_script("arguments[0].click();", element)
-                time.sleep(1)
+    driver.get("https://cadremit.com/")
+    driver.maximize_window()
+    time.sleep(5)
 
-                element = driver.find_element(By.XPATH, "//*[@id='__nuxt']/div/div[3]/div/div/div/div/div[2]/div/div[1]/div[2]/div/ul/li[2]")
-                driver.execute_script("arguments[0].click();", element)
-                time.sleep(1)
+    y_f=True
+    while y_f:
+        try: 
+            element=driver.find_element(By.XPATH,"//*[@id='__nuxt']/div/div[3]/div/div/div/div/div[2]/div/div[1]/div[2]/div/div")
+            driver.execute_script("arguments[0].click();", element)
+            time.sleep(1)
 
-                element = driver.find_element(By.XPATH, "//*[@id='__nuxt']/div/div[3]/div/div/div/div/div[2]/div/div[3]/div[2]/div/div")
-                driver.execute_script("arguments[0].click();", element)
-                time.sleep(1)
 
-                element = driver.find_element(By.XPATH, "//*[@id='__nuxt']/div/div[3]/div/div/div/div/div[2]/div/div[3]/div[2]/div/ul/li[1]")
-                driver.execute_script("arguments[0].click();", element)
+            element=driver.find_element(By.XPATH,"//*[@id='__nuxt']/div/div[3]/div/div/div/div/div[2]/div/div[1]/div[2]/div/ul/li[2]")
+            driver.execute_script("arguments[0].click();", element)
+            time.sleep(1)
 
-                # Capture conversion rate
-                conv_rate = driver.find_element(By.XPATH, "//*[@id='__nuxt']/div/div[3]/div/div/div/div/div[2]/div/div[2]/div[2]/div[2]/span[1]").text
-                conv_rate_list.append(conv_rate)
-                break  # Exit the loop if successful
 
-            except NoSuchElementException as e:
-                logger.error(f"Element not found on attempt {attempt + 1}: {e}")
-                driver.get("https://cadremit.com/")
-                time.sleep(10)
-            except WebDriverException as e:
-                logger.error(f"WebDriver error on attempt {attempt + 1}: {e}")
-                time.sleep(5)
-            except Exception as e:
-                logger.error(f"Unexpected error on attempt {attempt + 1}: {e}")
-                time.sleep(5)
-        else:
-            logger.warning("Failed to retrieve conversion rate after multiple attempts.")
-        
-    except WebDriverException as e:
-        logger.critical(f"Failed to initialize WebDriver: {e}")
-    finally:
-        # Ensure the driver is closed to release resources
-        if 'driver' in locals():
-            driver.quit()
+            element=driver.find_element(By.XPATH,"//*[@id='__nuxt']/div/div[3]/div/div/div/div/div[2]/div/div[3]/div[2]/div/div")
+            driver.execute_script("arguments[0].click();", element)
+            time.sleep(1)
+
+
+            element=driver.find_element(By.XPATH,"//*[@id='__nuxt']/div/div[3]/div/div/div/div/div[2]/div/div[3]/div[2]/div/ul/li[1]")
+            driver.execute_script("arguments[0].click();", element)
+
+            print(driver.find_element(By.XPATH,"//*[@id='__nuxt']/div/div[3]/div/div/div/div/div[2]/div/div[2]/div[2]/div[2]/span[1]").text)
+            conv_rate_list.append(driver.find_element(By.XPATH,"//*[@id='__nuxt']/div/div[3]/div/div/div/div/div[2]/div/div[2]/div[2]/div[2]/span[1]").text)
+
+            y_f=False
+
+        except:
+            driver.get("https://cadremit.com/")
+            driver.maximize_window()
+            time.sleep(10)
+            pass
+
+    #close the driver
+    driver.close()
+    driver.quit()
 
     return conv_rate_list
+
 
 
 # ria function
-def ria_conv():
-    driver = create_driver()
-    conv_rate_list = []
-    
+
+# ria function
+
+def ria_conv(cursor):
+
+    options = webdriver.ChromeOptions()
+    options.add_argument('--headless')
+    driver = webdriver.Chrome(options=options)
+
+    driver=webdriver.Chrome()
+
+
+    conv_rate_list=[]
+
     for i in ria_from_list:
-        y_f2 = True
-        retry_count = 0
-        max_retries = 3  # Define a maximum number of retries for loading the URL
-
-        while y_f2 and retry_count < max_retries:
+        y_f2=True
+        while y_f2:
             try:
-                url = f"https://www.riamoneytransfer.com/en-{i}/"
+                url="https://www.riamoneytransfer.com/en-"+i+"/"
                 driver.get(url)
-                time.sleep(5)  # Consider using WebDriverWait for better handling
-                y_f2 = False
-            except TimeoutException as e:
-                logging.error(f"Timeout while loading {url}: {e}")
-                retry_count += 1
-                time.sleep(2)  # Wait before retrying
-            except Exception as e:
-                logging.error(f"Error while loading {url}: {e}")
-                break  # Break out of the loop on unexpected errors
-
+                driver.maximize_window()
+                time.sleep(5)
+                y_f2=False
+            except:
+                pass
+        
         for j in ria_hardcoded_to_list_dict[i]:
-            y_f = True
-            retry_count = 0
-
-            while y_f and retry_count < max_retries:
+            y_f=True
+            while y_f:
                 try:
-                    driver.find_element(By.CLASS_NAME, "dropdown-container").click()
+                    driver.find_element(By.CLASS_NAME,"dropdown-container").click()
                     time.sleep(1)
 
-                    dropdown_id = f"//*[@id='__next']/main/section[1]/div/div/div[2]/div/div/form/div[1]/div/div/div/div/ul/li[{j}]"
-                    driver.find_element(By.XPATH, dropdown_id).click()
+                    dropdown_id="//*[@id='__next']/main/section[1]/div/div/div[2]/div/div/form/div[1]/div/div/div/div/ul/li["+ str(j)+ "]"
+                    driver.find_element(By.XPATH,dropdown_id).click()
                     time.sleep(1)
 
-                    # Try to get the conversion rate
+
                     try:
-                        promo_rate = driver.find_element(By.CLASS_NAME, "text-promo-rate").text
-                        if promo_rate not in ['-', '_', '=', ' ']:
-                            logging.info(f'1.00 {ria_hardcoded_from_list_dict[i]} = {promo_rate}')
-                            conv_rate_list.append(f'1.00 {ria_hardcoded_from_list_dict[i]} = {promo_rate}')
-                            y_f = False
-                    except NoSuchElementException:
-                        transfer_text = driver.find_element(By.CLASS_NAME, "transfer-text").text.split(ria_hardcoded_from_list_dict[i])[-1]
-                        logging.info(f'1.00 {ria_hardcoded_from_list_dict[i]} = {transfer_text}')
-                        conv_rate_list.append(f'1.00 {ria_hardcoded_from_list_dict[i]} = {transfer_text}')
-                        y_f = False
+                        if driver.find_element(By.CLASS_NAME,"text-promo-rate").text not in ['-','_','=', ' ']:
+                            xRate = driver.find_element(By.CLASS_NAME,"text-promo-rate").text
+                            print('1.00 ' + str(ria_hardcoded_from_list_dict[i]) + ' = '+ driver.find_element(By.CLASS_NAME,"text-promo-rate").text)
+                            conv_rate_list.append('1.00 ' + str(ria_hardcoded_from_list_dict[i]) + ' = '+ driver.find_element(By.CLASS_NAME,"text-promo-rate").text)
+                            from_currency = ria_hardcoded_from_list_dict[i]
+                            to_currency = ria_hardcoded_to_list_dict[i][j]
+                            save_rate_to_db(cursor, from_currency, to_currency, float(xRate))
+                            y_f=False
+                    except:
+                        print('1.00 ' + str(ria_hardcoded_from_list_dict[i]) + ' = '+ driver.find_element(By.CLASS_NAME,"transfer-text").text.split(ria_hardcoded_from_list_dict[i])[-1])
+                        conv_rate_list.append('1.00 ' + str(ria_hardcoded_from_list_dict[i]) + ' = '+ driver.find_element(By.CLASS_NAME,"transfer-text").text.split(ria_hardcoded_from_list_dict[i])[-1])
+                        y_f=False
 
-                except NoSuchElementException as e:
-                    logging.error(f"Element not found when processing dropdown for {i}: {e}")
+
+                except:
                     driver.get(url)
-                    time.sleep(5)  # Re-load the page on error
-                    retry_count += 1  # Increment retry count
-                except Exception as e:
-                    logging.error(f"Unexpected error when processing dropdown for {i}: {e}")
-                    break  # Exit loop on unexpected errors
+                    time.sleep(5)
+                    
+                    pass
 
-    # Close the driver
-    driver.quit()  # Use quit to ensure clean exit
+
+    #close the driver
+    driver.close()
+    driver.quit()
 
     return conv_rate_list
+
 
 
 ## bnb function
+
+## bnb function
+
 def bnb_conv():
-    conv_rate_list = []
 
-    try:
-        # Initialize the driver
-        driver = create_driver()
+    options = webdriver.ChromeOptions()
+    options.add_argument('--headless')
+    driver = webdriver.Chrome(options=options)
 
-        driver.get("https://web.bnbcash.app/en")
-        time.sleep(5)
+    conv_rate_list=[]
 
-        for i in bnb_hardcoded_from_list_dict.keys():
-            success = False
-            while not success:
-                try:
-                    driver.find_element(By.XPATH, "/html/body/div[2]/div/div/section[1]/div/section/aside[2]/div/div/div/div[1]/div[2]/div[1]/span").click()
-                    time.sleep(1)
 
-                    dropdown_id1 = f"/html/body/div[2]/div/div/section[1]/div/section/aside[2]/div/div/div/div[1]/div[2]/div[2]/div/div[{i}]/div/span"
-                    driver.find_element(By.XPATH, dropdown_id1).click()
-                    time.sleep(1)
+    driver.get("https://web.bnbcash.app/en")
+    driver.maximize_window()
+    time.sleep(5)
 
-                    length_list = len(bnb_hardcoded_to_list_dict[bnb_hardcoded_from_list_dict[i]])
 
-                    for j in range(length_list):
-                        country_success = False
-                        while not country_success:
-                            try:
-                                driver.find_element(By.XPATH, "/html/body/div[2]/div/div/section[1]/div/section/aside[2]/div/div/div/div[2]/div[2]/div[1]/span").click()
-                                time.sleep(1)
-                                country_num = bnb_hardcoded_to_list_dict[bnb_hardcoded_from_list_dict[i]][j]
-                                dropdown_id2 = f"/html/body/div[2]/div/div/section[1]/div/section/aside[2]/div/div/div/div[2]/div[2]/div[2]/div/div[{country_num}]/div/span"
-                                driver.find_element(By.XPATH, dropdown_id2).click()
-                                time.sleep(1)
+    conv_rate_list=[]
+    for i in bnb_hardcoded_from_list_dict.keys():
+        y_f=True
+        while y_f:
+            try:
+                driver.find_element(By.XPATH,"/html/body/div[2]/div/div/section[1]/div/section/aside[2]/div/div/div/div[1]/div[2]/div[1]/span").click()
+                time.sleep(1)
 
-                                conv_rate = driver.find_element(By.XPATH, "/html/body/div[2]/div/div/section[1]/div/section/aside[2]/div/div/div/p").text
-                                logging.info(f"Conversion rate found: {conv_rate}")
-                                conv_rate_list.append(conv_rate)
-                                country_success = True
-                            except NoSuchElementException as e:
-                                logging.error(f"Element not found during country selection: {e}")
-                                break  # Break out to the main loop to try again
+                dropdown_id1="/html/body/div[2]/div/div/section[1]/div/section/aside[2]/div/div/div/div[1]/div[2]/div[2]/div/div["+ str(i)+ "]/div/span"
+                driver.find_element(By.XPATH,dropdown_id1).click()
+                time.sleep(1)
 
-                    success = True
+                length_list=len(bnb_hardcoded_to_list_dict[bnb_hardcoded_from_list_dict[i]])
+            
+
+                for j in range(length_list):
+                    y_f=True
+                    while y_f:
+                        try:
+        
+                            driver.find_element(By.XPATH,"/html/body/div[2]/div/div/section[1]/div/section/aside[2]/div/div/div/div[2]/div[2]/div[1]/span").click()
+                            time.sleep(1)
+                            country_num=bnb_hardcoded_to_list_dict[bnb_hardcoded_from_list_dict[i]][j]
+                            dropdown_id2="/html/body/div[2]/div/div/section[1]/div/section/aside[2]/div/div/div/div[2]/div[2]/div[2]/div/div["+ str(country_num)+ "]/div/span"
+                            driver.find_element(By.XPATH,dropdown_id2).click()
+                            time.sleep(1)
+                            print(driver.find_element(By.XPATH,"/html/body/div[2]/div/div/section[1]/div/section/aside[2]/div/div/div/p").text)
+                            conv_rate_list.append(driver.find_element(By.XPATH,"/html/body/div[2]/div/div/section[1]/div/section/aside[2]/div/div/div/p").text)
+
+                            # save_rate_to_db(cursor, from_currency, to_currency, float(xRate))
+                            y_f=False
+                        except:
+                            pass
+
+                y_f=False
                 
-                except NoSuchElementException as e:
-                    logging.error(f"Element not found during conversion selection: {e}")
-                    break  # Break out to the main loop to try again
+            except:
+                pass
 
-    except WebDriverException as e:
-        logging.error(f"WebDriver error: {e}")
 
-    finally:
-        # Ensure the driver is closed even if an error occurs
-        if driver:
-            driver.quit()
+    #close the driver
+    driver.close()
+    driver.quit()
 
     return conv_rate_list
+
+
+
+
+
 
 
 
 ## remitly functions
+## remitly functions
+
 def remitly_conv():
-    remitly_list = []
-    driver = create_driver()
+    counter=1
+    remitly_list=[]
+    options = webdriver.ChromeOptions()
+    options.add_argument('--headless')
+    driver = webdriver.Chrome(options=options)
 
     for i in remitly_from_list:
         for j in remitly_to_list:
-            if remitly_to_dict[j] != i:
-                y_f = True
-                attempt = 0  # Track the number of attempts
-
-                while y_f and attempt < 3:  # Limit to 3 attempts
+            if remitly_to_dict[j]!=i:
+                y_f=True
+                while y_f:
                     try:
-                        url = f"https://www.remitly.com/{i}/en/{j}"
+                        
+                        url="https://www.remitly.com/"+i+"/en/"+j
                         driver.get(url)
-
-                        if attempt == 0:
-                            driver.find_element(By.XPATH, "//*[@id='c-footerBrandV1']/footer/div[2]/div/div[2]/div[3]/button[2]").click()
+                        
+                        if counter==1:
+                            driver.maximize_window()
+                            driver.find_element(By.XPATH,"//*[@id='c-footerBrandV1']/footer/div[2]/div/div[2]/div[3]/button[2]").click()
                             time.sleep(2)
-
-                        time.sleep(2)  # Wait for the rate to load
-                        rate = driver.find_element(By.XPATH, "//*[@id='send-recv-calc-container']/div[3]/div/div/div[2]").text
-                        remitly_list.append(rate)
-                        logging.info(f"Retrieved rate for {i} to {j}: {rate}")
-                        y_f = False  # Exit the loop on success
-
-                    except Exception as e:
-                        attempt += 1  # Increment attempt count
-                        logging.error(f"Error retrieving rate for {i} to {j} on attempt {attempt}: {e}")
-                        time.sleep(5)  # Wait before retrying
-                        if attempt == 3:  # Log final failure after 3 attempts
-                            logging.error(f"Failed to retrieve rate for {i} to {j} after {attempt} attempts.")
-
-    # Close the driver
+                            counter+=1
+                            rate=driver.find_element(By.XPATH,"//*[@id='send-recv-calc-container']/div[3]/div/div/div[2]").text
+                            print(rate)
+                            remitly_list.append(rate)
+                            y_f=False
+                    
+                        else:
+                            time.sleep(2)
+                            rate=driver.find_element(By.XPATH,"//*[@id='send-recv-calc-container']/div[3]/div/div/div[2]").text
+                            print(rate)
+                            remitly_list.append(rate)
+                            y_f=False
+                    except:   
+                        url="https://www.remitly.com/"+i+"/en/"+j
+                        driver.get(url)
+                        time.sleep(5)
+                        pass
+     #close the driver
+    driver.close()
     driver.quit()
-    return remitly_list
 
+    return remitly_list
+                
 
 
 

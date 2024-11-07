@@ -13,50 +13,43 @@ load_dotenv()
 app = Flask(__name__)
 
 def main():
-    # Connect to the database
-    # conn, cursor = connect_db()
+    
 
-    # Define currencies
-    # from_list = ['CAD', 'USD', 'GBP', 'EUR', 'CNY', 'AED']
-    # to_list = ['CAD', 'USD', 'GBP', 'EUR', 'CNY', 'AED', 'NGN']
-
-    # # Scrape and save exchange rates
-    # for from_currency in from_list:
-    #     for to_currency in to_list:
-    #         if from_currency != to_currency:
-    #             rate = scrape_exchange_rate(from_currency, to_currency)
-    #             if rate is not None:
-    #                 # save_rate_to_db(cursor, from_currency, to_currency, rate)
-    #                 print(f"{from_currency} to {to_currency}: {rate}")
-    #             time.sleep(1)  # Delay between each request
-
-    print("Starting CardRemit conversion rate scrape...")
-    cardremit_rates = cardremit_conv()
-    print(f"CardRemit Conversion Rates: {cardremit_rates}")
+    conn, cursor = connect_db()
+    """
+    Main function to perform exchange rate scraping from various sources.
+    """
+    # print("Starting CardRemit conversion rate scrape...")
+    # cardremit_rates = cardremit_conv()
+    # print(f"CardRemit Conversion Rates: {cardremit_rates}")
 
     print("Starting BNB conversion rate scrape...")
     bnb_rates = bnb_conv()
     print(f"BNB Conversion Rates: {bnb_rates}")
 
     print("Starting RIA conversion rate scrape...")
-    ria_rates = ria_conv()
+    ria_rates = ria_conv(cursor)
     print(f"RIA Conversion Rates: {ria_rates}")
 
-    print("Starting RIA conversion rate scrape...")
+    print("Starting Remitly conversion rate scrape...")
     remitly_rates = remitly_conv()
-    print(f"RIA Conversion Rates: {remitly_rates}")
-
-    # Commit and close the connection
-    # conn.commit()
-    # cursor.close()
-    # conn.close()
+    print(f"Remitly Conversion Rates: {remitly_rates}")
+    conn.commit()
+    cursor.close()
+    conn.close()
 
 def run_main_interval():
-    interval = int(os.getenv("INTERVAL", 600))  # Interval set to 10 mins (600 seconds) by default
+    """
+    Runs the main function at intervals specified by the INTERVAL environment variable.
+    """
+    interval = int(os.getenv("INTERVAL", 600))  # Default to 10 minutes if not set
     while True:
-        print("Starting rate scrape process...")
-        main()
-        print(f"Process completed. Sleeping for {interval} seconds.")
+        try:
+            print("Starting rate scrape process...")
+            main()
+            print(f"Process completed. Sleeping for {interval} seconds.")
+        except Exception as e:
+            print(f"Error occurred during scraping: {e}")
         time.sleep(interval)
 
 # Start the main scraping function in a background thread
@@ -69,10 +62,7 @@ scraping_thread.start()
 def index():
     return jsonify({"message": "Exchange rate scraper is running."})
 
-
-# if __name__ == "__main__":
-#     main()
-
 if __name__ == "__main__":
+    # run_main_interval()
     port = int(os.getenv("PORT", 5000))  # Port set by Render or defaults to 5000
     app.run(host="0.0.0.0", port=port)
