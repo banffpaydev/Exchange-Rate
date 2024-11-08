@@ -13,18 +13,18 @@ load_dotenv()
 app = Flask(__name__)
 
 def main():
-    
-
-    conn, cursor = connect_db()
     """
     Main function to perform exchange rate scraping from various sources.
     """
+    conn, cursor = connect_db()
+
+    # Uncomment if needed
     # print("Starting CardRemit conversion rate scrape...")
     # cardremit_rates = cardremit_conv()
     # print(f"CardRemit Conversion Rates: {cardremit_rates}")
 
     print("Starting BNB conversion rate scrape...")
-    bnb_rates = bnb_conv()
+    bnb_rates = bnb_conv(cursor)
     print(f"BNB Conversion Rates: {bnb_rates}")
 
     print("Starting RIA conversion rate scrape...")
@@ -34,6 +34,7 @@ def main():
     print("Starting Remitly conversion rate scrape...")
     remitly_rates = remitly_conv()
     print(f"Remitly Conversion Rates: {remitly_rates}")
+
     conn.commit()
     cursor.close()
     conn.close()
@@ -53,16 +54,22 @@ def run_main_interval():
         time.sleep(interval)
 
 # Start the main scraping function in a background thread
-scraping_thread = threading.Thread(target=run_main_interval)
-scraping_thread.daemon = True  # Daemon thread to close when main program exits
-scraping_thread.start()
+def start_scraping_thread():
+    scraping_thread = threading.Thread(target=run_main_interval)
+    scraping_thread.daemon = True  # Daemon thread to close when main program exits
+    scraping_thread.start()
 
 # Define a simple endpoint to keep the Flask app running
 @app.route("/")
 def index():
     return jsonify({"message": "Exchange rate scraper is running."})
 
+# WSGI server (Gunicorn) will call app by default
+if __name__ != "__main__":
+    start_scraping_thread()
+
 if __name__ == "__main__":
-    # run_main_interval()
+    # Only for local development
     port = int(os.getenv("PORT", 5000))  # Port set by Render or defaults to 5000
+    start_scraping_thread()  # Ensure scraping starts in development mode
     app.run(host="0.0.0.0", port=port)

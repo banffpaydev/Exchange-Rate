@@ -237,7 +237,7 @@ def ria_conv(cursor):
 
 ## bnb function
 
-def bnb_conv():
+def bnb_conv(cursor):
 
     options = webdriver.ChromeOptions()
     options.add_argument('--headless')
@@ -277,10 +277,13 @@ def bnb_conv():
                             dropdown_id2="/html/body/div[2]/div/div/section[1]/div/section/aside[2]/div/div/div/div[2]/div[2]/div[2]/div/div["+ str(country_num)+ "]/div/span"
                             driver.find_element(By.XPATH,dropdown_id2).click()
                             time.sleep(1)
+                            xRates = driver.find_element(By.XPATH,"/html/body/div[2]/div/div/section[1]/div/section/aside[2]/div/div/div/p").text
                             print(driver.find_element(By.XPATH,"/html/body/div[2]/div/div/section[1]/div/section/aside[2]/div/div/div/p").text)
                             conv_rate_list.append(driver.find_element(By.XPATH,"/html/body/div[2]/div/div/section[1]/div/section/aside[2]/div/div/div/p").text)
 
-                            # save_rate_to_db(cursor, from_currency, to_currency, float(xRate))
+                            from_currency = bnb_hardcoded_from_list_dict[i]
+                            to_currency = bnb_hardcoded_to_list_dict[from_currency][j]
+                            save_rate_to_db(cursor, from_currency, to_currency, float(xRates))
                             y_f=False
                         except:
                             pass
