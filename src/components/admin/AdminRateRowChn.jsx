@@ -77,7 +77,7 @@ export const AdminRateRowChn = ({ pair, rateData, id }) => {
                     {analysis.top5.map((item, index) => (
                       <div key={index} className="flex justify-between">
                         <span className="font-medium">{item.vendor.toUpperCase()}:</span>
-                        <span>{item.rate.toFixed(4)}</span>
+                        <span>{item.rate.toFixed(4) || 'null'}</span>
                       </div>
                     ))}
                   </div>
@@ -88,7 +88,7 @@ export const AdminRateRowChn = ({ pair, rateData, id }) => {
                     {analysis.bottom5.map((item, index) => (
                       <div key={index} className="flex justify-between">
                         <span className="font-medium">{item.vendor.toUpperCase()}:</span>
-                        <span>{item.rate.toFixed(4)}</span>
+                        <span>{item.rate.toFixed(4) || 'null'}</span>
                       </div>
                     ))}
                   </div>
@@ -97,15 +97,15 @@ export const AdminRateRowChn = ({ pair, rateData, id }) => {
               <div className="grid grid-cols-3 gap-4 mt-4">
                 <div>
                   <span className="font-semibold">Top 5 Average:</span>
-                  <span className="ml-2">{analysis.top5Avg.toFixed(4)}</span>
+                  <span className="ml-2">{analysis.top5Avg.toFixed(4) || 'null'}</span>
                 </div>
                 <div>
                   <span className="font-semibold">Bottom 5 Average:</span>
-                  <span className="ml-2">{analysis.bottom5Avg.toFixed(4)}</span>
+                  <span className="ml-2">{analysis.bottom5Avg.toFixed(4) || 'null'}</span>
                 </div>
                 <div>
                   <span className="font-semibold">Minimum Average:</span>
-                  <span className="ml-2">{analysis.minAvg.toFixed(4)}</span>
+                  <span className="ml-2">{analysis.minAvg.toFixed(4) || 'null'}</span>
                 </div>
               </div>
             </div>

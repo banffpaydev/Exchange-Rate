@@ -51,7 +51,7 @@ export const CurrencyAnalysis = ({ pair }) => {
               {analysis.top5.map((item, idx) => (
                 <div key={idx} className="flex justify-between">
                   <span>{item.vendor}</span>
-                  <span>{item.rate.toFixed(4)}</span>
+                  <span>{item.rate.toFixed(4) || 'null'}</span>
                 </div>
               ))}
             </div>
@@ -61,7 +61,7 @@ export const CurrencyAnalysis = ({ pair }) => {
               {analysis.bottom5.map((item, idx) => (
                 <div key={idx} className="flex justify-between">
                   <span>{item.vendor}</span>
-                  <span>{item.rate.toFixed(4)}</span>
+                  <span>{item.rate.toFixed(4) || 'null'}</span>
                 </div>
               ))}
             </div>
@@ -77,7 +77,8 @@ export const CurrencyAnalysis = ({ pair }) => {
               </div> */}
               <div className="flex justify-between">
                 <span>Rate Avg:</span>
-                <span>{analysis.minAvg.toFixed(4)}</span>
+                {/* <span>{analysis.minAvg.toFixed(4) || 'null'}</span> */}
+                <span className='text-green-600'>{analysis.minAvg.toFixed(4) || 'null'}</span>
               </div>
             </div>
           </div>
