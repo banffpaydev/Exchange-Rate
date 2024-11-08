@@ -127,41 +127,65 @@ const remitlyRate =  async (from: string, to: string) => {
 }
 
 // End Here
+
+function getRateD(response: any, fromCurrency: any, toCurrency: any) {
+    const pair = response[fromCurrency]?.[toCurrency];
+  
+    if (!pair) {
+      return `Exchange rate for ${fromCurrency}-${toCurrency} not found.`;
+    }
+  
+    // Direct rate
+    if (typeof pair === 'object') {
+      return pair.buy; // Return buy rate for direct pair
+    } else if (typeof pair === 'string') {
+      // Reverse rate handling
+      const [reverseFrom, reverseTo] = pair.split(':');
+      const reversePair = response[reverseFrom]?.[reverseTo];
+  
+      if (!reversePair) {
+        return null;
+      }
+  
+      return reversePair.sell; // Return sell rate for reverse pair
+    }
+  
+    return `Invalid data format for ${fromCurrency}-${toCurrency}.`;
+  }
   
 
 const cadrRemitRate =  async (from: string, to: string) => {
     try {
-        const response = await axios.get(`https://corsproxy.io/?https%3A%2F%2Fapi.cadremit.com%2Fv1%2Fadmin%2Fsettings`);
+        const response = await axios.get(`https://api.cadremit.com/v1/admin/settings`);
         const data = response.data.data;
         const rates = data.rates;
-        console.log('cadrRemit: ', data);
+        // console.log()
 
-        if (rates[from] && rates[from][to]) {
-            const exchangeInfo = rates[from][to];
+        // if (rates[from] && rates[from][to]) {
+        //     const exchangeInfo = rates[from][to];
         
-            // Handle the case where exchange information is stored as a string (e.g., "USD:CAD")
-            if (typeof exchangeInfo === 'string') {
-              return {
-                // @ts-ignore
-                name: 'CadrRemit Exchange', rate: Number(exchangeInfo.sell)
-              };
-            }
+        //     // Handle the case where exchange information is stored as a string (e.g., "USD:CAD")
+        //     if (typeof exchangeInfo === 'string') {
+        //       return {
+        //         // @ts-ignore
+        //         name: 'CadrRemit Exchange', rate: Number(exchangeInfo.sell)
+        //       };
+        //     }
 
-            // console.log('CadrRemit Exchange: result: ',exchangeInfo.sell)
+        //     // console.log('CadrRemit Exchange: result: ',exchangeInfo.sell)
         
-            // Return the "buy" and "sell" rates
-            return {
-                name: 'CadrRemit Exchange', rate: Number(exchangeInfo.buy),
-                sellRate: exchangeInfo.sell
-            };
-          } else {
-            // Handle cases where the exchange rate does not exist
-            return {
-              error: `Exchange rate between ${from} and ${to} not found.`
-            };
-          }
+        //     // Return the "buy" and "sell" rates
+        //     return {
+        //         name: 'CadrRemit Exchange', rate: getRateD(rates, from, to),
+        //     };
+        //   } else {
+        //     // Handle cases where the exchange rate does not exist
+        //     return {
+        //       error: `Exchange rate between ${from} and ${to} not found.`
+        //     };
+        //   }
 
-        return { name: 'CadrRemit Exchange', rate: Number(data.exchangeRateToDisplay) };
+        return { name: 'CadrRemit Exchange', rate: getRateD(rates, from, to) };
     } catch (err: any) {
         // console.error('Error fetching CardRemit Exchange rate:', err);
         return {msg: "error message", err}
@@ -335,6 +359,12 @@ export const handleAllFetch = async () => {
         'NGN/GHS', 'NGN/AED', 'NGN/SLL', 'NGN/RWF',
         'LRD/GHS', 'LRD/AED', 'LRD/SLL', 'LRD/RWF'
     ];
+
+    // const pairs = [
+    //     'USD/NGN', 'EUR/NGN', 'GBP/NGN', 'CAD/NGN',
+    //     'USD/LRD', 'EUR/LRD',
+    //     'NGN/USD', 'NGN/EUR', 'NGN/GBP', 'NGN/CAD',
+    // ];
     
 
     // [
@@ -348,7 +378,9 @@ export const handleAllFetch = async () => {
     //     'USD/NGN', 'EUR/NGN', 'GBP/NGN', 'CAD/NGN', 'CNY/NGN',
     //     'USD/LRD', 'EUR/LRD', 'GBP/LRD', 'CAD/LRD', 'CNY/LRD'
     // ];
-    const apis = [lemfiRate, afriXchangeRate, wiseRate, transfergoRate, xeRates, abokifxng];
+    const apis = [lemfiRate, afriXchangeRate, wiseRate, transfergoRate, xeRates, abokifxng, cadrRemitRate];
+
+    // const apis = [abokifxng, cadrRemitRate];
 
     // const apis = [abokifxng];
     
@@ -379,11 +411,11 @@ export const handleAllFetch = async () => {
             currencyPair: pair,
             exchangeRate: stats[pair].mean
         }
-        await createCurrencyPair(pairData);
-        await saveExchangeRate(pair, results[pair]);
+        // await createCurrencyPair(pairData);
+        // await saveExchangeRate(pair, results[pair]);
     }
 
-    await saveDatatoDb(results);
+    // await saveDatatoDb(results);
     return results;
 };
 
