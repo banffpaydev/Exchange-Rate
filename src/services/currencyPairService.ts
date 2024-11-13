@@ -1,4 +1,5 @@
-import { Op, Sequelize } from 'sequelize';
+import { Op, Sequelize, QueryTypes } from 'sequelize';
+import sequelize from '../config/db';
 import CurrencyPair from '../models/CurrencyPair';
 
 export const createCurrencyPair = async (data: any) => {
@@ -55,3 +56,38 @@ export const deleteCurrencyPair = async (id: number) => {
     }
     return null;
 };
+
+
+const getSpecificRates = async (fromCurrency: string, toCurrency: string): Promise<any[]> => {
+  try {
+    const rates = await sequelize.query(
+      'SELECT * FROM exchange_rate_py WHERE from_currency = :fromCurrency AND to_currency = :toCurrency',
+      {
+        replacements: { fromCurrency, toCurrency },
+        type: QueryTypes.SELECT,
+      }
+    );
+    return rates;
+  } catch (error) {
+    console.error('Error fetching specific rates:', error);
+    throw error;
+  }
+};
+
+
+
+export const getAdditionalRates = async (): Promise<any[]> => {
+    try {
+      const rates = await sequelize.query(
+        'SELECT * FROM exchange_rate_py'
+      );
+      return rates;
+    } catch (error) {
+      console.error('Error fetching specific rates:', error);
+      throw error;
+    }
+  };
+
+// Usage
+// getSpecificRates('CAD', 'GBP').then(console.log).catch(console.error);
+

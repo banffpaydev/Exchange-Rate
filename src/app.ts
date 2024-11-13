@@ -3,7 +3,8 @@ import rateRoutes from './routes/rateRoutes';
 import userRoutes from './routes/userRoutes';
 import currentPlay from './routes/currencyPairRoutes'
 import cors from 'cors'
-import { abokifxng, xeRates } from './services/ExchangeRateService';
+import { abokifxng, handleAllFetch, xeRates } from './services/ExchangeRateService';
+import { runAtInterval } from './services/jobs';
 // import momoRoutes from './routes/momoRoutes';
 
 const app = express();
@@ -20,6 +21,8 @@ app.use(cors());
 //   }
   
 //   getExchangeRate();
+
+runAtInterval(handleAllFetch, 1000 * 60 * 60);//1000 * 5 * 2, 1000 * 7 * 2);//1000 * 60 * 90)
 
 // Routes
 app.use('/api/rates', rateRoutes);

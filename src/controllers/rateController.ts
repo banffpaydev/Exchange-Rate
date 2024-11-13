@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { analysisReVamp, getAnalyzedRates, getRatesFromDB, getRatesFromDBPairs, handleAllFetch, saveDatatoDb } from '../services/ExchangeRateService';
 import { createCurrencyPair } from "../services/currencyPairService";
+import { fetchLatestExchangeRates } from "../services/exchangeNew";
 
 
 function removeFirstAndLastChar(str: string) {
@@ -35,7 +36,8 @@ function parseCustomJSONString(jsonString: string) {
 class RateController {
     static async getRates(req: Request, res: Response) {
         try {
-            const rates = await handleAllFetch();
+            const rates = await fetchLatestExchangeRates();
+            // const rates = await handleAllFetch();
             return res.status(200).json({
                 message: "Rate Fetched",
                 success: true,
