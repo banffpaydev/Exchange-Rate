@@ -191,7 +191,7 @@ const TapExchangeRates = () => {
                     <TableCell key={index}>
                       {
                         entry.rates[vendor] !== undefined && entry.rates[vendor] !== null 
-                          ? parseFloat(entry.rates[vendor]).toFixed(2)
+                          ? parseFloat(entry.rates[vendor]).toFixed(2).toLocaleString('en-US')
                           : "N/A"
                       }
                     </TableCell>

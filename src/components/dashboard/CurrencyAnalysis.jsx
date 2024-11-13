@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import axios from 'axios';
 import { basisUrl } from '@/utils/api';
 import { toast } from 'sonner';
+import { formatNumber } from './ScrollingRates';
 
 export const CurrencyAnalysis = ({ pair }) => {
   const [analysis, setAnalysis] = React.useState(null);
@@ -51,7 +52,7 @@ export const CurrencyAnalysis = ({ pair }) => {
               {analysis.top5.map((item, idx) => (
                 <div key={idx} className="flex justify-between">
                   <span>{item.vendor}</span>
-                  <span>{item.rate.toFixed(4) || 'null'}</span>
+                  <span>{formatNumber(item.rate) || 'null'}</span>
                 </div>
               ))}
             </div>
@@ -61,7 +62,7 @@ export const CurrencyAnalysis = ({ pair }) => {
               {analysis.bottom5.map((item, idx) => (
                 <div key={idx} className="flex justify-between">
                   <span>{item.vendor}</span>
-                  <span>{item.rate.toFixed(4) || 'null'}</span>
+                  <span>{formatNumber(item.rate) || 'null'}</span>
                 </div>
               ))}
             </div>
@@ -76,9 +77,9 @@ export const CurrencyAnalysis = ({ pair }) => {
                 <span>{analysis.bottom5Avg.toFixed(4)}</span>
               </div> */}
               <div className="flex justify-between">
-                <span>Rate Avg:</span>
+                <span className='text-green-900 font-semibold text-[30px]'>Rate Avg:</span>
                 {/* <span>{analysis.minAvg.toFixed(4) || 'null'}</span> */}
-                <span className='text-green-600'>{analysis.minAvg.toFixed(4) || 'null'}</span>
+                <span className='text-green-600'>{formatNumber(analysis.minAvg) || 'null'}</span>
               </div>
             </div>
           </div>

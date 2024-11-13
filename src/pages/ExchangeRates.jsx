@@ -142,7 +142,7 @@ const ExchangeRates = () => {
                     <TableCell key={index}>
                       {
                         rates[vendor] !== undefined && rates[vendor] !== null 
-                          ? parseFloat(rates[vendor]).toFixed(2)
+                          ? parseFloat(rates[vendor]).toFixed(2).toLocaleString('en-US')
                           : "N/A"
                       }
                     </TableCell>

@@ -15,10 +15,10 @@ const getCountryFlag = (currency) => {
     null;
 };
 
-const formatNumber = (number) => {
+export const formatNumber = (number) => {
   return new Intl.NumberFormat('en-US', {
-    minimumFractionDigits: 4,
-    maximumFractionDigits: 4
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
   }).format(number);
 };
 

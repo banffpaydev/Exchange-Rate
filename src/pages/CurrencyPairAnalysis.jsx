@@ -45,12 +45,12 @@ const CurrencyPairAnalysis = () => {
       const historicalRates = data.map(entry => ({
         id: entry.id,
         date: new Date(entry.createdAt).toLocaleDateString(),
-        rate: parseFloat(entry.rates['Wise Exchange']).toFixed(2),
+        rate: parseFloat(entry.rates['Wise Exchange']).toFixed(2).toLocaleString('en-US'),
         vendors: Object.keys(entry.rates)
           .filter(vendor => vendor !== 'undefined' && entry.rates[vendor] !== null)
           .map(vendor => ({
             name: vendor,
-            rate: parseFloat(entry.rates[vendor]).toFixed(2)
+            rate: parseFloat(entry.rates[vendor]).toFixed(2).toLocaleString('en-US')
           }))
       }));
 
@@ -58,7 +58,7 @@ const CurrencyPairAnalysis = () => {
       const latestRate = historicalRates[historicalRates.length - 1].rate;
       setCurrentRate(latestRate);
 
-      const predictedRate = (parseFloat(latestRate) * (1 + (Math.random() - 0.5) * 0.1)).toFixed(2);
+      const predictedRate = (parseFloat(latestRate) * (1 + (Math.random() - 0.5) * 0.1)).toFixed(2).toLocaleString('en-US');
       setPrediction(predictedRate);
 
       const allRates = historicalRates.flatMap(entry => entry.vendors.map(vendor => parseFloat(vendor.rate)));

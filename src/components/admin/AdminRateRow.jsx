@@ -7,7 +7,7 @@ export const AdminRateRow = ({ pair, rateData, editedRates, onRateChange }) => {
     <TableRow key={`${pair}-${vendor}`}>
       <TableCell>{pair}</TableCell>
       <TableCell>{vendor}</TableCell>
-      <TableCell>{rate?.toFixed(4) || 'N/A'}</TableCell>
+      <TableCell>{rate?.toFixed(2).toLocaleString('en-US') || 'N/A'}</TableCell>
       <TableCell>
         <Input
           type="number"
