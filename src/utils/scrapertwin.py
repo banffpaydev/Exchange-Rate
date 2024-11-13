@@ -3,7 +3,7 @@ import time
 import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from db_config import connect_db, save_rate_to_db
+from db_config import connect_db, save_rate_to_db, save_exchange_rate
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 import warnings 
@@ -38,6 +38,10 @@ ria_from_list=['ca', 'us', 'gb','de']
 ria_hardcoded_to_list_dict={'ca':[168,167,65,38,166, 122, 142, 66, 10], 'us':[33,167,65,38,166, 122, 142, 66, 10], 
                             'gb':[168,33,65,38,166, 122, 142, 66, 10], 'de':[168,167,33,38,166, 122, 142, 66, 10]}
 ria_hardcoded_from_list_dict={'ca': 'CAD', 'us': 'USD', 'gb': 'GBP','de': 'EUR'}
+
+# ria_from_list=['gb','de']
+# ria_hardcoded_to_list_dict={'gb':[168,33,65,38,166, 122, 142, 66, 10], 'de':[168,167,33,38,166, 122, 142, 66, 10]}
+# ria_hardcoded_from_list_dict={'gb': 'GBP','de': 'EUR'}
 
 cardremti_from_list=['CAD']
 cardremti_to_list=['NGN']
@@ -167,8 +171,9 @@ def cardremit_conv():
 # ria function
 
 # ria function
+# ria function
 
-def ria_conv(cursor):
+def ria_conv():
 
     options = webdriver.ChromeOptions()
     options.add_argument('--headless')
@@ -185,7 +190,7 @@ def ria_conv(cursor):
             try:
                 url="https://www.riamoneytransfer.com/en-"+i+"/"
                 driver.get(url)
-                driver.maximize_window()
+                # driver.maximize_window()
                 time.sleep(5)
                 y_f2=False
             except:
@@ -205,15 +210,25 @@ def ria_conv(cursor):
 
                     try:
                         if driver.find_element(By.CLASS_NAME,"text-promo-rate").text not in ['-','_','=', ' ']:
-                            xRate = driver.find_element(By.CLASS_NAME,"text-promo-rate").text
                             print('1.00 ' + str(ria_hardcoded_from_list_dict[i]) + ' = '+ driver.find_element(By.CLASS_NAME,"text-promo-rate").text)
-                            conv_rate_list.append('1.00 ' + str(ria_hardcoded_from_list_dict[i]) + ' = '+ driver.find_element(By.CLASS_NAME,"text-promo-rate").text)
                             from_currency = ria_hardcoded_from_list_dict[i]
-                            to_currency = ria_hardcoded_to_list_dict[i][j]
-                            save_rate_to_db(cursor, from_currency, to_currency, float(xRate))
+                            xRating = driver.find_element(By.CLASS_NAME,"text-promo-rate").text
+                            xRate = xRating.split()
+                            to_currency = xRate[1]
+                            rate = float(xRate[0])
+                            save_exchange_rate(from_currency, to_currency, rate, "ria")
+                            conv_rate_list.append('1.00 ' + str(ria_hardcoded_from_list_dict[i]) + ' = '+ driver.find_element(By.CLASS_NAME,"text-promo-rate").text)
                             y_f=False
                     except:
                         print('1.00 ' + str(ria_hardcoded_from_list_dict[i]) + ' = '+ driver.find_element(By.CLASS_NAME,"transfer-text").text.split(ria_hardcoded_from_list_dict[i])[-1])
+                        from_currency = ria_hardcoded_from_list_dict[i]
+                        xRating = driver.find_element(By.CLASS_NAME,"transfer-text").text.split(ria_hardcoded_from_list_dict[i])[-1]
+                        xRate = xRating.split()
+                        to_currency = xRate[1]
+                        rate = float(xRate[0])
+                        save_exchange_rate(from_currency, to_currency, rate, "ria")
+                        # xRate = driver.find_element(By.CLASS_NAME,"transfer-text").text.split(ria_hardcoded_from_list_dict[i])[-1]
+                        # print("except: ", from_currency, to_currency, rate)
                         conv_rate_list.append('1.00 ' + str(ria_hardcoded_from_list_dict[i]) + ' = '+ driver.find_element(By.CLASS_NAME,"transfer-text").text.split(ria_hardcoded_from_list_dict[i])[-1])
                         y_f=False
 
@@ -232,12 +247,82 @@ def ria_conv(cursor):
     return conv_rate_list
 
 
+# def
+
+
 
 ## bnb function
 
 ## bnb function
 
-def bnb_conv(cursor):
+# def bnb_conv(cursor):
+
+#     options = webdriver.ChromeOptions()
+#     options.add_argument('--headless')
+#     driver = webdriver.Chrome(options=options)
+
+#     conv_rate_list=[]
+
+
+#     driver.get("https://web.bnbcash.app/en")
+#     driver.maximize_window()
+#     time.sleep(5)
+
+
+#     conv_rate_list=[]
+#     for i in bnb_hardcoded_from_list_dict.keys():
+#         y_f=True
+#         while y_f:
+#             try:
+#                 driver.find_element(By.XPATH,"/html/body/div[2]/div/div/section[1]/div/section/aside[2]/div/div/div/div[1]/div[2]/div[1]/span").click()
+#                 time.sleep(1)
+
+#                 dropdown_id1="/html/body/div[2]/div/div/section[1]/div/section/aside[2]/div/div/div/div[1]/div[2]/div[2]/div/div["+ str(i)+ "]/div/span"
+#                 driver.find_element(By.XPATH,dropdown_id1).click()
+#                 time.sleep(1)
+
+#                 length_list=len(bnb_hardcoded_to_list_dict[bnb_hardcoded_from_list_dict[i]])
+            
+
+#                 for j in range(length_list):
+#                     y_f=True
+#                     while y_f:
+#                         try:
+        
+#                             driver.find_element(By.XPATH,"/html/body/div[2]/div/div/section[1]/div/section/aside[2]/div/div/div/div[2]/div[2]/div[1]/span").click()
+#                             time.sleep(1)
+#                             country_num=bnb_hardcoded_to_list_dict[bnb_hardcoded_from_list_dict[i]][j]
+#                             dropdown_id2="/html/body/div[2]/div/div/section[1]/div/section/aside[2]/div/div/div/div[2]/div[2]/div[2]/div/div["+ str(country_num)+ "]/div/span"
+#                             driver.find_element(By.XPATH,dropdown_id2).click()
+#                             time.sleep(1)
+#                             xRates = driver.find_element(By.XPATH,"/html/body/div[2]/div/div/section[1]/div/section/aside[2]/div/div/div/p").text
+#                             print(driver.find_element(By.XPATH,"/html/body/div[2]/div/div/section[1]/div/section/aside[2]/div/div/div/p").text)
+#                             conv_rate_list.append(driver.find_element(By.XPATH,"/html/body/div[2]/div/div/section[1]/div/section/aside[2]/div/div/div/p").text)
+
+#                             from_currency = bnb_hardcoded_from_list_dict[i]
+#                             to_currency = bnb_hardcoded_to_list_dict[from_currency][j]
+#                             save_rate_to_db(cursor, from_currency, to_currency, float(xRates))
+#                             y_f=False
+#                         except:
+#                             pass
+
+#                 y_f=False
+                
+#             except:
+#                 pass
+
+
+#     #close the driver
+#     driver.close()
+#     driver.quit()
+
+#     return conv_rate_list
+
+
+
+## bnb function
+
+def bnb_conv():
 
     options = webdriver.ChromeOptions()
     options.add_argument('--headless')
@@ -247,7 +332,7 @@ def bnb_conv(cursor):
 
 
     driver.get("https://web.bnbcash.app/en")
-    driver.maximize_window()
+    # driver.maximize_window()
     time.sleep(5)
 
 
@@ -277,13 +362,12 @@ def bnb_conv(cursor):
                             dropdown_id2="/html/body/div[2]/div/div/section[1]/div/section/aside[2]/div/div/div/div[2]/div[2]/div[2]/div/div["+ str(country_num)+ "]/div/span"
                             driver.find_element(By.XPATH,dropdown_id2).click()
                             time.sleep(1)
-                            xRates = driver.find_element(By.XPATH,"/html/body/div[2]/div/div/section[1]/div/section/aside[2]/div/div/div/p").text
                             print(driver.find_element(By.XPATH,"/html/body/div[2]/div/div/section[1]/div/section/aside[2]/div/div/div/p").text)
-                            conv_rate_list.append(driver.find_element(By.XPATH,"/html/body/div[2]/div/div/section[1]/div/section/aside[2]/div/div/div/p").text)
 
-                            from_currency = bnb_hardcoded_from_list_dict[i]
-                            to_currency = bnb_hardcoded_to_list_dict[from_currency][j]
-                            save_rate_to_db(cursor, from_currency, to_currency, float(xRates))
+                            tilts = driver.find_element(By.XPATH,"/html/body/div[2]/div/div/section[1]/div/section/aside[2]/div/div/div/p").text
+                            frm, rtto, ratesrt = parse_exchange_rate(tilts)
+                            save_exchange_rate(frm, rtto, ratesrt, "bnb")
+                            conv_rate_list.append(driver.find_element(By.XPATH,"/html/body/div[2]/div/div/section[1]/div/section/aside[2]/div/div/div/p").text)
                             y_f=False
                         except:
                             pass
@@ -303,8 +387,35 @@ def bnb_conv(cursor):
 
 
 
+def parse_exchange_rate(exchange_rate_str):
+    """
+    Parse the exchange rate string and extract from currency, to currency, and the rate.
 
+    Args:
+        exchange_rate_str (str): The exchange rate string to parse.
 
+    Returns:
+        tuple: A tuple containing (from_currency, to_currency, rate).
+    """
+    # Split the string to extract relevant parts
+    try:
+        # Example input: "Exchange Rate: 1 CAD = 0.6620 EUR"
+        parts = exchange_rate_str.split()
+        
+        # Extracting from_currency, to_currency, and rate
+        from_currency = parts[3]  # CAD
+        to_currency = parts[6]    # EUR
+        rate = float(parts[5])     # 0.6620
+        
+        return from_currency, to_currency, rate
+    except (IndexError, ValueError) as e:
+        print(f"Error parsing exchange rate string: {e}")
+        return None
+
+# Example usage
+# exchange_rate_str = "Exchange Rate: 1 CAD = 0.6620 EUR"
+# from_currency, to_currency, rate = parse_exchange_rate(exchange_rate_str)
+# print(f"From Currency: {from_currency}, To Currency: {to_currency}, Rate: {rate}")
 
 
 ## remitly functions
