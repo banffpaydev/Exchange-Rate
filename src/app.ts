@@ -24,6 +24,8 @@ app.use(cors());
 
 runAtInterval(handleAllFetch, 1000 * 60 * 60);//1000 * 5 * 2, 1000 * 7 * 2);//1000 * 60 * 90)
 
+handleAllFetch()
+
 // Routes
 app.use('/api/rates', rateRoutes);
 app.use('/api/users', userRoutes);

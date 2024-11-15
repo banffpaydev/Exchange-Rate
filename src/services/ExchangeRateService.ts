@@ -1,9 +1,9 @@
-import axios from "axios";
+import axios, { all } from "axios";
 import dotenv from 'dotenv';
 import ExchangeRate from "../models/ExchangeRate";
 import { Op } from "sequelize";
 import { calculateStats } from "../controllers/treps";
-import { createCurrencyPair } from "./currencyPairService";
+import { createCurrencyPair, getAdditionalRates, getAdditionalRatesId } from "./currencyPairService";
 
 dotenv.config();
 
@@ -605,6 +605,7 @@ export const getRatesFromDBPairs = async (pair: string) => {
 // }
 
 export const getRatesFromDB = async () => {
+    
     try {
         // Fetch all exchange rates with raw data
         const exchangeRates = await ExchangeRate.findAll({
@@ -641,12 +642,41 @@ export const getRatesFromDB = async () => {
 
 
 export const getAnalyzedRates = async (currency: string, startDate: string, endDate: string) => {
+    let latestRates: Record<string, any> = {};
     // Query for matching currency pairs within the given date range
     const rates = await ExchangeRate.findAll({
         where: { pair: currency },
         limit: 1,
         order: [['createdAt', 'DESC']]
-    })
+    });
+
+    const currency_split = currency.split('/');
+
+    const groupedRecords: Record<string, any> = {};
+    rates.forEach(record => {
+        if (!groupedRecords[record.pair]) {
+            groupedRecords[record.pair] = record.rates; // store the rates field (which is a JSON object)
+        }
+    });
+
+    // Fetch additional rates for the currency pair
+    const additionalRates = await getAdditionalRatesId(currency_split[0].toUpperCase(), currency_split[1].toUpperCase());
+
+    // Combine the rates and append the additional rates
+    const allRates = { ...groupedRecords };
+
+    additionalRates.forEach((additionalRate: any) => {
+        const pairKey = `${additionalRate.from_currency}/${additionalRate.to_currency}`;
+        if (!allRates[pairKey]) {
+            allRates[pairKey] = {}; // Create an empty object if not already present
+        }
+
+        // Add the additional rate under the appropriate vendor name (e.g., "bnb Exchange")
+        const vendorName = `${additionalRate.vendor} Exchange`;
+        allRates[pairKey][vendorName] = parseFloat(additionalRate.rate); // Ensure the rate is a number
+    });
+
+    // Log the final rates after combining
     // await ExchangeRate.findAll({
     //     where: {
     //         pair: { [Op.like]: `%${currency}%` },
@@ -661,31 +691,34 @@ export const getAnalyzedRates = async (currency: string, startDate: string, endD
     // Extract rates from results
     // const rateValues = rates.map((rate: any) => rate.rates[currency] || 0);
 
-    const rateVendorPairs = rates.flatMap((rate: any) => {
-        return Object.entries(rate.rates).filter(([vendor, rateValue]) => {
-            return rateValue !== null && rateValue !== 0;
+    // const rateVendorPairs = rates.flatMap((rate: any) => {
+    //     return Object.entries(rate.rates).filter(([vendor, rateValue]) => {
+    //         return rateValue !== null && rateValue !== 0;
+    //     }).map(([vendor, rateValue]) => ({
+    //         vendor,
+    //         rate: rateValue as number
+    //     }));
+    // });
+
+    const rateVendorPairs = Object.entries(allRates).flatMap(([pair, vendors]) => {
+        // For each pair (e.g., 'CAD/NGN'), filter the vendors to get only valid rates
+        return Object.entries(vendors).filter(([vendor, rateValue]) => {
+            return rateValue !== null && rateValue !== 0; // Filter out invalid rates
         }).map(([vendor, rateValue]) => ({
+            pair, // Add the currency pair as part of the result
             vendor,
             rate: rateValue as number
         }));
     });
+
+    
+    // console.log("Updated Rates: ", rateVendorPairs);
 
     type VendorRate = {
         vendor: string;
         rate: number;
       };
       
-    //   function sortAndRemoveDuplicates(rates: VendorRate[]): VendorRate[] {
-    //     // Sort rates in ascending order by rate
-    //     const sortedRates = rates.slice().sort((a, b) => a.rate - b.rate);
-      
-    //     // Remove duplicates based on the 'rate' property
-    //     const uniqueRates = sortedRates.filter((item, index, arr) => 
-    //       index === 0 || item.rate !== arr[index - 1].rate
-    //     );
-      
-    //     return uniqueRates;
-    //   }
 
     function getTopAndBottomRatesWithAverages(rates: VendorRate[]): { 
         top5: VendorRate[], 
@@ -703,11 +736,11 @@ export const getAnalyzedRates = async (currency: string, startDate: string, endD
         // Get the bottom 5 (smallest rates) and top 5 (largest rates)
         const bottom5 = uniqueRates.slice(0, 5);
         const top5 = uniqueRates.slice(-5).reverse(); // Get last 5 and reverse for descending order
-      
         // Helper function to calculate average
-        const calculateAverage = (items: VendorRate[]): number => 
-          items.reduce((sum, item) => sum + item.rate, 0) / items.length;
-      
+        const calculateAverage = (items: VendorRate[]): number => {
+            // @ts-ignore
+            return items.reduce((sum, item) => sum + parseFloat(item.rate), 0) / items.length;
+          };
         // Calculate averages
         const top5Avg = calculateAverage(top5);
         const bottom5Avg = calculateAverage(bottom5);

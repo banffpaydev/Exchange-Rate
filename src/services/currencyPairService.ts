@@ -76,7 +76,20 @@ const getSpecificRates = async (fromCurrency: string, toCurrency: string): Promi
 
 
 
-export const getAdditionalRates = async (): Promise<any[]> => {
+// export const getAdditionalRates = async (): Promise<any[]> => {
+//     try {
+//       const rates = await sequelize.query(
+//         'SELECT * FROM exchange_rate_py'
+//       );
+//       return rates;
+//     } catch (error) {
+//       console.error('Error fetching specific rates:', error);
+//       throw error;
+//     }
+//   };
+
+
+  export const getAdditionalRates = async (): Promise<any[]> => {
     try {
       const rates = await sequelize.query(
         'SELECT * FROM exchange_rate_py'
@@ -87,6 +100,33 @@ export const getAdditionalRates = async (): Promise<any[]> => {
       throw error;
     }
   };
+
+
+  export const getAdditionalRatesId = async (from_currency: string, to_currency: string): Promise<any[]> => {
+    try {
+        const rates = await sequelize.query(
+            `SELECT * FROM exchange_rate_py 
+             WHERE from_currency = :from_currency 
+             AND to_currency = :to_currency`,
+            {
+                replacements: { from_currency, to_currency },
+                // @ts-ignore
+                type: sequelize.QueryTypes.SELECT
+            }
+        );
+        return rates;
+    } catch (error) {
+        console.error('Error fetching specific rates:', error);
+        throw error;
+    }
+};
+
+// getAdditionalRatesId('CAD', 'NGN').then(console.log).catch(console.error);
+
+
+// Usage
+// getSpecificRates('CAD', 'GBP').then(console.log).catch(console.error);
+
 
 // Usage
 // getSpecificRates('CAD', 'GBP').then(console.log).catch(console.error);
