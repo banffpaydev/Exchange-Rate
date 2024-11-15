@@ -17,7 +17,7 @@ COPY . .
 RUN yarn build
 
 # Expose the application's port
-EXPOSE 3002
+EXPOSE 3004
 
 # Start the application using the script in package.json
 CMD ["yarn", "run", "build"]
