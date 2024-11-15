@@ -108,10 +108,11 @@ jobs:
               --env DB_HOST=bpaybackend.chqkma826ygl.eu-west-2.rds.amazonaws.com \
               --env DB_PORT=5432 \
               --env DB_NAME=bpay_core \
-              --env DB_USERNAME=backendapiMt1 \
+              --env DB_USER=backendapiMt1 \
               --env DB_PASSWORD=m80meCoreMKsaGH90 \
               --env DB_DIALECT=postgres \
               --env DB_SSL=true \
+              --env PORT=3002 \
               --env JWT_SECRET=whats_is_my_name? \
               --env AUTH_TKN=1234567890BanFfPaYdemoIkY230-iweo \
               --env MOMO_SUB_KEY=11c2e855efef464698eebf71cee028b6 \
