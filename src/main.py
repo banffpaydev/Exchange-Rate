@@ -1,8 +1,9 @@
 import time
 import threading
 import schedule
-from utils.scraper import scrape_exchange_rate
-from utils.scrapertwin import cardremit_conv, ria_conv, bnb_conv, remitly_conv
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
+from utils.scrapertwin import ria_conv, bnb_conv, remitly_conv
 from db_config import connect_db, save_exchange_rate
 import os
 from dotenv import load_dotenv
@@ -10,50 +11,75 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-def scrape_and_save_rates():
+# Global variable to track running tasks
+current_tasks = []
+
+async def scrape_and_save_rates():
     """
-    Main function to scrape exchange rates from various sources and save them to the database.
+    Main function to scrape exchange rates asynchronously and save them to the database.
     """
+    loop = asyncio.get_event_loop()
+
     try:
         conn, cursor = connect_db()
 
-        # Uncomment if needed
-        # print("Starting CardRemit conversion rate scrape...")
-        # cardremit_rates = cardremit_conv()
-        # print(f"CardRemit Conversion Rates: {cardremit_rates}")
+        with ThreadPoolExecutor() as executor:
+            print("Starting RIA conversion rate scrape...")
+            ria_task = loop.run_in_executor(executor, ria_conv)
 
-        print("Starting BNB conversion rate scrape...")
-        bnb_rates = bnb_conv()
-        print(f"BNB Conversion Rates: {bnb_rates}")
+            print("Starting BNB conversion rate scrape...")
+            bnb_task = loop.run_in_executor(executor, bnb_conv)
 
-        print("Starting RIA conversion rate scrape...")
-        ria_rates = ria_conv()
-        print(f"RIA Conversion Rates: {ria_rates}")
+            print("Starting Remitly conversion rate scrape...")
+            remitly_task = loop.run_in_executor(executor, remitly_conv)
 
-        print("Starting Remitly conversion rate scrape...")
-        remitly_rates = remitly_conv()
-        print(f"Remitly Conversion Rates: {remitly_rates}")
+            # Run all tasks concurrently
+            tasks = [ria_task, bnb_task, remitly_task]
+            results = await asyncio.gather(*tasks, return_exceptions=True)
 
-        # Save rates to the database as required (example shown below)
-        # save_exchange_rate("USD", "NGN", 410.50, "Wise Exchange")
+            # Log the results
+            for result in results:
+                if isinstance(result, Exception):
+                    print(f"Error during scraping task: {result}")
+                else:
+                    print(f"Scraping Result: {result}")
 
-        conn.commit()
-        cursor.close()
-        conn.close()
+            # Example save to DB
+            # save_exchange_rate(...)
+            # conn.commit()
+
+        # cursor.close()
+        # conn.close()
 
     except Exception as e:
         print(f"Error during scraping and saving: {e}")
 
+async def schedule_scraping():
+    """
+    Schedule the scrape_and_save_rates function to run every hour,
+    ensuring any currently running tasks are forcefully stopped.
+    """
+    global current_tasks
+    while True:
+        # Cancel currently running tasks
+        for task in current_tasks:
+            task.cancel()
+            try:
+                await task
+            except asyncio.CancelledError:
+                print("Previous scraping task cancelled.")
+
+        # Start a new scraping task
+        new_task = asyncio.create_task(scrape_and_save_rates())
+        current_tasks = [new_task]
+
+        await asyncio.sleep(3600)  # Sleep for 1 hour
+
 def run_worker():
     """
-    Schedules the scraping task to run every hour.
+    Run the asynchronous scheduler in an event loop.
     """
-    schedule.every(1).hours.do(scrape_and_save_rates)
-
-    print("Worker started. Scraping will run every 1 hour.")
-    while True:
-        schedule.run_pending()
-        time.sleep(1)  # Sleep to prevent busy-waiting
+    asyncio.run(schedule_scraping())
 
 def start_worker_thread():
     """
@@ -69,4 +95,4 @@ if __name__ == "__main__":
 
     # Keep the main thread alive
     while True:
-        time.sleep(60)
+        time.sleep(1)
