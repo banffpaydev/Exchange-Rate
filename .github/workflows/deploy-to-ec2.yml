@@ -2,7 +2,7 @@ name: CI/CD for Node.js to EC2
 
 on:
   push:
-    branches: ["staging"]  # Trigger on pushes to the "staging" branch
+    branches: ["backend"]  # Trigger on pushes to the "staging" branch
 
 env:
   AWS_REGION: eu-west-2  # Your AWS region
