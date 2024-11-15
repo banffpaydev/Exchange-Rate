@@ -2,6 +2,21 @@ import { Op, Sequelize, QueryTypes } from 'sequelize';
 import sequelize from '../config/db';
 import CurrencyPair from '../models/CurrencyPair';
 
+
+export const runCreateTables = async () => {
+  const response = await sequelize.query(
+    `CREATE TABLE IF NOT EXISTS exchange_rate_py (
+      id SERIAL PRIMARY KEY,
+      from_currency VARCHAR(10) NOT NULL,
+      to_currency VARCHAR(10) NOT NULL,
+      rate NUMERIC NOT NULL,
+      vendor VARCHAR(50) NOT NULL,  -- Vendor column for tracking source
+      timestamp TIMESTAMPTZ DEFAULT NOW(),
+      UNIQUE (from_currency, to_currency, vendor)
+    )`
+  );
+}
+
 export const createCurrencyPair = async (data: any) => {
     return await CurrencyPair.create(data);
 };

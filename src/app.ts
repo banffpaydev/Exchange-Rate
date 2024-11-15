@@ -5,6 +5,7 @@ import currentPlay from './routes/currencyPairRoutes'
 import cors from 'cors'
 import { abokifxng, handleAllFetch, xeRates } from './services/ExchangeRateService';
 import { runAtInterval } from './services/jobs';
+import { runCreateTables } from './services/currencyPairService';
 // import momoRoutes from './routes/momoRoutes';
 
 const app = express();
@@ -24,7 +25,7 @@ app.use(cors());
 
 runAtInterval(handleAllFetch, 1000 * 60 * 60);//1000 * 5 * 2, 1000 * 7 * 2);//1000 * 60 * 90)
 
-handleAllFetch()
+runCreateTables();
 
 // Routes
 app.use('/api/rates', rateRoutes);
