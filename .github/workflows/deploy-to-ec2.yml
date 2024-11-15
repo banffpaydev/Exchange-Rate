@@ -7,8 +7,8 @@ on:
 env:
   AWS_REGION: eu-west-2  # Your AWS region
   ECR_REGISTRY: 182399679274.dkr.ecr.eu-west-2.amazonaws.com  # ECR registry (if needed, otherwise use Docker Hub)
-  ECR_REPOSITORY: bpay/nodeapp  # Repository for Node.js app
-  CONTAINER_NAME: nodeapp  # Your container name
+  ECR_REPOSITORY: bpay/exchangeratebackend  # Repository for Node.js app
+  CONTAINER_NAME: exchangeratebackend  # Your container name
   EC2_HOST: ec2-18-130-12-213.eu-west-2.compute.amazonaws.com  # Your EC2 instance's public DNS
   EC2_USER: ec2-user  # Your EC2 SSH username
   EC2_SSH_PORT: 22  # Your EC2 SSH port (default is 22)
