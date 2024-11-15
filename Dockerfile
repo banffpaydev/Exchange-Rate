@@ -16,14 +16,8 @@ COPY . .
 # Build the application
 RUN yarn build
 
-# Use Nginx as a web server for serving the built files
-FROM nginx:stable-alpine
-
-# Copy the built files from the previous stage to the Nginx HTML directory
-COPY --from=build /app/dist /usr/share/nginx/html
-
-# Expose port 80 for the Nginx server
+# Expose the application's port
 EXPOSE 3004
 
-# Start Nginx when the container launches
-CMD ["nginx", "-g", "daemon off;"]
+# Start the application using the script in package.json
+CMD ["yarn", "run", "build"]
