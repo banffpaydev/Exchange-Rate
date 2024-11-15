@@ -11,8 +11,8 @@ export const AdminRateRow = ({ pair, rateData, editedRates, onRateChange }) => {
       <TableCell>
         <Input
           type="number"
-          step="0.0001"
-          value={editedRates[pair]?.[vendor] || ''}
+          step="0.01"
+          value={editedRates[pair]?.[vendor].toFixed(2) || ''}
           onChange={(e) => onRateChange(pair, vendor, e.target.value)}
           className="w-32"
         />

@@ -5,9 +5,11 @@ import { Button } from '../ui/button';
 import { basisUrl } from '@/utils/api';
 import axios from 'axios';
 import { toast } from '../ui/use-toast';
+import { formatNumber, formatNumberStr } from '../dashboard/ScrollingRates';
 
 export const AdminRateRowChn = ({ pair, rateData, id }) => {
-  const [editedRates, setEditedRates] = useState(rateData);
+  // console.log("mape: ", formatNumberStr(rateData))
+  const [editedRates, setEditedRates] = useState(formatNumberStr(rateData));
   const [analysis, setAnalysis] = useState(null);
 
   const handleSave = async () => {
@@ -33,7 +35,7 @@ export const AdminRateRowChn = ({ pair, rateData, id }) => {
           endDate: currentDateTime,
         }
       });
-  
+
       if (response.data) {
         setAnalysis(response.data);
       } else {
@@ -42,6 +44,29 @@ export const AdminRateRowChn = ({ pair, rateData, id }) => {
     } catch (error) {
       console.error("Error fetching Rate Analysis:", error);
     }
+  };
+
+  const handleDownloadCsv = () => {
+    const [baseCurrency, destCurrency] = pair.split('/');
+    const csvContent = [
+      { dest_currency_code: baseCurrency, rate: rateData, auto_update: 'f' },
+      { dest_currency_code: destCurrency, rate: 0.01, auto_update: 'f' }, // Adjust rate as per your logic
+    ];
+
+    const csvHeaders = ['dest_currency_code,rate,auto_update'];
+    const csvRows = csvContent.map(row => 
+      `${row.dest_currency_code},${row.rate},${row.auto_update}`
+    );
+
+    const csvString = [csvHeaders, ...csvRows].join('\n');
+    const blob = new Blob([csvString], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `${pair}_rates.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -61,7 +86,8 @@ export const AdminRateRowChn = ({ pair, rateData, id }) => {
         </TableCell>
         <TableCell>
           <Button onClick={handleSave} className="mr-2">Save</Button>
-          <Button onClick={handleAnalysis}>Analyze</Button>
+          <Button onClick={handleAnalysis} className="mr-2">Analyze</Button>
+          <Button onClick={handleDownloadCsv}>Download CSV</Button>
         </TableCell>
       </TableRow>
 
@@ -77,7 +103,7 @@ export const AdminRateRowChn = ({ pair, rateData, id }) => {
                     {analysis.top5.map((item, index) => (
                       <div key={index} className="flex justify-between">
                         <span className="font-medium">{item.vendor.toUpperCase()}:</span>
-                        <span>{item.rate.toFixed(2).toLocaleString('en-US') || 'null'}</span>
+                        <span>{formatNumber(item.rate).toLocaleString('en-US') || 'null'}</span>
                       </div>
                     ))}
                   </div>
@@ -88,7 +114,7 @@ export const AdminRateRowChn = ({ pair, rateData, id }) => {
                     {analysis.bottom5.map((item, index) => (
                       <div key={index} className="flex justify-between">
                         <span className="font-medium">{item.vendor.toUpperCase()}:</span>
-                        <span>{item.rate.toFixed(2).toLocaleString('en-US') || 'null'}</span>
+                        <span>{formatNumber(item.rate).toLocaleString('en-US') || 'null'}</span>
                       </div>
                     ))}
                   </div>
@@ -104,7 +130,7 @@ export const AdminRateRowChn = ({ pair, rateData, id }) => {
                   <span className="ml-2">{analysis.bottom5Avg.toFixed(2).toLocaleString('en-US') || 'null'}</span>
                 </div>
                 <div>
-                  <span className="font-semibold">Minimum Average:</span>
+                  <span className="font-semibold">Overall Average:</span>
                   <span className="ml-2">{analysis.minAvg.toFixed(2).toLocaleString('en-US') || 'null'}</span>
                 </div>
               </div>

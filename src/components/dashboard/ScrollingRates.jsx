@@ -22,6 +22,11 @@ export const formatNumber = (number) => {
   }).format(number);
 };
 
+export const formatNumberStr = (number) => {
+  return Number(number).toFixed(2);
+};
+
+
 export const ScrollingRates = ({ rates, lastUpdateTime }) => {
   const [isPaused, setIsPaused] = useState(false);
 

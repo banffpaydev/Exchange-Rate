@@ -17,11 +17,11 @@ export const navItems = [
     to: "/",
     page: <Dashboard />
   },
-  {
-    title: "Heatmap",
-    to: "/heatmap",
-    page: <HeatmapDashboard />
-  },
+  // {
+  //   title: "Heatmap",
+  //   to: "/heatmap",
+  //   page: <HeatmapDashboard />
+  // },
   {
     title: "Exchange Rates",
     to: "/exchange-rates",
