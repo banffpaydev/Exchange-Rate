@@ -10,7 +10,7 @@ COPY package.json yarn.lock ./
 # Install dependencies
 RUN yarn install --frozen-lockfile
 
-# Copy the rest of the application to the working directory
+# Copy the rest of the application files
 COPY . .
 
 # Build the application
@@ -22,16 +22,16 @@ FROM node:18-slim AS runtime
 # Set the working directory inside the container
 WORKDIR /app
 
-# Copy only the necessary files from the build stage
+# Copy the necessary files from the build stage
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/package.json ./package.json
 COPY --from=build /app/yarn.lock ./yarn.lock
 
-# Install only production dependencies
-RUN yarn install --frozen-lockfile --production
+# Install production dependencies and Vite
+RUN yarn install --frozen-lockfile --production && yarn add vite --frozen-lockfile
 
 # Expose the port your app will run on
 EXPOSE 3004
 
 # Start the application using Vite's preview server
-CMD ["yarn", "preview"]
+CMD ["yarn", "preview", "--host", "0.0.0.0"]

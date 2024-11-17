@@ -9,6 +9,9 @@ export default defineConfig({
     host: "::",
     port: "3004",
   },
+  preview: {
+    port: "3004" // Set your desired preview port here
+  },
   plugins: [react()],
   resolve: {
     alias: [
