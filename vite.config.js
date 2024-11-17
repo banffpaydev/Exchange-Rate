@@ -10,7 +10,7 @@ export default defineConfig({
     port: "3004",
   },
   preview: {
-    port: "3004" // Set your desired preview port here
+    port: 3004, // Force Vite preview to use port 3004
   },
   plugins: [react()],
   resolve: {
