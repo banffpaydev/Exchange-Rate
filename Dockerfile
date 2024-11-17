@@ -1,4 +1,4 @@
-# Use an official Node.js runtime as a parent image
+# Stage 1: Build
 FROM node:18-slim AS build
 
 # Set the working directory inside the container
@@ -16,8 +16,22 @@ COPY . .
 # Build the application
 RUN yarn build
 
-# Expose the application's port
+# Stage 2: Run
+FROM node:18-slim AS runtime
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Copy only the necessary files from the build stage
+COPY --from=build /app/dist ./dist
+COPY --from=build /app/package.json ./package.json
+COPY --from=build /app/yarn.lock ./yarn.lock
+
+# Install only production dependencies
+RUN yarn install --frozen-lockfile --production
+
+# Expose the port your app will run on
 EXPOSE 3004
 
-# Start the application using the script in package.json
-CMD ["yarn", "run", "build"]
+# Start the application using Vite's preview server
+CMD ["yarn", "preview"]
