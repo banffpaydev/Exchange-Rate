@@ -1,70 +1,62 @@
-# Welcome to your GPT Engineer project
 
-## Project info
+# Exchange Rate (Frontend)
+## Overview
+Exchange Rate is a simple and efficient tool designed to facilitate currency conversion between different currencies. This project allows users to input an amount in one currency and receive the equivalent amount in another currency based on real-time exchange rates. The application is built using [Python, JavaScript], and it leverages APIs to fetch the latest currency exchange rates.
 
-**URL**: https://run.gptengineer.app/projects/2ea44e64-b1fc-4263-bde4-d1ce6dcd94f2/improve
 
-## How can I edit this code?
+## Features
+- Real-time Currency Conversion: Fetches live exchange rates to provide accurate conversions.
+- User -Friendly Interface: Simple and intuitive UI for easy navigation and use.
+- Multi-Currency Support: Supports a wide range of currencies for conversion.
+- Error Handling: Graceful handling of errors such as invalid currency codes or network issues.
 
-There are several ways of editing your application.
 
-**Use GPT Engineer**
+## Getting Started
+### Prerequisites
+Before you begin, ensure you have the following installed:
 
-Simply visit the GPT Engineer project at [GPT Engineer](https://gptengineer.app/projects/2ea44e64-b1fc-4263-bde4-d1ce6dcd94f2/improve) and start prompting.
+- Node.js
+- Python
 
-Changes made via gptengineer.app will be committed automatically to this repo.
 
-**Use your preferred IDE**
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in the GPT Engineer UI.
+### Installation
+1. Clone the repository:
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+    ```bash
+    git clone https://github.com/banffpaydev/Exchange-Rate.git
 
-Follow these steps:
+    Branch - frontend
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+    ```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+2. Navigate to the project directory:
 
-# Step 3: Install the necessary dependencies.
-npm i
+    ```bash
+    cd Exchange-Rate
+    ```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+3. Install the required dependencies:
 
-**Edit a file directly in GitHub**
+- For Node.js:
+    ```bash
+    npm install
+    ```
+- For Python:
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
 
-**Use GitHub Codespaces**
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Running the Application
+- For Node.js:
 
-## What technologies are used for this project?
+    ```bash
+    npm start
+    ```
+- For Python:
 
-This project is built with .
-
-- Vite
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-All GPT Engineer projects can be deployed directly via the GPT Engineer app.
-
-Simply visit your project at [GPT Engineer](https://gptengineer.app/projects/2ea44e64-b1fc-4263-bde4-d1ce6dcd94f2/improve) and click on Share -> Publish.
-
-## I want to use a custom domain - is that possible?
-
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.gptengineer.app/tips-tricks/custom-domain/)
+    ```bash
+    python src/main.py
+    ```
