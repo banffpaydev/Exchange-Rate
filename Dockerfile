@@ -16,5 +16,7 @@ COPY . .
 # Set an environment variable (optional for identification or configuration)
 ENV WORKER_ROLE=scraper
 
+EXPOSE 3050
+
 # Command to run your worker script
 CMD ["python", "src/main.py"]
