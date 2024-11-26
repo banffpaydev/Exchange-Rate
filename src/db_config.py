@@ -12,11 +12,11 @@ def connect_db():
     """
     try:
         conn = psycopg2.connect(
-            dbname=os.getenv("DB_NAME") | 'bpay_core',
-            user=os.getenv("DB_USER") | 'backendapiMt1',
-            password=os.getenv("DB_PASSWORD") | 'm80meCoreMKsaGH90',
-            host=os.getenv("DB_HOST") | 'bpaybackend.chqkma826ygl.eu-west-2.rds.amazonaws.com',
-            port=os.getenv("DB_PORT") | 5432
+            dbname='bpay_core',
+            user='backendapiMt1',
+            password='m80meCoreMKsaGH90',
+            host='bpaybackend.chqkma826ygl.eu-west-2.rds.amazonaws.com',
+            port=5432
         )
         cursor = conn.cursor()
 
