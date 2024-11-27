@@ -33,8 +33,8 @@ async def scrape_and_save_rates():
             print("Starting Remitly conversion rate scrape...")
             remitly_task = loop.run_in_executor(executor, remitly_conv)
 
-            # Run all tasks concurrently
-            tasks = [ria_task, bnb_task, remitly_task]
+            # Run all tasks concurrently ria_task,
+            tasks = [bnb_task, remitly_task]
             results = await asyncio.gather(*tasks, return_exceptions=True)
 
             # Log the results
