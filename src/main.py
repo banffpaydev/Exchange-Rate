@@ -24,8 +24,8 @@ async def scrape_and_save_rates():
         conn, cursor = connect_db()
 
         with ThreadPoolExecutor() as executor:
-            print("Starting RIA conversion rate scrape...")
-            ria_task = loop.run_in_executor(executor, ria_conv)
+            # print("Starting RIA conversion rate scrape...")
+            # ria_task = loop.run_in_executor(executor, ria_conv)
 
             print("Starting BNB conversion rate scrape...")
             bnb_task = loop.run_in_executor(executor, bnb_conv)
