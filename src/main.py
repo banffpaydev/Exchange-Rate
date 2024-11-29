@@ -3,8 +3,9 @@ import threading
 import schedule
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
-from utils.scrapertwin import ria_conv, bnb_conv, remitly_conv
-from db_config import connect_db, save_exchange_rate
+# from utils.scrapertwin import ria_conv, bnb_conv, remitly_conv
+from utils.scrapertwin import bnb_conv, remitly_conv
+from db_config import connect_db
 import os
 from dotenv import load_dotenv
 
@@ -91,7 +92,9 @@ def start_worker_thread():
 
 if __name__ == "__main__":
     print("Starting the exchange rate worker...")
-    start_worker_thread()
+    # start_worker_thread()
+    remitly_conv()
+
 
     # Keep the main thread alive
     while True:
