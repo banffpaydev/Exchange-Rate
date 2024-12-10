@@ -23,15 +23,15 @@ const data: CurrencyData = {
 
 // Helper functions
 const calculateMean = (rates: number[]): number => {
-  return rates.reduce((sum, rate) => sum + rate, 0) / rates.length;
+  return rates.reduce((sum, rate) => +sum + +rate, 0) / rates.length;
 };
 
 const calculateMedian = (rates: number[]): number => {
   const sorted = [...rates].sort((a, b) => a - b);
   const mid = Math.floor(sorted.length / 2);
   return sorted.length % 2 !== 0
-      ? sorted[mid]
-      : (sorted[mid - 1] + sorted[mid]) / 2;
+      ? +sorted[mid]
+      : (+sorted[mid - 1] + +sorted[mid]) / 2;
 };
 
 // Main function to process data

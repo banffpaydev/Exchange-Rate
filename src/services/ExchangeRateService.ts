@@ -545,7 +545,9 @@ export const handleAllFetch = async () => {
             currencyPair: pair,
             exchangeRate: stats[pair].mean
         }
+        // console.log(pairData,"paidata", stats, "stats")
         await createCurrencyPair(pairData);
+        // console.log(results, "results")
         await saveExchangeRate(pair, results[pair]);
     }
 
