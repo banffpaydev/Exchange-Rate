@@ -1,20 +1,10 @@
 import { DataTypes, Model, Optional } from "sequelize";
 import sequelize from "../config/db";
+import { ExchangeRateAttributes, ExchangeRateCreationAttributes } from "./ExchangeRate";
 
-// Define the Exchange Rate attributes interface
-export interface ExchangeRateAttributes {
-    id: string;
-    pair: string;
-    rates: Record<string, number | null>; // JSON field to store exchange rates
-    createdAt: Date;
-    updatedAt: Date;
-}
-
-// Define the Exchange Rate creation attributes interface
-export interface ExchangeRateCreationAttributes extends Optional<ExchangeRateAttributes, 'id' | 'createdAt' | 'updatedAt'> {}
 
 // Define the ExchangeRate model
-class ExchangeRate extends Model<ExchangeRateAttributes, ExchangeRateCreationAttributes> implements ExchangeRateAttributes {
+class RawExchangeRate extends Model<ExchangeRateAttributes, ExchangeRateCreationAttributes> implements ExchangeRateAttributes {
     public id!: string;
     public pair!: string;
     public rates!: Record<string, number | null>;
@@ -24,7 +14,7 @@ class ExchangeRate extends Model<ExchangeRateAttributes, ExchangeRateCreationAtt
 }
 
 // Initialize the ExchangeRate model
-ExchangeRate.init(
+RawExchangeRate.init(
     {
         id: {
             type: DataTypes.INTEGER, // Change to INTEGER
@@ -53,8 +43,8 @@ ExchangeRate.init(
     },
     {
         sequelize,
-        tableName: 'exchange_rates', // Specify the table name
+        tableName: 'raw_exchange_rates', // Specify the table name
     }
 );
 
-export default ExchangeRate;
+export default RawExchangeRate;

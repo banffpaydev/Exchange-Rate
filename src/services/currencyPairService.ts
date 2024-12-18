@@ -1,6 +1,7 @@
 import { Op, Sequelize, QueryTypes } from 'sequelize';
 import sequelize from '../config/db';
 import CurrencyPair from '../models/CurrencyPair';
+import RawCurrencyPair from '../models/RawCurrencyPair';
 
 
 export const runCreateTables = async () => {
@@ -18,7 +19,13 @@ export const runCreateTables = async () => {
 }
 
 export const createCurrencyPair = async (data: any) => {
-    return await CurrencyPair.create(data);
+
+  return await CurrencyPair.create(data);
+};
+
+export const createRawCurrencyPair = async (data: any) => {
+
+  return await RawCurrencyPair.create(data);
 };
 
 // export const getAllCurrencyPairs = async () => {
@@ -26,50 +33,81 @@ export const createCurrencyPair = async (data: any) => {
 // };
 
 export const getAllCurrencyPairs = async () => {
-    const pairs = [
-        'USD/NGN', 'EUR/NGN', 'GBP/NGN', 'CAD/NGN',
-        'USD/LRD', 'EUR/LRD', 'GBP/LRD', 'CAD/LRD',
-        'GHS/NGN', 'AED/NGN', 'SLL/NGN', 'RWF/NGN',
-        'GHS/LRD', 'AED/LRD', 'SLL/LRD', 'RWF/LRD',
-        'NGN/USD', 'NGN/EUR', 'NGN/GBP', 'NGN/CAD',
-        'LRD/USD', 'LRD/EUR', 'LRD/GBP', 'LRD/CAD',
-        'NGN/GHS', 'NGN/AED', 'NGN/SLL', 'NGN/RWF',
-        'LRD/GHS', 'LRD/AED', 'LRD/SLL', 'LRD/RWF'
-    ];
+  const pairs = [
+    'USD/NGN', 'EUR/NGN', 'GBP/NGN', 'CAD/NGN',
+    'USD/LRD', 'EUR/LRD', 'GBP/LRD', 'CAD/LRD',
+    'GHS/NGN', 'AED/NGN', 'SLL/NGN', 'RWF/NGN',
+    'GHS/LRD', 'AED/LRD', 'SLL/LRD', 'RWF/LRD',
+    'NGN/USD', 'NGN/EUR', 'NGN/GBP', 'NGN/CAD',
+    'LRD/USD', 'LRD/EUR', 'LRD/GBP', 'LRD/CAD',
+    'NGN/GHS', 'NGN/AED', 'NGN/SLL', 'NGN/RWF',
+    'LRD/GHS', 'LRD/AED', 'LRD/SLL', 'LRD/RWF'
+  ];
 
-    return await CurrencyPair.findAll({
-        where: {
-            currencyPair: { [Op.in]: pairs },
-            createdAt: {
-                [Op.in]: Sequelize.literal(`(
+  return await CurrencyPair.findAll({
+    where: {
+      currencyPair: { [Op.in]: pairs },
+      createdAt: {
+        [Op.in]: Sequelize.literal(`(
                     SELECT MAX("createdAt") 
                     FROM "currency_pairs" 
                     WHERE "currencyPair" = "CurrencyPair"."currencyPair"
                 )`)
-            }
-        },
-        order: [['currencyPair', 'ASC']],
-    });
+      }
+    },
+    order: [['currencyPair', 'ASC']],
+  });
+};
+
+export const getAllRawCurrencyPairs = async () => {
+  const pairs = [
+    'USD/NGN', 'EUR/NGN', 'GBP/NGN', 'CAD/NGN',
+    'USD/LRD', 'EUR/LRD', 'GBP/LRD', 'CAD/LRD',
+    'GHS/NGN', 'AED/NGN', 'SLL/NGN', 'RWF/NGN',
+    'GHS/LRD', 'AED/LRD', 'SLL/LRD', 'RWF/LRD',
+    'NGN/USD', 'NGN/EUR', 'NGN/GBP', 'NGN/CAD',
+    'LRD/USD', 'LRD/EUR', 'LRD/GBP', 'LRD/CAD',
+    'NGN/GHS', 'NGN/AED', 'NGN/SLL', 'NGN/RWF',
+    'LRD/GHS', 'LRD/AED', 'LRD/SLL', 'LRD/RWF'
+  ];
+
+  return await RawCurrencyPair.findAll({
+    where: {
+      currencyPair: { [Op.in]: pairs },
+      createdAt: {
+        [Op.in]: Sequelize.literal(`(
+                    SELECT MAX("createdAt") 
+                    FROM "currency_pairs" 
+                    WHERE "currencyPair" = "CurrencyPair"."currencyPair"
+                )`)
+      }
+    },
+    order: [['currencyPair', 'ASC']],
+  });
 };
 
 export const getCurrencyPairById = async (id: number) => {
-    return await CurrencyPair.findByPk(id);
+  return await CurrencyPair.findByPk(id);
+};
+
+export const getRAWCurrencyPairById = async (id: number) => {
+  return await RawCurrencyPair.findByPk(id);
 };
 
 export const updateCurrencyPair = async (id: number, data: any) => {
-    const currencyPair = await CurrencyPair.findByPk(id);
-    if (currencyPair) {
-        return await currencyPair.update(data);
-    }
-    return null;
+  const currencyPair = await CurrencyPair.findByPk(id);
+  if (currencyPair) {
+    return await currencyPair.update(data);
+  }
+  return null;
 };
 
 export const deleteCurrencyPair = async (id: number) => {
-    const currencyPair = await CurrencyPair.findByPk(id);
-    if (currencyPair) {
-        return await currencyPair.destroy();
-    }
-    return null;
+  const currencyPair = await CurrencyPair.findByPk(id);
+  if (currencyPair) {
+    return await currencyPair.destroy();
+  }
+  return null;
 };
 
 
@@ -104,36 +142,36 @@ const getSpecificRates = async (fromCurrency: string, toCurrency: string): Promi
 //   };
 
 
-  export const getAdditionalRates = async (): Promise<any[]> => {
-    try {
-      const rates = await sequelize.query(
-        'SELECT * FROM exchange_rate_py'
-      );
-      return rates;
-    } catch (error) {
-      console.error('Error fetching specific rates:', error);
-      throw error;
-    }
-  };
+export const getAdditionalRates = async (): Promise<any[]> => {
+  try {
+    const rates = await sequelize.query(
+      'SELECT * FROM exchange_rate_py'
+    );
+    return rates;
+  } catch (error) {
+    console.error('Error fetching specific rates:', error);
+    throw error;
+  }
+};
 
 
-  export const getAdditionalRatesId = async (from_currency: string, to_currency: string): Promise<any[]> => {
-    try {
-        const rates = await sequelize.query(
-            `SELECT * FROM exchange_rate_py 
+export const getAdditionalRatesId = async (from_currency: string, to_currency: string): Promise<any[]> => {
+  try {
+    const rates = await sequelize.query(
+      `SELECT * FROM exchange_rate_py 
              WHERE from_currency = :from_currency 
              AND to_currency = :to_currency`,
-            {
-                replacements: { from_currency, to_currency },
-                // @ts-ignore
-                type: sequelize.QueryTypes.SELECT
-            }
-        );
-        return rates;
-    } catch (error) {
-        console.error('Error fetching specific rates:', error);
-        throw error;
-    }
+      {
+        replacements: { from_currency, to_currency },
+        // @ts-ignore
+        type: sequelize.QueryTypes.SELECT
+      }
+    );
+    return rates;
+  } catch (error) {
+    console.error('Error fetching specific rates:', error);
+    throw error;
+  }
 };
 
 // getAdditionalRatesId('CAD', 'NGN').then(console.log).catch(console.error);

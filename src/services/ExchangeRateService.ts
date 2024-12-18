@@ -3,7 +3,9 @@ import dotenv from 'dotenv';
 import ExchangeRate from "../models/ExchangeRate";
 import { Op } from "sequelize";
 import { calculateStats } from "../controllers/treps";
-import { createCurrencyPair, getAdditionalRates, getAdditionalRatesId } from "./currencyPairService";
+import { createCurrencyPair, createRawCurrencyPair, getAdditionalRates, getAdditionalRatesId } from "./currencyPairService";
+import RawExchangeRate from "../models/RawExchangeRate";
+import RawCurrencyPair from "../models/RawCurrencyPair";
 
 dotenv.config();
 
@@ -11,22 +13,23 @@ dotenv.config();
 
 const lemfiRate = async (from: string, to: string) => {
     //console.log("lemfi started")
-    try {    const response = await axios.post(`https://lemfi.com/api/lemonade/v2/exchange`, 
+    try {
+        const response = await axios.post(`https://lemfi.com/api/lemonade/v2/exchange`,
             {
                 from, to
             }
         );
         const data = response.data.data;
+        const vape = Number(data.rate)
 
         if (from === 'NGN' || from === 'ngn' || from === 'LRD' || from === "lrd") {
-            const vape = Number(data.rate)
-            return { name: 'Lemfi', rate: 1 / vape };
+            return { name: 'Lemfi', rate: 1 / vape, rawRate: vape };
         }
 
-        return { name: 'Lemfi', rate: Number(data.rate) };
+        return { name: 'Lemfi', rate: Number(data.rate), rawRate: vape };
     } catch (err: any) {
         // //console.error('Error fetching Afri Exchange rate:', err);
-        return {msg: "error message", err}
+        return { msg: "error message", err }
     }
 }
 
@@ -37,18 +40,17 @@ const afriXchangeRate = async (to: string, from: string) => {
         // https://client.africhange.com/api/Rate?sendingCurrencyCode=NGN&receivingCurrencyCode=GBP
         const response = await axios.get(`https://client.africhange.com/api/Rate?sendingCurrencyCode=${to}&receivingCurrencyCode=${from}`);
         const data = response.data.data;
-        //console.log('afriXChange: ', to, from, data);
-        if (data.exchangeRateToDisplay) {
-            return { name: 'Afri Exchange', rate: Number(data.exchangeRateToDisplay) };
+        const exchangeRate = data.exchangeRate
+        if (exchangeRate) {
+            return { name: 'Afri Exchange', rate: Number(exchangeRate), rawRate: Number(exchangeRate) };
         } else {
-            return { name: 'Afri Exchange', rate: null }; 
+            return { name: 'Afri Exchange', rate: null, rawRate: null };
         }
     } catch (err: any) {
         // //console.error('Error fetching Afri Exchange rate:', err);
-        return {msg: "error message", err}
+        return { msg: "error message", err }
     }
 }
-
 const abokiDefault = ['EUR', 'GBP', 'USD'];
 
 function isStringInArray(target: string, array: string[]): boolean {
@@ -61,57 +63,57 @@ function isStringInArray(target: string, array: string[]): boolean {
 
 export const abokifxng = async (from: string, to: string) => {
     //console.log('Aboki FX Started')
-  try {
-    const response = await getCurrencyRate(from, to);
+    try {
+        const response = await getCurrencyRate(from, to);
 
-    // if (String(to.toLowerCase()) !== 'ngn') {
-    //     //console.log(false)
-    //     return { name: 'Abokifx', rate: null };
-    // }
-    // Check if the requested currency exists in the response data
-    // if (!data[to.toLowerCase()] && String(to.toLowerCase()) !== 'ngn') {
-    //   return { name: 'Abokifx', rate: null };
-    // }
+        // if (String(to.toLowerCase()) !== 'ngn') {
+        //     //console.log(false)
+        //     return { name: 'Abokifx', rate: null };
+        // }
+        // Check if the requested currency exists in the response data
+        // if (!data[to.toLowerCase()] && String(to.toLowerCase()) !== 'ngn') {
+        //   return { name: 'Abokifx', rate: null };
+        // }
 
-    
 
-    // Get the rates for the specified currency
-    // const rates = data[from.toLowerCase()];
-    
-    // Find the most recent rate by sorting rates based on timestamp in descending order
-    // const mostRecentRate = rates
-    //   .sort((a: [number, number], b: [number, number]) => b[0] - a[0])[0];
-    // //console.log("most rescnt: ", mostRecentRate);
-    // Return the most recent rate information
-    // const druie = rates[rates.length - 1]
 
-    return { name: 'Abokifx', rate: response };
-  } catch (err: any) {
-    return { msg: "Error fetching rate", err };
-  }
+        // Get the rates for the specified currency
+        // const rates = data[from.toLowerCase()];
+
+        // Find the most recent rate by sorting rates based on timestamp in descending order
+        // const mostRecentRate = rates
+        //   .sort((a: [number, number], b: [number, number]) => b[0] - a[0])[0];
+        // //console.log("most rescnt: ", mostRecentRate);
+        // Return the most recent rate information
+        // const druie = rates[rates.length - 1]
+
+        return { name: 'Abokifx', rate: response, rawRate: response };
+    } catch (err: any) {
+        return { msg: "Error fetching rate", err };
+    }
 };
 
 
 const getRateByCurrency = (data: any, isoCode: string, from: string) => {
     const upperCaseIsoCode = isoCode.toUpperCase();
     const upperFrom = from.toUpperCase();
-    
+
     // Find the currency rate
     const rate = data.rates[upperCaseIsoCode];
     const fromRate = data.rates[upperFrom];
 
-    const realRate =  rate / fromRate
+    const realRate = rate / fromRate
 
     if (from === 'NGN' || from === 'ngn' || from === 'LRD' || from === "lrd") {
         const vape = realRate
-        return 1 / vape;
+        return { rate: 1 / vape, rawRate: vape };
     }
 
     // //console.log('realRate: ', realRate, 'from: ', from ,fromRate, 'to: ', isoCode, rate);
-  
+
     // Return the rate if found, or a message if the currency is not available
-    return realRate
-  };
+    return { rate: realRate, rawRate: realRate }
+};
 
 
 export const xeRates = async (from: string, to: string) => {
@@ -125,25 +127,25 @@ export const xeRates = async (from: string, to: string) => {
         const data = response.data;
         const ratings = getRateByCurrency(data, to, from);
         // //console.log('xeRates: ', ratings);
-        return { name: 'Xe Exchange', rate: Number(ratings) };
+        return { name: 'Xe Exchange', rate: Number(ratings.rate), rawRate: Number(ratings.rawRate) };
     } catch (err: any) {
         // //console.error('Error fetching Afri Exchange rate:', err);
-        return {msg: "error message", err}
+        return { msg: "error message", err }
     }
 }
 
 
 // Under Review``
-const remitlyRate =  async (from: string, to: string) => {
+const remitlyRate = async (from: string, to: string) => {
     try {
         const response = await axios.get(`https://api.remitly.io/v3/calculator/estimate?conduit=USA%3AUSD-NGA%3ANGN&anchor=SEND&amount=&purpose=OTHER&customer_segment=UNRECOGNIZED&strict_promo=false`);
         const data = response.data.data;
-        
+
         // //console.log('rately: ', data);
         return { name: 'Afri Exchange', rate: Number(data.exchangeRateToDisplay) };
     } catch (err: any) {
         // //console.error('Error fetching Afri Exchange rate:', err);
-        return {msg: "error message", err}
+        return { msg: "error message", err }
     }
 }
 
@@ -151,41 +153,41 @@ const remitlyRate =  async (from: string, to: string) => {
 
 function getRateD(response: any, toCurrency: any, fromCurrency: any) {
     const pair = response[fromCurrency]?.[toCurrency];
-  
+
     if (!pair) {
-      return null;
+        return null;
     }
-  
+
     // Direct rate
     if (typeof pair === 'object') {
-      return pair.buy; // Return buy rate for direct pair
+        return pair.buy; // Return buy rate for direct pair
     } else if (typeof pair === 'string') {
-      // Reverse rate handling
-      const [reverseFrom, reverseTo] = pair.split(':');
-      const reversePair = response[reverseFrom]?.[reverseTo];
-  
-      if (!reversePair) {
-        return null;
-      }
-  
-      return reversePair.sell; // Return sell rate for reverse pair
-    }
-  
-    return null;
-  }
-  
+        // Reverse rate handling
+        const [reverseFrom, reverseTo] = pair.split(':');
+        const reversePair = response[reverseFrom]?.[reverseTo];
 
-const cadrRemitRate =  async (from: string, to: string) => {
+        if (!reversePair) {
+            return null;
+        }
+
+        return reversePair.sell; // Return sell rate for reverse pair
+    }
+
+    return null;
+}
+
+
+const cadrRemitRate = async (from: string, to: string) => {
     //console.log('card reemit started');
     try {
         const response = await axios.get(`https://api.cadremit.com/v1/admin/settings`);
         const data = response.data.data;
         const rates = data.rates;
-        // //console.log()
+        // console.log(rates)
 
         // if (rates[from] && rates[from][to]) {
         //     const exchangeInfo = rates[from][to];
-        
+
         //     // Handle the case where exchange information is stored as a string (e.g., "USD:CAD")
         //     if (typeof exchangeInfo === 'string') {
         //       return {
@@ -195,7 +197,7 @@ const cadrRemitRate =  async (from: string, to: string) => {
         //     }
 
         //     // //console.log('CadrRemit Exchange: result: ',exchangeInfo.sell)
-        
+
         //     // Return the "buy" and "sell" rates
         //     return {
         //         name: 'CadrRemit Exchange', rate: getRateD(rates, from, to),
@@ -207,34 +209,34 @@ const cadrRemitRate =  async (from: string, to: string) => {
         //     };
         //   }
 
-        return { name: 'CadRemit Exchange', rate: getRateD(rates, from, to) };
+        return { name: 'CadRemit Exchange', rate: getRateD(rates, from, to), rawRate: getRateD(rates, from, to) };
     } catch (err: any) {
         // //console.error('Error fetching CardRemit Exchange rate:', err);
-        return {msg: "error message", err}
+        return { msg: "error message", err }
     }
 }
 
 
-const wiseRate =  async (from: string, to: string) => {
+const wiseRate = async (from: string, to: string) => {
     //console.log("Wise started")
     try {
         const response = await axios.get(`https://wise.com/rates/live?source=${from}&target=${to}&length=30&resolution=hourly&unit=day`);
         const data = response.data;
+        const vape = Number(data.value)
 
         if (from === 'NGN' || from === 'ngn' || from === 'LRD' || from === "lrd") {
-            const vape = Number(data.value)
-            return { name: 'Wise Exchange', rate: 1 /vape };
+            return { name: 'Wise Exchange', rate: 1 / vape, rawRate: vape };
         }
 
-        return { name: 'Wise Exchange', rate: Number(data.value) };
+        return { name: 'Wise Exchange', rate: Number(data.value), rawRate: vape };
     } catch (err: any) {
         // //console.error('Error fetching Afri Exchange rate:', err);
-        return {msg: "error message", err}
+        return { msg: "error message", err }
     }
 }
 
 
-const transfergoRate =  async (from: string, to: string) => {
+const transfergoRate = async (from: string, to: string) => {
     //console.log("Transfergo started")
     const Tfrom = from.toUpperCase();
     const Tto = to.toUpperCase();
@@ -243,21 +245,21 @@ const transfergoRate =  async (from: string, to: string) => {
         // https://my.transfergo.com/api/fx-rates?from=NGN&to=GBP&amount=1000
         const response = await axios.get(`https://my.transfergo.com/api/fx-rates?from=${Tfrom}&to=${Tto}&amount=1000`);
         const data = response.data;
-        
+        const vape = Number(data.rate)
+
         if (from === 'NGN' || from === 'ngn' || from === 'LRD' || from === "lrd") {
-            const vape = Number(data.rate)
-            return { name: 'TransferGo Exchange', rate: 1 / vape };
+            return { name: 'TransferGo Exchange', rate: 1 / vape, rawRate: vape };
         }
 
-        return { name: 'TransferGo Exchange', rate: Number(data.rate) };
+        return { name: 'TransferGo Exchange', rate: Number(data.rate), rawRate: vape };
     } catch (err: any) {
         // //console.error('Error fetching Afri Exchange rate:', err);
         // return { name: 'TransferGo Exchange', rate: 'N/A' }
-        return {msg: "error message", err}
+        return { msg: "error message", err }
     }
 }
 
-const twelveDataRate =  async (from: string, to: string) => {
+const twelveDataRate = async (from: string, to: string) => {
     try {
         const response = await axios.get(`https://api.twelvedata.com/exchange_rate?symbol=${from}/${to}&apikey=${process.env.TWELVEDATA_API_KEY}`);
         const data = response.data;
@@ -265,11 +267,11 @@ const twelveDataRate =  async (from: string, to: string) => {
     } catch (err: any) {
         // //console.error('Error fetching twelveData Exchange rate:', err);
         // return { name: 'twelveData Exchange', rate: 'N/A' }
-        return {msg: "error message", err}
+        return { msg: "error message", err }
     }
 }
 
-const alphaVantageRate =  async (from: string, to: string) => {
+const alphaVantageRate = async (from: string, to: string) => {
     try {
         const response = await axios.get(`https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE&from_currency=${from}&to_currency=${to}&apikey=${process.env.ALPHA_VANTAGE_KEY}`);
         const data = response.data;
@@ -278,12 +280,12 @@ const alphaVantageRate =  async (from: string, to: string) => {
     } catch (err: any) {
         // //console.error('Error fetching alphaVantage Exchange rate:', err);
         // return { name: 'alphaVantage Exchange', rate: 'N/A' }
-        return {msg: "error message", err}
+        return { msg: "error message", err }
     }
 }
 
 
-const xchangeRtRate =  async (from: string, to: string) => {
+const xchangeRtRate = async (from: string, to: string) => {
     try {
         const response = await axios.get(`https://v6.exchangerate-api.com/v6/${process.env.EXCHANGE_RATE_API_KEY}/pair/${from}/${to}`);
         const data = response.data;
@@ -291,12 +293,12 @@ const xchangeRtRate =  async (from: string, to: string) => {
     } catch (err: any) {
         // //console.error('Error fetching xchangeRtRate Exchange rate:', err);
         // return { name: 'xchangeRt Exchange', rate: 'N/A' }
-        return {msg: "error message", err}
+        return { msg: "error message", err }
     }
 }
 
 
-const xchangeRtOrgRate =  async (from: string, to: string) => {
+const xchangeRtOrgRate = async (from: string, to: string) => {
     try {
         const response = await axios.get(`https://www.exchange-rates.org/api/v2/rates/lookup?isoTo=${to}&isoFrom=${from}&amount=1&pageCode=Home`);
         const data = response.data;
@@ -304,7 +306,7 @@ const xchangeRtOrgRate =  async (from: string, to: string) => {
     } catch (err: any) {
         // //console.error('Error fetching xchangeRtRate Exchange rate:', err);
         // return { name: 'xchangeRt Exchange', rate: 'N/A' }
-        return {msg: "error message", err}
+        return { msg: "error message", err }
     }
 }
 
@@ -338,6 +340,27 @@ const saveExchangeRate = async (pair: any, data: any) => {
 };
 
 
+const saveRawExchangeRate = async (pair: any, data: any) => {
+    await RawExchangeRate.create({
+        pair: pair,
+        rates: data
+    });
+};
+// const clearAllRawExchangeRates = async () => {
+//     try {
+//         await RawCurrencyPair.destroy({
+//             where: {}, // No condition means all rows will be deleted
+//             truncate: true // Optionally resets the auto-increment primary key
+//         });
+//         await RawExchangeRate.destroy({
+//             where: {}, // No condition means all rows will be deleted
+//             truncate: true // Optionally resets the auto-increment primary key
+//         });
+//         console.log("All raw exchange rates cleared successfully.");
+//     } catch (error) {
+//         console.error("Error clearing raw exchange rates:", error);
+//     }
+// };
 const fetchExchangeRate = async (pair: string) => {
     const exchangeRate = await ExchangeRate.findOne({ where: { pair } });
     if (exchangeRate) {
@@ -352,13 +375,13 @@ const fetchExchangeRate = async (pair: string) => {
 // export const handleAllFetch = async () => {
 //     const pairs = ['USD/AOA', 'USD/GHS', 'USD/CAD', 'USD/NGN', 'USD/SLL', 'USD/XOF', 'USD/GBP', 'USD/EUR', 'USD/CNY'];
 //     const apis = [lemfiRate, afriXchangeRate, wiseRate, transfergoRate, twelveDataRate, alphaVantageRate, xchangeRtRate, xeRates, xchangeRtOrgRate];
-    
+
 //     const results: Record<string, Record<string, number | null>> = {};
 
 //     // Iterate over each currency pair
 //     for (const pair of pairs) {
 //         const [from, to] = pair.split('/');
-        
+
 //         results[pair] = {};
 
 //         // Iterate over each API and fetch rates
@@ -393,74 +416,73 @@ const fetchExchangeRate = async (pair: string) => {
 
 
 interface CurrencyRate {
-  id: number;
-  currency_name: string;
-  currency_rate: string; // "900 / 940"
-  currency_type: string;
-  currency_flag: string;
-  created_at: string;
-  updated_at: string;
+    id: number;
+    currency_name: string;
+    currency_rate: string; // "900 / 940"
+    currency_type: string;
+    currency_flag: string;
+    created_at: string;
+    updated_at: string;
 }
 
 interface ApiResponse {
-  response: Record<string, CurrencyRate[]>;
+    response: Record<string, CurrencyRate[]>;
 }
 
 // Utility to parse rates
 const removeAsterisks = (str: string): string => {
     return str.replace(/\*/g, '');
-  };
-  
-  const parseCurrencyRate = (rate: string): { buy: number; sell: number } => {
+};
+
+const parseCurrencyRate = (rate: string): { buy: number; sell: number } => {
     const cleanedRate = removeAsterisks(rate); // Remove asterisks
     const [buy, sell] = cleanedRate.split(' / ').map(Number);
     return { buy, sell };
-  };
+};
 
 // Function to fetch and search for currency rates
 const getCurrencyRate = async (gofrom: string, goto: string): Promise<number | null> => {
     const from = gofrom.toUpperCase();
     const to = goto.toUpperCase();
-  try {
+    try {
 
-    if (from !== 'NGN' && to !== 'NGN') {
+        if (from !== 'NGN' && to !== 'NGN') {
+            return null;
+        }
+
+        const otherCurrency = from === 'NGN' ? to : from;
+        const apiUrl = isStringInArray(otherCurrency, abokiDefault)
+            ? 'https://abokifx.com/api/v1/rates/movement'
+            : 'https://abokifx.com/api/v1/rates/otherparallel';
+
+        const { data } = await axios.get<ApiResponse>(apiUrl, {
+            headers: {
+                Authorization: 'Bearer 71f79dea7dec238e0f90a5dc390084267ebd40c2'
+            }
+        }); // Replace with your API URL
+
+        const responseEntries = Object.entries(data.response);
+        for (const [, rates] of responseEntries) {
+            const targetRate = rates.find((rate) => rate.currency_name === (from === 'NGN' ? to : from));
+
+            if (targetRate) {
+                const { buy, sell } = parseCurrencyRate(targetRate.currency_rate);
+
+                // Logic: If converting to NGN, return buy rate; if converting from NGN, return sell rate
+                if (from === 'NGN') {
+                    return sell; // NGN to other currency (sell rate)
+                } else if (to === 'NGN') {
+                    return buy; // Other currency to NGN (buy rate)
+                }
+            }
+        }
+
+        //console.error(`Rate for ${from} to ${to} not found`);
+        return null;
+    } catch (error) {
+        //console.error('Error fetching data:', error);
         return null;
     }
-
-    const otherCurrency = from === 'NGN' ? to : from;
-    const apiUrl = isStringInArray(otherCurrency, abokiDefault)
-    ? 'https://abokifx.com/api/v1/rates/movement'
-    : 'https://abokifx.com/api/v1/rates/otherparallel';
-
-    const { data } = await axios.get<ApiResponse>(apiUrl, {
-        headers: {
-            Authorization: 'Bearer 71f79dea7dec238e0f90a5dc390084267ebd40c2'
-        }
-    }); // Replace with your API URL
-
-    const responseEntries = Object.entries(data.response);
-
-    for (const [, rates] of responseEntries) {
-      const targetRate = rates.find((rate) => rate.currency_name === (from === 'NGN' ? to : from));
-
-      if (targetRate) {
-        const { buy, sell } = parseCurrencyRate(targetRate.currency_rate);
-
-        // Logic: If converting to NGN, return buy rate; if converting from NGN, return sell rate
-        if (from === 'NGN') {
-          return sell; // NGN to other currency (sell rate)
-        } else if (to === 'NGN') {
-          return buy; // Other currency to NGN (buy rate)
-        }
-      }
-    }
-
-    //console.error(`Rate for ${from} to ${to} not found`);
-    return null;
-  } catch (error) {
-    //console.error('Error fetching data:', error);
-    return null;
-  }
 };
 
 // // Usage
@@ -498,7 +520,7 @@ export const handleAllFetch = async () => {
     //     'USD/LRD', 'EUR/LRD',
     //     'NGN/USD', 'NGN/EUR', 'NGN/GBP', 'NGN/CAD',
     // ];
-    
+
 
     // [
     //     'NGN/USD', 'NGN/EUR', 'NGN/GBP', 'NGN/CAD',
@@ -512,46 +534,81 @@ export const handleAllFetch = async () => {
     //     'NGN/USD', 'NGN/EUR', 'NGN/GBP', 'NGN/CAD',
     //     // 'USD/LRD', 'EUR/LRD', 'GBP/LRD', 'CAD/LRD'
     // ];
-    const apis = [lemfiRate, afriXchangeRate, wiseRate, transfergoRate, xeRates, abokifxng, cadrRemitRate ];
+    const apis = [afriXchangeRate, wiseRate, transfergoRate, xeRates, abokifxng, cadrRemitRate];
+    const excludedNames = ['abokifxng', 'cadrRemitRate', 'CadRemit Exchange', 'Abokifx'];
+    // const apis = [abokifxng, cadrRemitRate];
 
-    // const apis = [abokifxng, cadrRemitRate, xeRates];
 
-    // const apis = [cadrRemitRate];
-    
     const results: Record<string, Record<string, number | null>> = {};
+    const rawResults: Record<string, Record<string, number | null>> = {};
 
     for (const pair of pairs) {
         const [from, to] = pair.split('/');
         results[pair] = {};
+        rawResults[pair] = {};
+
 
         for (const api of apis) {
             try {
                 const rateData = await api(from, to);
 
-                if (rateData && rateData.rate !== undefined) {
+                if (rateData && rateData.rate !== undefined && rateData.rawRate !== undefined) {
                     // @ts-ignore
                     results[pair][rateData.name] = rateData.rate.toFixed(2);
+                    // Only add to `rawResults` if not excluded
+                    // @ts-ignore
+                    if (!excludedNames.includes(rateData.name)) {
+                        // @ts-ignore
+                        rawResults[pair][rateData.name] = rateData.rawRate;
+                    }
+
                 } else {
                     // @ts-ignore
                     results[pair][rateData.name] = null;
+                    // @ts-ignore
+                    if (!excludedNames.includes(rateData.name)) {
+                        // @ts-ignore
+                        rawResults[pair][rateData.name] = null;
+                    }
+
                 }
             } catch (err: any) {
                 results[pair][api.name] = null;
+                if (!excludedNames.includes(api.name)) {
+                    rawResults[pair][api.name] = null;
+                }
+
             }
         }
         const stats = calculateStats({ [pair]: results[pair] });
+        const rawStats = calculateStats({ [pair]: rawResults[pair] });
+
 
         const pairData = {
             currencyPair: pair,
             exchangeRate: stats[pair].mean
         }
-        // console.log(pairData,"paidata", stats, "stats")
+        const rawPairData = {
+            currencyPair: pair,
+            exchangeRate: rawStats[pair].mean
+        }
+        // console.log(pairData, "raw-pair")
+        // console.log(results[pair], "raw-pair-result")
+
+        // console.log(rawPairData,"paidata", rawResults[pair], "raw-results")
         await createCurrencyPair(pairData);
+        await createRawCurrencyPair(rawPairData);
+
         // console.log(results, "results")
         await saveExchangeRate(pair, results[pair]);
+        await saveRawExchangeRate(pair, rawResults[pair]);
+        // await clearAllRawExchangeRates()
+
     }
 
-    await saveDatatoDb(results);
+    // await saveDatatoDb(results);
+    // await saveRawDatatoDb(rawResults);
+
     return results;
 };
 
@@ -561,10 +618,21 @@ export const saveDatatoDb = async (data: any) => {
         for (const pair in data) {
             await saveExchangeRate(pair, data[pair]);
         }
-        return {msg: 'Dat saved'}
+        return { msg: 'Data saved' }
     } catch (error: any) {
         //console.log(error);
-        return { error: "Error sasving data" }        
+        return { error: "Error saving data" }
+    }
+}
+export const saveRawDatatoDb = async (data: any) => {
+    try {
+        for (const pair in data) {
+            await saveRawExchangeRate(pair, data[pair]);
+        }
+        return { msg: 'Data saved' }
+    } catch (error: any) {
+        //console.log(error);
+        return { error: "Error saving data" }
     }
 }
 
@@ -572,6 +640,19 @@ export const saveDatatoDb = async (data: any) => {
 export const getRatesFromDBPairs = async (pair: string) => {
     try {
         const exchangeRate = await ExchangeRate.findAll({ where: { pair } });
+
+        if (!exchangeRate) {
+            throw new Error(`Exchange rate for pair ${pair} not found`);
+        }
+
+        return exchangeRate;
+    } catch (error: any) {
+        throw new Error(`Failed to fetch exchange rate: ${error.message}`);
+    }
+}
+export const getRawRatesFromDBPairs = async (pair: string) => {
+    try {
+        const exchangeRate = await RawExchangeRate.findAll({ where: { pair } });
 
         if (!exchangeRate) {
             throw new Error(`Exchange rate for pair ${pair} not found`);
@@ -600,17 +681,52 @@ export const getRatesFromDBPairs = async (pair: string) => {
 
 // export const getPyData = async () => {
 //     try {
-        
+
 //     } catch (error: any) {
-        
+
 //     }
 // }
 
 export const getRatesFromDB = async () => {
-    
+
     try {
         // Fetch all exchange rates with raw data
         const exchangeRates = await ExchangeRate.findAll({
+            raw: true,
+            attributes: ['id', 'pair', 'rates', 'createdAt', 'updatedAt'],
+            order: [['createdAt', 'ASC']] // Ensure the rates are ordered by creation date
+        });
+
+        if (!exchangeRates || exchangeRates.length === 0) {
+            throw new Error(`Exchange rates not found`);
+        }
+
+        // Grouping the data by 'createdAt' date
+        const groupedByDate = exchangeRates.reduce((acc, rate) => {
+            // Get the date in 'YYYY-MM-DD' format (ignoring time)
+            const dateKey = new Date(rate.createdAt).toISOString().split('T')[0];
+
+            // If the date key doesn't exist in the accumulator, create an empty array for it
+            if (!acc[dateKey]) {
+                acc[dateKey] = [];
+            }
+
+            // Push the current rate into the corresponding date group
+            acc[dateKey].push(rate);
+
+            return acc;
+        }, {} as { [key: string]: any[] }); // Initial accumulator is an empty object
+
+        return groupedByDate;
+    } catch (error: any) {
+        throw new Error(`Failed to fetch exchange rates: ${error.message}`);
+    }
+};
+export const getRawRatesFromDB = async () => {
+
+    try {
+        // Fetch all exchange rates with raw data
+        const exchangeRates = await RawExchangeRate.findAll({
             raw: true,
             attributes: ['id', 'pair', 'rates', 'createdAt', 'updatedAt'],
             order: [['createdAt', 'ASC']] // Ensure the rates are ordered by creation date
@@ -713,28 +829,28 @@ export const getAnalyzedRates = async (currency: string, startDate: string, endD
         }));
     });
 
-    
+
     // console.log("Updated Rates: ", rateVendorPairs);
 
     type VendorRate = {
         vendor: string;
         rate: number;
-      };
-      
+    };
 
-    function getTopAndBottomRatesWithAverages(rates: VendorRate[]): { 
-        top5: VendorRate[], 
-        bottom5: VendorRate[], 
-        top5Avg: number, 
+
+    function getTopAndBottomRatesWithAverages(rates: VendorRate[]): {
+        top5: VendorRate[],
+        bottom5: VendorRate[],
+        top5Avg: number,
         bottom5Avg: number,
         minAvg: number,
-      } {
+    } {
         // Sort rates in ascending order by rate and remove duplicates
         const sortedRates = rates.slice().sort((a, b) => a.rate - b.rate);
-        const uniqueRates = sortedRates.filter((item, index, arr) => 
-          index === 0 || item.rate !== arr[index - 1].rate
+        const uniqueRates = sortedRates.filter((item, index, arr) =>
+            index === 0 || item.rate !== arr[index - 1].rate
         );
-      
+
         // Get the bottom 5 (smallest rates) and top 5 (largest rates)
         const bottom5 = uniqueRates.slice(0, 5);
         const top5 = uniqueRates.slice(-5).reverse(); // Get last 5 and reverse for descending order
@@ -742,14 +858,14 @@ export const getAnalyzedRates = async (currency: string, startDate: string, endD
         const calculateAverage = (items: VendorRate[]): number => {
             // @ts-ignore
             return items.reduce((sum, item) => sum + parseFloat(item.rate), 0) / items.length;
-          };
+        };
         // Calculate averages
         const top5Avg = calculateAverage(top5);
         const bottom5Avg = calculateAverage(bottom5);
         const minAvg = (top5Avg + bottom5Avg) / 2
-      
+
         return { top5, bottom5, top5Avg, bottom5Avg, minAvg };
-      }
+    }
 
     // //console.log(getTopAndBottomRatesWithAverages(rateVendorPairs))
 
@@ -789,11 +905,11 @@ export const getAnalyzedRates = async (currency: string, startDate: string, endD
 
 
     return answer;
-        // lows: lowestFiveRates,
-        // highs: highestFiveRates,
-        // lowAvg: calculateAverage(lowestFiveRates),
-        // highAvg: calculateAverage(highestFiveRates),
-        // Avgrate: calculateAverage([calculateAverage(lowestFiveRates), calculateAverage(highestFiveRates)]);
+    // lows: lowestFiveRates,
+    // highs: highestFiveRates,
+    // lowAvg: calculateAverage(lowestFiveRates),
+    // highAvg: calculateAverage(highestFiveRates),
+    // Avgrate: calculateAverage([calculateAverage(lowestFiveRates), calculateAverage(highestFiveRates)]);
 };
 
 

@@ -1,17 +1,9 @@
 import { DataTypes, Model, Optional } from 'sequelize';
 import sequelize from '../config/db';
+import { CurrencyPairAttributes, CurrencyPairCreationAttributes } from './CurrencyPair';
 
-export interface CurrencyPairAttributes {
-    id: number;
-    currencyPair: string;
-    exchangeRate: number;
-    createdAt: Date;
-    updatedAt: Date;
-}
 
-export interface CurrencyPairCreationAttributes extends Optional<CurrencyPairAttributes, 'id' | 'createdAt' | 'updatedAt'> { }
-
-class CurrencyPair extends Model<CurrencyPairAttributes, CurrencyPairCreationAttributes> implements CurrencyPairAttributes {
+class RawCurrencyPair extends Model<CurrencyPairAttributes, CurrencyPairCreationAttributes> implements CurrencyPairAttributes {
     public id!: number;
     public currencyPair!: string;
     public exchangeRate!: number;
@@ -19,7 +11,7 @@ class CurrencyPair extends Model<CurrencyPairAttributes, CurrencyPairCreationAtt
     public readonly updatedAt!: Date;
 }
 
-CurrencyPair.init(
+RawCurrencyPair.init(
     {
         id: {
             type: DataTypes.INTEGER,
@@ -30,6 +22,7 @@ CurrencyPair.init(
             type: DataTypes.STRING,
             allowNull: false
         },
+        
         exchangeRate: {
             type: DataTypes.FLOAT,
             allowNull: false
@@ -45,8 +38,8 @@ CurrencyPair.init(
     },
     {
         sequelize,
-        tableName: 'currency_pairs'
+        tableName: 'raw_currency_pairs'
     }
 );
 
-export default CurrencyPair;
+export default RawCurrencyPair;

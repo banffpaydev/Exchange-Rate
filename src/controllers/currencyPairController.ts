@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { createCurrencyPair, getAllCurrencyPairs, getCurrencyPairById, updateCurrencyPair, deleteCurrencyPair } from '../services/currencyPairService';
 import CurrencyPair from '../models/CurrencyPair';
+import RawCurrencyPair from '../models/RawCurrencyPair';
 
 export const createPair = async (req: Request, res: Response) => {
     try {
@@ -65,6 +66,40 @@ export const getRecentRates = async (req: Request, res: Response) => {
     try {
         // Find recent 4 rates including current one
         const recentRates = await CurrencyPair.findAll({
+            // @ts-ignore
+            where: { currencyPair: pair },
+            limit: 4,
+            order: [['createdAt', 'DESC']]
+        });
+
+        if (recentRates.length === 0) {
+            return res.status(404).json({ message: 'No rates found for this currency pair' });
+        }
+
+        // Format the response
+        const currentRate = recentRates[0].exchangeRate;
+        const previousRates = recentRates.slice(1).map((rate) => ({
+            date: rate.createdAt,
+            rate: rate.exchangeRate,
+        }));
+
+        res.status(200).json({
+            pair,
+            rate: currentRate,
+            previous: previousRates
+        });
+    } catch (error: any) {
+        // Log and handle any errors
+        res.status(500).json({ message: 'Error fetching recent rates', error: error.message });
+    }
+};
+
+export const getRecentRawRates = async (req: Request, res: Response) => {
+    const { pair } = req.query;
+
+    try {
+        // Find recent 4 rates including current one
+        const recentRates = await RawCurrencyPair.findAll({
             // @ts-ignore
             where: { currencyPair: pair },
             limit: 4,
