@@ -2,19 +2,19 @@ name: CI/CD for Node.js to EC2
 
 on:
   push:
-    branches: ["backend"]  # Trigger on pushes to the "staging" branch
+    branches: ["backend"] # Trigger on pushes to the "staging" branch
 
 env:
-  AWS_REGION: eu-west-2  # Your AWS region
-  ECR_REGISTRY: 182399679274.dkr.ecr.eu-west-2.amazonaws.com  # ECR registry (if needed, otherwise use Docker Hub)
-  ECR_REPOSITORY: bpay/exchangeratebackend  # Repository for Node.js app
-  CONTAINER_NAME: exchangeratebackend  # Your container name
-  EC2_HOST: ec2-18-130-12-213.eu-west-2.compute.amazonaws.com  # Your EC2 instance's public DNS
-  EC2_USER: ec2-user  # Your EC2 SSH username
-  EC2_SSH_PORT: 22  # Your EC2 SSH port (default is 22)
+  AWS_REGION: eu-west-2 # Your AWS region
+  ECR_REGISTRY: 182399679274.dkr.ecr.eu-west-2.amazonaws.com # ECR registry (if needed, otherwise use Docker Hub)
+  ECR_REPOSITORY: bpay/exchangeratebackend # Repository for Node.js app
+  CONTAINER_NAME: exchangeratebackend # Your container name
+  EC2_HOST: ec2-18-130-12-213.eu-west-2.compute.amazonaws.com # Your EC2 instance's public DNS
+  EC2_USER: ec2-user # Your EC2 SSH username
+  EC2_SSH_PORT: 22 # Your EC2 SSH port (default is 22)
   DOCKER_USERNAME: franklinokeh505
   DOCKER_PASSWORD: Hdneknelg15$
-  PORT: 3002  # Port for Node.js app
+  PORT: 3002 # Port for Node.js app
 
 jobs:
   build:
@@ -27,13 +27,13 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'  # Change to your preferred Node.js version
+          node-version: "18" # Change to your preferred Node.js version
 
       - name: Install dependencies
         run: npm install
 
       - name: Build Project
-        run: npm run build  # Assuming you have a build script, modify if necessary
+        run: npm run build # Assuming you have a build script, modify if necessary
 
       - name: Login to Docker Hub
         run: echo ${{ env.DOCKER_PASSWORD }} | docker login -u ${{ env.DOCKER_USERNAME }} --password-stdin
@@ -121,5 +121,9 @@ jobs:
               --env MOMO_USER_REF=c72025f5-5cd1-4630-88a4-8ba4722fad56 \
               --env MOMO_COL_SUB_KEY=d0526d50f5a04b50bf322e86441854e8 \
               --env MOMO_REM_SUB_KEY=00d293fd0c474c089070621de9714ca4 \
+              --env USER_NAME=agentsupport@bpay.africa \
+              --env PASSWORD=Banff@1234 \
+              --env HOST=mail.bpay.africa \
+              --env NODEMAILER_PORT=587 \
               ${{ env.DOCKER_USERNAME }}/${{ env.CONTAINER_NAME }}:latest
           EOF

@@ -3,12 +3,30 @@ import dotenv from 'dotenv';
 import ExchangeRate from "../models/ExchangeRate";
 import { Op } from "sequelize";
 import { calculateStats } from "../controllers/treps";
-import { createCurrencyPair, createRawCurrencyPair, getAdditionalRates, getAdditionalRatesId } from "./currencyPairService";
+import { createCurrencyPair, createRawCurrencyPair, getAdditionalRates, getAdditionalRatesId, getAllCurrencyPairs } from "./currencyPairService";
 import RawExchangeRate from "../models/RawExchangeRate";
 import RawCurrencyPair from "../models/RawCurrencyPair";
+import nodemailer from "nodemailer";
 
 dotenv.config();
+export const username = process.env.USER_NAME;
+export const password = process.env.PASSWORD;
+export const host = process.env.HOST;
+export const nodemailer_port =
+    parseInt(process.env.NODEMAILER_PORT ?? "") || 587;
 
+export const transporter = nodemailer.createTransport({
+    host: `${host}`,
+    port: nodemailer_port,
+    secure: false, // true for port 465, false for other ports
+    auth: {
+        user: `${username}`,
+        pass: `${password}`,
+    },
+    tls: {
+        rejectUnauthorized: false,
+    },
+});
 
 
 const lemfiRate = async (from: string, to: string) => {
@@ -924,8 +942,42 @@ export const analysisReVamp = async (currency: string) => {
 }
 
 
+export const sendRate = async () => {
+    try {
+        const mailList = ["dharold@bpay.africa", "mlawal@bpay.africa", "eamrovhe@bpay.africa", "osaliu@banffpay.com", "mebitanmi@banffpay.com"]
+        const pairs = await getAllCurrencyPairs();
 
+        const mailOptions = {
+            from: `Exchange@bpay.africa`,
+            to: mailList,
+            subject: "BanffPay Exchange rate update",
+            html: `<h1>Exchange Rate Update</h1>
+        <table border="1" cellpadding="5" cellspacing="0">
+            <thead>
+                <tr>
+                    <th>Currency Pair</th>
+                    <th>Exchange Rate</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${pairs.map(pair => `
+                    <tr>
+                        <td>${pair.currencyPair}</td>
+                        <td>${pair.exchangeRate}</td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+        `,
+        };
+        const info = await transporter.sendMail(mailOptions);
+        console.log("email sent")
+    } catch (error) {
+        console.log(error)
 
+    }
+
+}
 
 
 
