@@ -952,7 +952,7 @@ export const sendRate = async () => {
             to: mailList,
             subject: "BanffPay Exchange rate update",
             html: `<h1>Exchange Rate Update</h1>
-        <table border="1" cellpadding="5" cellspacing="0">
+        <table border="1" cellpadding="5" cellspacing="0"> 
             <thead>
                 <tr>
                     <th>Currency Pair</th>
