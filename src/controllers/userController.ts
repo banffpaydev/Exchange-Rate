@@ -20,7 +20,9 @@ class UserController {
     const { email, password } = req.body;
 
     try {
-      const token = await UserService.login(email, password);
+      const cleanEmail = email?.toLowerCase()?.trim();
+
+      const token = await UserService.login(cleanEmail, password);
       return res.status(200).json({ message: 'Login successful', token });
     } catch (error: any) {
       return res.status(400).json({ error: error.message });
