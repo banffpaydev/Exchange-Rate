@@ -7,7 +7,8 @@ class UserController {
     const { email, password } = req.body;
 
     try {
-      const token = await UserService.register(email, password);
+      const cleanEmail = email?.toLowerCase()?.trim();
+      const token = await UserService.register(cleanEmail, password);
       return res.status(201).json({ message: 'User registered successfully', token });
     } catch (error: any) {
       return res.status(400).json({ error: error.message });
