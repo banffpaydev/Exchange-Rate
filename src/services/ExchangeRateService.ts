@@ -944,31 +944,50 @@ export const analysisReVamp = async (currency: string) => {
 
 export const sendRate = async () => {
     try {
-        const mailList = ["dharold@bpay.africa", "mlawal@bpay.africa", "eamrovhe@bpay.africa", "osaliu@banffpay.com", "mebitanmi@banffpay.com"]
+        const mailList = ["dharold@bpay.africa", "mlawal@bpay.africa", "eamrovhe@bpay.africa", "osaliu@banffpay.com", "mebitanmi@banffpay.com", "eakinlua@bpay.africa", "cidefoh@banffpay.com"]
+        // const mailList = ["dharold@bpay.africa"]
+
         const pairs = await getAllCurrencyPairs();
 
+        const currencies = [...new Set(pairs.map(pair => pair.currencyPair.split("/")).flat())];
+
+        const exchangeRates: { [key: string]: { [key: string]: number } } = {};
+        pairs.forEach(pair => {
+            const [from, to] = pair.currencyPair.split("/");
+            if (!exchangeRates[from]) exchangeRates[from] = {};
+            exchangeRates[from][to] = pair.exchangeRate;
+        });
+        const tableRows = currencies.map(rowCurrency => `
+            <tr>
+                <td style="background-color: #4CAF50; color: white;">${rowCurrency}</td>
+                ${currencies.map(colCurrency => {
+            const rate = exchangeRates[rowCurrency]?.[colCurrency] || (rowCurrency === colCurrency ? 1 : '');
+            const bgColor = rate ? '#FFFF00' : ''; // Highlight cells with rates in yellow
+            return `<td style="background-color: ${bgColor}; text-align: center;">${typeof rate === 'number' ? rate.toFixed(2) : rate}</td>`;
+        }).join('')}
+            </tr>
+        `).join('');
         const mailOptions = {
             from: `Exchange@bpay.africa`,
             to: mailList,
-            subject: "BanffPay Exchange rate update",
-            html: `<h1>Exchange Rate Update</h1>
-        <table border="1" cellpadding="5" cellspacing="0"> 
-            <thead>
-                <tr>
-                    <th>Currency Pair</th>
-                    <th>Exchange Rate</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${pairs.map(pair => `
-                    <tr>
-                        <td>${pair.currencyPair}</td>
-                        <td>${pair.exchangeRate}</td>
-                    </tr>
-                `).join('')}
-            </tbody>
-        </table>
-        `,
+            subject: "BanffPay Exchange Rate Update",
+            html: `
+                <h1>Exchange Rate Update</h1>
+                <table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; width: 100%;">
+                    <thead>
+                        <tr>
+                            <th style="background-color: #4CAF50; color: white;">&nbsp;</th>
+                            ${currencies.map(currency => `
+                                <th style="background-color: #4CAF50; color: white;">${currency}</th>
+                            `).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${tableRows}
+                    </tbody>
+                </table>
+                <p>Best Regards,</p>
+            `,
         };
         const info = await transporter.sendMail(mailOptions);
         console.log("email sent")

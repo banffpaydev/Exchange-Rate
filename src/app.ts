@@ -6,6 +6,7 @@ import cors from 'cors'
 import { abokifxng, handleAllFetch, sendRate, xeRates } from './services/ExchangeRateService';
 import { runAtInterval } from './services/jobs';
 import { runCreateTables } from './services/currencyPairService';
+import cron from 'node-cron';
 // import momoRoutes from './routes/momoRoutes';
 
 const app = express();
@@ -24,8 +25,11 @@ app.use(cors());
 //   getExchangeRate();
 
 runAtInterval(handleAllFetch, 1000 * 60 * 60 * 2);//1000 * 5 * 2, 1000 * 7 * 2);//1000 * 60 * 90)
-runAtInterval(sendRate, 1000 * 60 * 60 * 2);//1000 * 5 * 2, 1000 * 7 * 2);//1000 * 60 * 90)
-
+// runAtInterval(sendRate, 1000 * 60 * 60 * 2);//1000 * 5 * 2, 1000 * 7 * 2);//1000 * 60 * 90)
+cron.schedule('0 8,14,20,2 * * *', () => {
+    console.log("Sending rate at", new Date().toLocaleString("en-US", { timeZone: "Africa/Lagos" }));
+    sendRate();
+  });
 runCreateTables();
 
 // Routes
