@@ -2,20 +2,20 @@ name: CI/CD for Node.js to EC2
 
 on:
   push:
-    branches: ["backend"] # Trigger on pushes to the "staging" branch
+    branches: ["main"] # Trigger on pushes to the "staging" branch
 
 env:
   AWS_REGION: eu-west-2 # Your AWS region
   ECR_REGISTRY: 182399679274.dkr.ecr.eu-west-2.amazonaws.com # ECR registry (if needed, otherwise use Docker Hub)
   ECR_REPOSITORY: bpay/exchangeratebackend # Repository for Node.js app
-  CONTAINER_NAME: exchangeratebackend # Your container name
-  EC2_HOST: ec2-18-130-12-213.eu-west-2.compute.amazonaws.com # Your EC2 instance's public DNS
-  EC2_USER: ec2-user # Your EC2 SSH username
+  CONTAINER_NAME: exchangeratebackend  # Your container name
+  EC2_HOST: ec2-18-168-113-99.eu-west-2.compute.amazonaws.com # Your EC2 instance's public DNS
+  EC2_USER: ubuntu # Your EC2 SSH username
   EC2_SSH_PORT: 22 # Your EC2 SSH port (default is 22)
   DOCKER_USERNAME: franklinokeh505
   DOCKER_PASSWORD: Hdneknelg15$
   PORT: 3002 # Port for Node.js app
-
+  NEXT_PUBLIC_API_BASE_URL: http://18.130.12.213:5000/partner/
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -54,53 +54,49 @@ jobs:
         with:
           ssh-private-key: |
             -----BEGIN RSA PRIVATE KEY-----
-            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
+            MIIEpQIBAAKCAQEA5NCcK4VrEf202p9rSnxUfV9OHO2oVj8ReREJVXQKX+Nk+8L6
+            7dcmucVP1gWKxcpcYMk/bI48KNl/+kb55/XDyXb5nAejuw0xsM0OILbHhFR2d/5H
+            oS7zgkBsPEXPtCQY9RjgAiWAt3I+Ra/xjsJerbRjxFp41L7MsWixJAv3mL5zt76h
+            jZD5RBdpBS9UuG7RDcxz/9Mcoi+694pM4lj4skkegelO7pdJgkcUzHNEJtkk/gxO
+            GYpCCTf4HV4YDsYG0OGkp5saTMLgMintyDzWuBGzJWWqDgxIwJpzNBThWgmlabhT
+            iM+9zmUaJos2h++FRPVDlOg4NYSoPcqFqAijuQIDAQABAoIBABCIHfBrCExZdzqg
+            cAEGsJgKTbt7VEE+90U2/OSmqKU66a3i7XxHoi2j2tvMtLULpNb9U07FjAUribqM
+            bDvdHtMsfGZQivzVvDRY7F9itVGTRKfwwD4eBUvw2aEVLieGwCLdNDoTeZRHdcZV
+            Ku+0jWChet/R5Y8BZgqfVMUU9EOdxAbn1F7SpYuvM9NdirZzAcKlswYUL/XUMPLi
+            7z/9SraZWoItNdsD6JCgyyxA8DYE7VcJsYmtaqF/eqzhguXxW0lHpTFjLPHdkrAZ
+            xsGdXnerp5nPcKA+z/glbYRj8n+avdCEnldZ4CAY6wUbhEzberjCxSQWbttg0Vt2
+            YjFtRN0CgYEA9M0pQZs9xhkuhNS+tNiQwYpJMl9QBJVw1pAp13ZZcM2Gx0xvFi2Z
+            uJlD3VhMepKbMcQDmGGqBUXCA7HuQ+ULF1BCiHY1tQl9QuB3CLmAtr1ICo60MaaY
+            PA1MTkkCo5UEAzgVXrI9x2fY/BoqzbNJ5ZNCp6CogZcaGC3KB6h5K4MCgYEA70g7
+            jp+2SC5iL8vN4hrsDV6rVi8SQddtzldFhtXGZlMoP426O8TzNUtWmKkvCMitk2yx
+            CeDOUzSPTVaA3w9HRvIpp4SVObzkKJwDg5xFgDbLNjcMmeM9UuEvdAaemevh0c/B
+            L8VrcS9KQmEDnHFlCc/JGxHYgV/hTgiODeByoxMCgYEApK6/6lq9G98k5EcaZB6s
+            gwa8Zx6nfe3qku04uLHtSW16FejdclYK65xvgyA7ktm9faUXphNNhW6ALmwslZAn
+            /e8IUzTyvG89zRej/EKOzGBZboDByAUCtKNdieyj0dgVcvTvq1zNIrBB0Jbp5KeQ
+            NtjyJkJ2GXfFHi7vkmdL3HECgYEAzg+QanSTz3lSSQLj3FF+8sySFHgY6uaQw19Y
+            mpNCdiAqywBMXuhu4XhtrK4VuSTIherWU0FrrS/YMKvL80v+/9PPl1mQANbwTSB9
+            zjsnhxCo05l4mpWc2+Dcsrh4oOkH4V1eartCmYg2FQ/iwjjM4DQ2Zb9qiY9+QWsQ
+            mlatok0CgYEAyiVb0b3INzwIG/d01qpkt4oGe9nBAnt5LbsyI42L9c6iAesP8klX
+            iaWOCD/AWa+f63xd/4edR4FfbyF/FrSYaMjHrg71QKeleQNs4urJ2uSnG76QHbTS
+            GVQOvzrqvTVt+UaTDj/g1d6rWVtIeF4b8cisIsqbPsziJZ+M7NblJuI=
             -----END RSA PRIVATE KEY-----
-
       - name: Deploy to EC2
         run: |
-          ssh -o StrictHostKeyChecking=no -p ${{ env.EC2_SSH_PORT }} ${{ env.EC2_USER }}@${{ env.EC2_HOST }} << 'EOF'
+          ssh -v -o StrictHostKeyChecking=no -p ${{ env.EC2_SSH_PORT }} ${{ env.EC2_USER }}@${{ env.EC2_HOST }} << 'EOF'
             # Pull the latest Docker image from Docker Hub
             docker pull ${{ env.DOCKER_USERNAME }}/${{ env.CONTAINER_NAME }}:latest
-
             # Check if anything is using port 3000 and kill it
             if netstat -tuln | grep -q ${{env.PORT}}; then
               echo "Killing process using port ${{env.PORT}}..."
               PID=$(netstat -tuln | grep ${{env.PORT}} | awk '{print $9}' | cut -d'/' -f1)
               kill -9 $PID || true
             fi
-
             # Stop and remove any existing container with the same name
             if [ "$(docker ps -aq -f name=${{ env.CONTAINER_NAME }})" ]; then
               echo "Stopping and removing existing container named ${{ env.CONTAINER_NAME }}..."
               docker stop ${{ env.CONTAINER_NAME }} || true
               docker rm ${{ env.CONTAINER_NAME }} || true
             fi
-
             # Run the new Docker container with environment variables
             echo "Running new container with environment variables..."
             docker run -d -p ${{env.PORT}}:${{env.PORT}} --name ${{ env.CONTAINER_NAME }} \
