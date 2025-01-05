@@ -2,7 +2,7 @@ name: CI/CD for Node.js to EC2
 
 on:
   push:
-    branches: ["main"] # Trigger on pushes to the "staging" branch
+    branches: ["frontend"] # Trigger on pushes to the "staging" branch
 
 env:
   AWS_REGION: eu-west-2 # Your AWS region
@@ -112,8 +112,5 @@ jobs:
               --env JWT_SECRET=a0e927331fede3c7e37f63e4a5d11be910caa85013c4f6733340bb4ad34e8667 \
               --env USER_NAME=agentsupport@bpay.africa \
               --env PASSWORD=Banff@1234 \
-              --env HOST=mail.bpay.africa \
-              --env NODEMAILER_PORT=587 \
-              --env NEXT_PUBLIC_API_BASE_URL=http://18.130.12.213:5000/partner/ \
               ${{ env.DOCKER_USERNAME }}/${{ env.CONTAINER_NAME }}:latest
           EOF
