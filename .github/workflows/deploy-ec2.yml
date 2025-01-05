@@ -113,4 +113,5 @@ jobs:
               --env USER_NAME=agentsupport@bpay.africa \
               --env PASSWORD=Banff@1234 \
               ${{ env.DOCKER_USERNAME }}/${{ env.CONTAINER_NAME }}:latest
+            docker system prune -a -f
           EOF
