@@ -122,4 +122,5 @@ jobs:
               --env HOST=mail.bpay.africa \
               --env NODEMAILER_PORT=587 \
               ${{ env.DOCKER_USERNAME }}/${{ env.CONTAINER_NAME }}:latest
+            docker system prune -a -f
           EOF
