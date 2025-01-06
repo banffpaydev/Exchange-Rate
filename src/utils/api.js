@@ -2,7 +2,7 @@ import axios from 'axios';
 // import dotenv from 'dotenv';
 // dotenv.config();
 
-export const basisUrl = "http://18.130.12.213:3002";
+export const basisUrl = "http://18.168.113.99:3002";
 // export const basisUrl = "http://localhost:5000";
 // export const basisUrl = "https://xchangerate-banf.onrender.com"
 
