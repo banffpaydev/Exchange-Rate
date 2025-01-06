@@ -1,0 +1,126 @@
+name: CI/CD for Node.js to EC2
+
+on:
+  push:
+    branches: ["backend"] # Trigger on pushes to the "staging" branch
+
+env:
+  AWS_REGION: eu-west-2 # Your AWS region
+  ECR_REGISTRY: 182399679274.dkr.ecr.eu-west-2.amazonaws.com # ECR registry (if needed, otherwise use Docker Hub)
+  ECR_REPOSITORY: bpay/exchangeratebackend # Repository for Node.js app
+  CONTAINER_NAME: exchangeratebackend  # Your container name
+  EC2_HOST: ec2-18-168-113-99.eu-west-2.compute.amazonaws.com # Your EC2 instance's public DNS
+  EC2_USER: ubuntu # Your EC2 SSH username
+  EC2_SSH_PORT: 22 # Your EC2 SSH port (default is 22)
+  DOCKER_USERNAME: franklinokeh505
+  DOCKER_PASSWORD: Hdneknelg15$
+  PORT: 3002 # Port for Node.js app
+  NEXT_PUBLIC_API_BASE_URL: http://18.168.113.99:5000/partner/
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18" # Change to your preferred Node.js version
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Project
+        run: npm run build # Assuming you have a build script, modify if necessary
+
+      - name: Login to Docker Hub
+        run: echo ${{ env.DOCKER_PASSWORD }} | docker login -u ${{ env.DOCKER_USERNAME }} --password-stdin
+
+      - name: Build Docker Image
+        run: docker build --platform linux/amd64 -t  ${{ env.DOCKER_USERNAME }}/${{ env.CONTAINER_NAME }} .
+
+      - name: Publish Image to Docker Hub
+        run: docker push ${{ env.DOCKER_USERNAME }}/${{ env.CONTAINER_NAME }}:latest
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up SSH Key for Accessing EC2
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: |
+            -----BEGIN RSA PRIVATE KEY-----
+            MIIEpQIBAAKCAQEA5NCcK4VrEf202p9rSnxUfV9OHO2oVj8ReREJVXQKX+Nk+8L6
+            7dcmucVP1gWKxcpcYMk/bI48KNl/+kb55/XDyXb5nAejuw0xsM0OILbHhFR2d/5H
+            oS7zgkBsPEXPtCQY9RjgAiWAt3I+Ra/xjsJerbRjxFp41L7MsWixJAv3mL5zt76h
+            jZD5RBdpBS9UuG7RDcxz/9Mcoi+694pM4lj4skkegelO7pdJgkcUzHNEJtkk/gxO
+            GYpCCTf4HV4YDsYG0OGkp5saTMLgMintyDzWuBGzJWWqDgxIwJpzNBThWgmlabhT
+            iM+9zmUaJos2h++FRPVDlOg4NYSoPcqFqAijuQIDAQABAoIBABCIHfBrCExZdzqg
+            cAEGsJgKTbt7VEE+90U2/OSmqKU66a3i7XxHoi2j2tvMtLULpNb9U07FjAUribqM
+            bDvdHtMsfGZQivzVvDRY7F9itVGTRKfwwD4eBUvw2aEVLieGwCLdNDoTeZRHdcZV
+            Ku+0jWChet/R5Y8BZgqfVMUU9EOdxAbn1F7SpYuvM9NdirZzAcKlswYUL/XUMPLi
+            7z/9SraZWoItNdsD6JCgyyxA8DYE7VcJsYmtaqF/eqzhguXxW0lHpTFjLPHdkrAZ
+            xsGdXnerp5nPcKA+z/glbYRj8n+avdCEnldZ4CAY6wUbhEzberjCxSQWbttg0Vt2
+            YjFtRN0CgYEA9M0pQZs9xhkuhNS+tNiQwYpJMl9QBJVw1pAp13ZZcM2Gx0xvFi2Z
+            uJlD3VhMepKbMcQDmGGqBUXCA7HuQ+ULF1BCiHY1tQl9QuB3CLmAtr1ICo60MaaY
+            PA1MTkkCo5UEAzgVXrI9x2fY/BoqzbNJ5ZNCp6CogZcaGC3KB6h5K4MCgYEA70g7
+            jp+2SC5iL8vN4hrsDV6rVi8SQddtzldFhtXGZlMoP426O8TzNUtWmKkvCMitk2yx
+            CeDOUzSPTVaA3w9HRvIpp4SVObzkKJwDg5xFgDbLNjcMmeM9UuEvdAaemevh0c/B
+            L8VrcS9KQmEDnHFlCc/JGxHYgV/hTgiODeByoxMCgYEApK6/6lq9G98k5EcaZB6s
+            gwa8Zx6nfe3qku04uLHtSW16FejdclYK65xvgyA7ktm9faUXphNNhW6ALmwslZAn
+            /e8IUzTyvG89zRej/EKOzGBZboDByAUCtKNdieyj0dgVcvTvq1zNIrBB0Jbp5KeQ
+            NtjyJkJ2GXfFHi7vkmdL3HECgYEAzg+QanSTz3lSSQLj3FF+8sySFHgY6uaQw19Y
+            mpNCdiAqywBMXuhu4XhtrK4VuSTIherWU0FrrS/YMKvL80v+/9PPl1mQANbwTSB9
+            zjsnhxCo05l4mpWc2+Dcsrh4oOkH4V1eartCmYg2FQ/iwjjM4DQ2Zb9qiY9+QWsQ
+            mlatok0CgYEAyiVb0b3INzwIG/d01qpkt4oGe9nBAnt5LbsyI42L9c6iAesP8klX
+            iaWOCD/AWa+f63xd/4edR4FfbyF/FrSYaMjHrg71QKeleQNs4urJ2uSnG76QHbTS
+            GVQOvzrqvTVt+UaTDj/g1d6rWVtIeF4b8cisIsqbPsziJZ+M7NblJuI=
+            -----END RSA PRIVATE KEY-----
+      - name: Deploy to EC2
+        run: |
+          ssh -v -o StrictHostKeyChecking=no -p ${{ env.EC2_SSH_PORT }} ${{ env.EC2_USER }}@${{ env.EC2_HOST }} << 'EOF'
+            # Pull the latest Docker image from Docker Hub
+            docker pull ${{ env.DOCKER_USERNAME }}/${{ env.CONTAINER_NAME }}:latest
+            # Check if anything is using port 3000 and kill it
+            if netstat -tuln | grep -q ${{env.PORT}}; then
+              echo "Killing process using port ${{env.PORT}}..."
+              PID=$(netstat -tuln | grep ${{env.PORT}} | awk '{print $9}' | cut -d'/' -f1)
+              kill -9 $PID || true
+            fi
+            # Stop and remove any existing container with the same name
+            if [ "$(docker ps -aq -f name=${{ env.CONTAINER_NAME }})" ]; then
+              echo "Stopping and removing existing container named ${{ env.CONTAINER_NAME }}..."
+              docker stop ${{ env.CONTAINER_NAME }} || true
+              docker rm ${{ env.CONTAINER_NAME }} || true
+            fi
+            # Run the new Docker container with environment variables
+            echo "Running new container with environment variables..."
+            docker run -d -p ${{env.PORT}}:${{env.PORT}} --name ${{ env.CONTAINER_NAME }} \
+              --env NODE_ENV=production \
+              --env DB_HOST=bpaybackend.chqkma826ygl.eu-west-2.rds.amazonaws.com \
+              --env DB_PORT=5432 \
+              --env DB_NAME=bpay_core \
+              --env DB_USER=backendapiMt1 \
+              --env DB_PASSWORD=m80meCoreMKsaGH90 \
+              --env DB_DIALECT=postgres \
+              --env DB_SSL=true \
+              --env PORT=3002 \
+              --env JWT_SECRET=whats_is_my_name? \
+              --env AUTH_TKN=1234567890BanFfPaYdemoIkY230-iweo \
+              --env MOMO_SUB_KEY=11c2e855efef464698eebf71cee028b6 \
+              --env MOMO_BASE_URL=https://sandbox.momodeveloper.mtn.com \
+              --env MOMO_API_KEY=0ad61bcae2c6424c88de773e91422cd6 \
+              --env MOMO_USER_REF=c72025f5-5cd1-4630-88a4-8ba4722fad56 \
+              --env MOMO_COL_SUB_KEY=d0526d50f5a04b50bf322e86441854e8 \
+              --env MOMO_REM_SUB_KEY=00d293fd0c474c089070621de9714ca4 \
+              --env USER_NAME=agentsupport@bpay.africa \
+              --env PASSWORD=Banff@1234 \
+              --env HOST=mail.bpay.africa \
+              --env NODEMAILER_PORT=587 \
+              ${{ env.DOCKER_USERNAME }}/${{ env.CONTAINER_NAME }}:latest
+            docker system prune -a -f
+          EOF
