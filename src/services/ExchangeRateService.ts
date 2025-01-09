@@ -963,7 +963,7 @@ export const sendRate = async () => {
         // const mailList = ["dharold@bpay.africa"]
 
         const pairs = await getAllCurrencyPairs();
-        const currencies = ["USD", "CAD", "GBP", "EURO", "NGN", "GHC", "XAF", "XOF", "SLL", "LRD", "GMD", "KES", "ZMW", "TZS"];
+        const currencies = ["USD", "CAD", "GBP", "EURO", "NGN", "GHS", "XAF", "XOF", "SLL", "LRD", "GMD", "KES", "ZMW", "TZS"];
 
         // const currencies = [...new Set(pairs.map(pair => pair.currencyPair.split("/")).flat())];
 
