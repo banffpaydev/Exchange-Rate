@@ -530,8 +530,23 @@ export const handleAllFetch = async () => {
         'NGN/USD', 'NGN/EUR', 'NGN/GBP', 'NGN/CAD',
         'LRD/USD', 'LRD/EUR', 'LRD/GBP', 'LRD/CAD',
         'NGN/GHS', 'NGN/AED', 'NGN/SLL', 'NGN/RWF',
-        'LRD/GHS', 'LRD/AED', 'LRD/SLL', 'LRD/RWF'
+        'LRD/GHS', 'LRD/AED', 'LRD/SLL', 'LRD/RWF',
+        'USD/KES', 'EUR/KES', 'GBP/KES', 'CAD/KES',
+        'USD/ZMW', 'EUR/ZMW', 'GBP/ZMW', 'CAD/ZMW',
+        'USD/TZS', 'EUR/TZS', 'GBP/TZS', 'CAD/TZS',
+        'USD/XOF', 'EUR/XOF', 'GBP/XOF', 'CAD/XOF',
+        'USD/XAF', 'EUR/XAF', 'GBP/XAF', 'CAD/XAF',
+        'KES/USD', 'KES/EUR', 'KES/GBP', 'KES/CAD',
+        'ZMW/USD', 'ZMW/EUR', 'ZMW/GBP', 'ZMW/CAD',
+        'TZS/USD', 'TZS/EUR', 'TZS/GBP', 'TZS/CAD',
+        'XOF/USD', 'XOF/EUR', 'XOF/GBP', 'XOF/CAD',
+        'XAF/USD', 'XAF/EUR', 'XAF/GBP', 'XAF/CAD',
+        'KES/ZMW', 'KES/TZS', 'KES/XOF', 'KES/XAF',
+        'ZMW/TZS', 'ZMW/XOF', 'ZMW/XAF',
+        'TZS/XOF', 'TZS/XAF',
+        'XOF/XAF'
     ];
+    
 
     // const pairs = [
     //     'USD/NGN', 'EUR/NGN', 'GBP/NGN', 'CAD/NGN',
@@ -948,8 +963,9 @@ export const sendRate = async () => {
         // const mailList = ["dharold@bpay.africa"]
 
         const pairs = await getAllCurrencyPairs();
+        const currencies = ["USD", "CAD", "GBP", "EURO", "NGN", "GHC", "XAF", "XOF", "SLL", "LRD", "GMD", "KES", "ZMW", "TZS"];
 
-        const currencies = [...new Set(pairs.map(pair => pair.currencyPair.split("/")).flat())];
+        // const currencies = [...new Set(pairs.map(pair => pair.currencyPair.split("/")).flat())];
 
         const exchangeRates: { [key: string]: { [key: string]: number } } = {};
         pairs.forEach(pair => {
@@ -961,8 +977,8 @@ export const sendRate = async () => {
             <tr>
                 <td style="background-color: #4CAF50; color: white;">${rowCurrency}</td>
                 ${currencies.map(colCurrency => {
-            const rate = exchangeRates[rowCurrency]?.[colCurrency] || (rowCurrency === colCurrency ? 1 : '');
-            const bgColor = rate ? '#FFFF00' : ''; // Highlight cells with rates in yellow
+            const rate = rowCurrency === colCurrency ? 1 : exchangeRates[rowCurrency]?.[colCurrency] || '';
+            const bgColor = rowCurrency === colCurrency ? '#FFFF00' : ''; // Highlight diagonal cells in yellow
             return `<td style="background-color: ${bgColor}; text-align: center;">${typeof rate === 'number' ? rate.toFixed(2) : rate}</td>`;
         }).join('')}
             </tr>
