@@ -46,6 +46,9 @@ const sequelize = new Sequelize(
       min: 5,
       acquire: 30000,
       idle: 10000
+    },
+    retry: {
+      max: 3 // Number of times to retry before throwing an error
     }
   }
 );
@@ -60,7 +63,7 @@ sequelize.authenticate()
 
 
 
-  sequelize.sync({ alter: true })  // You can use { force: true } to drop tables before recreating them
+sequelize.sync({ alter: true })  // You can use { force: true } to drop tables before recreating them
   .then(() => {
     console.log('Tables created or synchronized...');
   })
