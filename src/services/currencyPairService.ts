@@ -40,10 +40,10 @@ export const createRawCurrencyPair = async (data: any) => {
 // ];
 export const getAllCurrencyPairs = async (pairData?: string[] | undefined) => {
 
-
+const pair = pairData ?? pairs
   return await CurrencyPair.findAll({
     where: {
-      currencyPair: { [Op.in]: pairData ?? pairs },
+      currencyPair: { [Op.in]: pairs },
       createdAt: {
         [Op.in]: Sequelize.literal(`(
                     SELECT MAX("createdAt") 

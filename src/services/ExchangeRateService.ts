@@ -573,7 +573,7 @@ export const handleAllFetch = async () => {
     //     'NGN/USD', 'NGN/EUR', 'NGN/GBP', 'NGN/CAD',
     //     // 'USD/LRD', 'EUR/LRD', 'GBP/LRD', 'CAD/LRD'
     // ];
-    const apis = [afriXchangeRate, wiseRate, transfergoRate, xeRates, abokifxng, cadrRemitRate];
+    const apis = [afriXchangeRate, wiseRate, transfergoRate, xeRates, abokifxng, cadrRemitRate, lemfiRate];
     const excludedNames = ['abokifxng', 'cadrRemitRate', 'CadRemit Exchange', 'Abokifx'];
     // const apis = [abokifxng, cadrRemitRate];
 
