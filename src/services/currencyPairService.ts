@@ -49,7 +49,7 @@ export const getAllCurrencyPairs = async () => {
                     SELECT MAX("createdAt") 
                     FROM "currency_pairs" 
                     WHERE "currencyPair" = "CurrencyPair"."currencyPair"
-                )`)
+                )`) 
       }
     },
     order: [['currencyPair', 'ASC']],
