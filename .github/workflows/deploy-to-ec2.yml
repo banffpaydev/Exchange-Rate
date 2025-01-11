@@ -104,8 +104,8 @@ jobs:
               --env DB_HOST=bpaybackend.chqkma826ygl.eu-west-2.rds.amazonaws.com \
               --env DB_PORT=5432 \
               --env DB_NAME=bpay_core \
-              --env DB_USER=bpay_portal_dev \
-              --env DB_PASSWORD=f3X#7dK!Qz$8pN@wR^2Lx \
+              --env DB_USER=backendapiMt1 \
+              --env DB_PASSWORD=m80meCoreMKsaGH90 \
               --env DB_DIALECT=postgres \
               --env DB_SSL=true \
               --env PORT=3002 \
