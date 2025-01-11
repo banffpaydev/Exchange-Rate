@@ -13,7 +13,7 @@ const BASE_URL = `${basisUrl}/api/rates`; // Make sure to set this in your .env 
 
 // Helper function to handle all POST requests
 const postRequest = async (endpoint, data = {}, config = {}) => {
-  try {
+  try { 
     const response = await axios.post(`${BASE_URL}${endpoint}`, data, config);
     return response.data;
   } catch (error) {
