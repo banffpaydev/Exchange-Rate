@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { createCurrencyPair, getAllCurrencyPairs, getCurrencyPairById, updateCurrencyPair, deleteCurrencyPair } from '../services/currencyPairService';
+import { createCurrencyPair, getAllCurrencyPairs, getCurrencyPairById, updateCurrencyPair, deleteCurrencyPair, getPaginatedCurrencyPairs } from '../services/currencyPairService';
 import CurrencyPair from '../models/CurrencyPair';
 import RawCurrencyPair from '../models/RawCurrencyPair';
 
@@ -11,8 +11,17 @@ export const createPair = async (req: Request, res: Response) => {
         res.status(500).json({ message: 'Error creating currency pair', error });
     }
 };
-
+export const getPaginatedPairs = async (req: Request, res: Response) => {
+    const { limit, page } = req.query;
+    try {
+        const pairs = await getPaginatedCurrencyPairs(Number(page) || 1, Number(limit) || 10);
+        res.status(200).json(pairs);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching currency pairs', error });
+    }
+};
 export const getPairs = async (req: Request, res: Response) => {
+
     try {
         const pairs = await getAllCurrencyPairs();
         res.status(200).json(pairs);

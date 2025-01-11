@@ -1,10 +1,12 @@
 import express from 'express';
-import { createPair, getPairs, getPairById, updatePair, deletePair, getRecentRates, getRecentRawRates } from '../controllers/currencyPairController';
+import { createPair, getPairs, getPairById, updatePair, deletePair, getRecentRates, getRecentRawRates, getPaginatedPairs } from '../controllers/currencyPairController';
 
 const router = express.Router();
 
 router.post('/pairs', createPair);
 router.get('/pairs', getPairs);
+router.get('/pairs/paginated', getPaginatedPairs);
+
 router.get('/pairs/:id', getPairById);
 router.put('/pairs/:id', updatePair);
 router.delete('/pairs/:id', deletePair);

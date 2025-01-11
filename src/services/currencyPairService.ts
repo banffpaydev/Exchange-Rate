@@ -38,6 +38,20 @@ export const createRawCurrencyPair = async (data: any) => {
 //   'EUR/USD', 'EUR/CAD', 'EUR/GBP',
 //   'GBP/USD', 'GBP/CAD', 'GBP/EUR'
 // ];
+export const getPaginatedCurrencyPairs = async (page = 1, limit = 10) => {
+  const offset = (page - 1) * limit;
+  const data = await CurrencyPair.findAndCountAll({
+    limit,
+    offset,
+    order: [['createdAt', 'DESC']],
+  });
+  return {
+    data: data.rows,
+    total: data.count,
+    currentPage: page,
+    totalPages: Math.ceil(data.count / limit),
+  };
+};
 export const getAllCurrencyPairs = async (pairData?: string[] | undefined) => {
 
 const pair = pairData ?? pairs
