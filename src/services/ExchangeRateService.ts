@@ -519,7 +519,10 @@ const getCurrencyRate = async (gofrom: string, goto: string): Promise<number | n
 
 
 
-export  const pairs = [
+export const pairs = [
+    'GMD/CAD', 'GMD/EUR', 'CAD/USD', 'CAD/EUR',
+    'CAD/GBP', 'EUR/USD', 'EUR/CAD', 'EUR/GBP',
+    'GBP/USD', 'GBP/CAD', 'GBP/EUR',
     'USD/NGN', 'EUR/NGN', 'GBP/NGN', 'CAD/NGN',
     'USD/LRD', 'EUR/LRD', 'GBP/LRD', 'CAD/LRD',
     'GHS/NGN', 'AED/NGN', 'SLL/NGN', 'RWF/NGN',
@@ -539,17 +542,17 @@ export  const pairs = [
     'XOF/USD', 'XOF/EUR', 'XOF/GBP', 'XOF/CAD',
     'XAF/USD', 'XAF/EUR', 'XAF/GBP', 'XAF/CAD',
     'KES/ZMW', 'KES/TZS', 'KES/XOF', 'KES/XAF',
-    'ZMW/TZS', 'ZMW/XOF', 'ZMW/XAF','USD/CAD',
-    'TZS/XOF', 'TZS/XAF','USD/GBP','USD/EUR',
-    'XOF/XAF', 'USD/SLL', 'SLL/NGN','SLL/LRD',
+    'ZMW/TZS', 'ZMW/XOF', 'ZMW/XAF', 'USD/CAD',
+    'TZS/XOF', 'TZS/XAF', 'USD/GBP', 'USD/EUR',
+    'XOF/XAF', 'USD/SLL', 'SLL/NGN', 'SLL/LRD',
     'NGN/SLL', 'CAD/GMD', 'EUR/GMD', 'USD/GMD',
     'CAD/SLL', 'GBP/SLL', 'EUR/SLL', 'GMD/USD',
-    'GMD/CAD', 'GMD/EUR', 
+
 ];
 export const handleAllFetch = async () => {
     console.log("all fetches runing ========>")
-  
-    
+
+
 
     // const pairs = [
     //     'USD/NGN', 'EUR/NGN', 'GBP/NGN', 'CAD/NGN',
@@ -628,7 +631,7 @@ export const handleAllFetch = async () => {
             currencyPair: pair,
             exchangeRate: rawStats[pair].mean
         }
-        // console.log(pairData, "raw-pair")
+        console.log(pairData, "raw-pair")
         // console.log(results[pair], "raw-pair-result")
 
         // console.log(rawPairData,"paidata", rawResults[pair], "raw-results")
@@ -962,11 +965,11 @@ export const analysisReVamp = async (currency: string) => {
 
 export const sendRate = async () => {
     try {
-        // const mailList = ["dharold@bpay.africa", "mlawal@bpay.africa", "eamrovhe@bpay.africa", "osaliu@banffpay.com", "mebitanmi@banffpay.com", "eakinlua@bpay.africa", "cidefoh@banffpay.com"]
-        const mailList = ["dharold@bpay.africa"]
+        const mailList = ["dharold@bpay.africa", "mlawal@bpay.africa", "eamrovhe@bpay.africa", "osaliu@banffpay.com", "mebitanmi@banffpay.com", "eakinlua@bpay.africa", "cidefoh@banffpay.com"]
+        // const mailList = ["dharold@bpay.africa"]
 
         const pairs = await getAllCurrencyPairs();
-        console.log(pairs)
+        // console.log(pairs)
         const currencies = ["USD", "CAD", "GBP", "EUR", "NGN", "GHS", "XAF", "XOF", "SLL", "LRD", "GMD", "KES", "ZMW", "TZS"];
 
         // const currencies = [...new Set(pairs.map(pair => pair.currencyPair.split("/")).flat())];

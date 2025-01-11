@@ -2,7 +2,7 @@ import { Op, Sequelize, QueryTypes } from 'sequelize';
 import sequelize from '../config/db';
 import CurrencyPair from '../models/CurrencyPair';
 import RawCurrencyPair from '../models/RawCurrencyPair';
-// import { pairs } from './ExchangeRateService';
+import { pairs } from './ExchangeRateService';
 
 
 export const runCreateTables = async () => {
@@ -32,12 +32,12 @@ export const createRawCurrencyPair = async (data: any) => {
 // export const getAllCurrencyPairs = async () => {
 //     return await CurrencyPair.findAll();
 // };
-export const pairs = [
-  'USD/CAD', 'USD/EUR', 'USD/GBP',
-  'CAD/USD', 'CAD/EUR', 'CAD/GBP',
-  'EUR/USD', 'EUR/CAD', 'EUR/GBP',
-  'GBP/USD', 'GBP/CAD', 'GBP/EUR'
-];
+// export const pairs = [
+//   'USD/CAD', 'USD/EUR', 'USD/GBP',
+//   'CAD/USD', 'CAD/EUR', 'CAD/GBP',
+//   'EUR/USD', 'EUR/CAD', 'EUR/GBP',
+//   'GBP/USD', 'GBP/CAD', 'GBP/EUR'
+// ];
 export const getAllCurrencyPairs = async () => {
 
 
