@@ -2,6 +2,7 @@ import { Op, Sequelize, QueryTypes } from 'sequelize';
 import sequelize from '../config/db';
 import CurrencyPair from '../models/CurrencyPair';
 import RawCurrencyPair from '../models/RawCurrencyPair';
+// import { pairs } from './ExchangeRateService';
 
 
 export const runCreateTables = async () => {
@@ -31,18 +32,14 @@ export const createRawCurrencyPair = async (data: any) => {
 // export const getAllCurrencyPairs = async () => {
 //     return await CurrencyPair.findAll();
 // };
-
+export const pairs = [
+  'USD/CAD', 'USD/EUR', 'USD/GBP',
+  'CAD/USD', 'CAD/EUR', 'CAD/GBP',
+  'EUR/USD', 'EUR/CAD', 'EUR/GBP',
+  'GBP/USD', 'GBP/CAD', 'GBP/EUR'
+];
 export const getAllCurrencyPairs = async () => {
-  const pairs = [
-    'USD/NGN', 'EUR/NGN', 'GBP/NGN', 'CAD/NGN',
-    'USD/LRD', 'EUR/LRD', 'GBP/LRD', 'CAD/LRD',
-    'GHS/NGN', 'AED/NGN', 'SLL/NGN', 'RWF/NGN',
-    'GHS/LRD', 'AED/LRD', 'SLL/LRD', 'RWF/LRD',
-    'NGN/USD', 'NGN/EUR', 'NGN/GBP', 'NGN/CAD',
-    'LRD/USD', 'LRD/EUR', 'LRD/GBP', 'LRD/CAD',
-    'NGN/GHS', 'NGN/AED', 'NGN/SLL', 'NGN/RWF',
-    'LRD/GHS', 'LRD/AED', 'LRD/SLL', 'LRD/RWF'
-  ];
+
 
   return await CurrencyPair.findAll({
     where: {
@@ -60,16 +57,7 @@ export const getAllCurrencyPairs = async () => {
 };
 
 export const getAllRawCurrencyPairs = async () => {
-  const pairs = [
-    'USD/NGN', 'EUR/NGN', 'GBP/NGN', 'CAD/NGN',
-    'USD/LRD', 'EUR/LRD', 'GBP/LRD', 'CAD/LRD',
-    'GHS/NGN', 'AED/NGN', 'SLL/NGN', 'RWF/NGN',
-    'GHS/LRD', 'AED/LRD', 'SLL/LRD', 'RWF/LRD',
-    'NGN/USD', 'NGN/EUR', 'NGN/GBP', 'NGN/CAD',
-    'LRD/USD', 'LRD/EUR', 'LRD/GBP', 'LRD/CAD',
-    'NGN/GHS', 'NGN/AED', 'NGN/SLL', 'NGN/RWF',
-    'LRD/GHS', 'LRD/AED', 'LRD/SLL', 'LRD/RWF'
-  ];
+
 
   return await RawCurrencyPair.findAll({
     where: {
