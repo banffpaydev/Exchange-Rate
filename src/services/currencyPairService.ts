@@ -38,18 +38,18 @@ export const createRawCurrencyPair = async (data: any) => {
 //   'EUR/USD', 'EUR/CAD', 'EUR/GBP',
 //   'GBP/USD', 'GBP/CAD', 'GBP/EUR'
 // ];
-export const getAllCurrencyPairs = async () => {
+export const getAllCurrencyPairs = async (pairData?: string[] | undefined) => {
 
 
   return await CurrencyPair.findAll({
     where: {
-      currencyPair: { [Op.in]: pairs },
+      currencyPair: { [Op.in]: pairData ?? pairs },
       createdAt: {
         [Op.in]: Sequelize.literal(`(
                     SELECT MAX("createdAt") 
                     FROM "currency_pairs" 
                     WHERE "currencyPair" = "CurrencyPair"."currencyPair"
-                )`) 
+                )`)
       }
     },
     order: [['currencyPair', 'ASC']],
