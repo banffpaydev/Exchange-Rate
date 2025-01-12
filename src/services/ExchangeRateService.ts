@@ -972,8 +972,8 @@ export const analysisReVamp = async (currency: string) => {
 
 export const sendRate = async () => {
     try {
-        // const mailList = ["dharold@bpay.africa", "mlawal@bpay.africa", "eamrovhe@bpay.africa", "osaliu@banffpay.com", "mebitanmi@banffpay.com", "eakinlua@bpay.africa", "cidefoh@banffpay.com"]
-        const mailList = ["dharold@bpay.africa"]
+        const mailList = ["dharold@bpay.africa", "mlawal@bpay.africa", "eamrovhe@bpay.africa", "osaliu@banffpay.com", "mebitanmi@banffpay.com", "eakinlua@bpay.africa", "cidefoh@banffpay.com"]
+        // const mailList = ["dharold@bpay.africa"]
         const currencies = ["USD", "CAD", "GBP", "EUR", "NGN", "GHS", "XAF", "XOF", "SLL", "LRD", "GMD", "KES", "ZMW", "TZS"];
         const pairsCombo = currencies.flatMap(from => currencies.map(to => `${from}/${to}`));
         const pairs = await getAllCurrencyPairs();
