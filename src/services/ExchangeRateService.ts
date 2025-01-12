@@ -517,9 +517,16 @@ const getCurrencyRate = async (gofrom: string, goto: string): Promise<number | n
 
 
 
-
+// export const pairs = [
+//     'GHS/NGN', 'GHS/LRD', 'NGN/GHS', 'LRD/GHS',
+//     'GHS/EUR', 'GHS/CAD', 'GHS/USD', 'GHS/GBP',
+//     'EUR/GHS', 'CAD/GHS', 'USD/GHS', 'GBP/GHS'
+// ];
 
 export const pairs = [
+    'GHS/EUR', 'GHS/CAD', 'GHS/USD', 'GHS/GBP',
+    'EUR/GHS', 'CAD/GHS', 'USD/GHS', 'GBP/GHS',
+    'GBP/GMD', 'GMD/GBP',
     'GMD/CAD', 'GMD/EUR', 'CAD/USD', 'CAD/EUR',
     'CAD/GBP', 'EUR/USD', 'EUR/CAD', 'EUR/GBP',
     'GBP/USD', 'GBP/CAD', 'GBP/EUR',
