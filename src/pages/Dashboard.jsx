@@ -1,24 +1,51 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import  { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { getRates } from '@/utils/api';
-import { ScrollingRates } from '@/components/dashboard/ScrollingRates';
-import { CurrencyAnalysis } from '@/components/dashboard/CurrencyAnalysis';
+import { getRates } from "@/utils/api";
+import { ScrollingRates } from "@/components/dashboard/ScrollingRates";
+import { CurrencyAnalysis } from "@/components/dashboard/CurrencyAnalysis";
 
-
-const ngnPairs = ['USD/NGN', 'EUR/NGN', 'GBP/NGN', 'CAD/NGN',
-  'GHS/NGN', 'AED/NGN', 'SLL/NGN', 'RWF/NGN',
-'NGN/USD', 'NGN/EUR', 'NGN/GBP', 'NGN/CAD',
-'NGN/GHS', 'NGN/AED', 'NGN/SLL', 'NGN/RWF',];
-const lrdPairs = ['USD/LRD', 'EUR/LRD', 'GBP/LRD', 'CAD/LRD',
-  'GHS/LRD', 'AED/LRD', 'SLL/LRD', 'RWF/LRD',
-  'LRD/USD', 'LRD/EUR', 'LRD/GBP', 'LRD/CAD',
-  'LRD/GHS', 'LRD/AED', 'LRD/SLL', 'LRD/RWF'];
+const ngnPairs = [
+  "USD/NGN",
+  "EUR/NGN",
+  "GBP/NGN",
+  "CAD/NGN",
+  "GHS/NGN",
+  "AED/NGN",
+  "SLL/NGN",
+  "RWF/NGN",
+  "NGN/USD",
+  "NGN/EUR",
+  "NGN/GBP",
+  "NGN/CAD",
+  "NGN/GHS",
+  "NGN/AED",
+  "NGN/SLL",
+  "NGN/RWF",
+];
+const lrdPairs = [
+  "USD/LRD",
+  "EUR/LRD",
+  "GBP/LRD",
+  "CAD/LRD",
+  "GHS/LRD",
+  "AED/LRD",
+  "SLL/LRD",
+  "RWF/LRD",
+  "LRD/USD",
+  "LRD/EUR",
+  "LRD/GBP",
+  "LRD/CAD",
+  "LRD/GHS",
+  "LRD/AED",
+  "LRD/SLL",
+  "LRD/RWF",
+];
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [rates, setRates] = useState({});
-  const [lastUpdateTime, setLastUpdateTime] = useState('');
+  const [lastUpdateTime, setLastUpdateTime] = useState("");
   const [loading, setLoading] = useState(true);
 
   const fetchRates = async () => {
@@ -34,9 +61,9 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (!token) {
-      navigate('/login');
+      navigate("/login");
       return;
     }
 
@@ -52,12 +79,12 @@ const Dashboard = () => {
   return (
     <div className="container mx-auto py-4 px-2">
       <ScrollingRates rates={rates} lastUpdateTime={lastUpdateTime} />
-      
+
       <div className="grid grid-cols-1 gap-6 mt-4">
         <div>
           <h3 className="text-lg font-semibold mb-2">NGN Exchange Rates</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-            {ngnPairs.map(pair => (
+            {ngnPairs.map((pair) => (
               <CurrencyAnalysis key={pair} pair={pair} />
             ))}
           </div>
@@ -66,7 +93,7 @@ const Dashboard = () => {
         <div>
           <h3 className="text-lg font-semibold mb-2">LRD Exchange Rates</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-            {lrdPairs.map(pair => (
+            {lrdPairs.map((pair) => (
               <CurrencyAnalysis key={pair} pair={pair} />
             ))}
           </div>
