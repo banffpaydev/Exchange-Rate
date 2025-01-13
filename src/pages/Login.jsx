@@ -1,4 +1,4 @@
-import  { useState} from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -30,11 +30,12 @@ const Login = () => {
       });
       const adminEmails = [
         "mebitanmi@banffpay.com",
+        "care@banffpay.com",
         "osaliu@banffpay.com",
         "banffpay@bpay.africa",
       ];
       // Check if user is admin
-      const isAdmin = adminEmails.includes(data.email);
+      const isAdmin = adminEmails.includes(data?.email?.toLowerCase());
       localStorage.setItem("isAdmin", isAdmin);
       localStorage.setItem("token", response.data.token);
 
