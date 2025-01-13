@@ -29,7 +29,7 @@ const Login = () => {
         password: data.password,
       });
       const adminEmails = [
-        "mlawal@bpay.africa",
+        "mebitanmi@banffpay.com",
         "osaliu@banffpay.com",
         "banffpay@bpay.africa",
       ];
