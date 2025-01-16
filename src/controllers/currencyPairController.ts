@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { createCurrencyPair, getAllCurrencyPairs, getCurrencyPairById, updateCurrencyPair, deleteCurrencyPair, getPaginatedCurrencyPairs } from '../services/currencyPairService';
 import CurrencyPair from '../models/CurrencyPair';
 import RawCurrencyPair from '../models/RawCurrencyPair';
+import { getSourceAndDesCountries, updateSellRate } from '../services/rateService';
 
 export const createPair = async (req: Request, res: Response) => {
     try {
@@ -42,9 +43,28 @@ export const getPairById = async (req: Request, res: Response) => {
         res.status(500).json({ message: 'Error fetching currency pair', error });
     }
 };
+export const getRemitOneSourceandDest = async (req: Request, res: Response) => {
+    try {
+        const sourceAndDesCountries = await getSourceAndDesCountries();
+
+        res.status(200).json(sourceAndDesCountries);
+
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching currency pair', error });
+    }
+};
 
 export const updatePair = async (req: Request, res: Response) => {
     try {
+
+        // Fetch source and destination countries from the cache or API
+        const sourceAndDesCountries = await getSourceAndDesCountries();
+        const findSourceCountry = sourceAndDesCountries.source.find((country) => country.currency === req.body.from)
+        const findDestCountry = sourceAndDesCountries.destination.find((country) => country.currency === req.body.to)
+
+        if (findSourceCountry && findDestCountry) {
+            const response = await updateSellRate(findSourceCountry?.id, findSourceCountry?.currency, findDestCountry?.id, findDestCountry?.currency, +req.body.exchangeRate)
+        }
         const updatedPair = await updateCurrencyPair(Number(req.params.id), req.body);
         if (updatedPair) {
             res.status(200).json(updatedPair);
@@ -52,7 +72,7 @@ export const updatePair = async (req: Request, res: Response) => {
             res.status(404).json({ message: 'Currency pair not found' });
         }
     } catch (error) {
-        res.status(500).json({ message: 'Error updating currency pair', error });
+        res.status(500).json({ message: 'Error updating currency pair' });
     }
 };
 

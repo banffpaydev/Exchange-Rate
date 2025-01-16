@@ -7,6 +7,7 @@ interface UserAttributes {
   id: number;
   email: string;
   password: string;
+  type: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -19,6 +20,7 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
   public id!: number;
   public email!: string;
   public password!: string;
+  public type!: string;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -53,6 +55,10 @@ User.init(
     updatedAt: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
+    },
+    type:{
+      type: DataTypes.STRING,
+      allowNull: true,
     },
   },
   {

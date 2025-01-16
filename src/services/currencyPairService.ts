@@ -3,7 +3,18 @@ import sequelize from '../config/db';
 import CurrencyPair from '../models/CurrencyPair';
 import RawCurrencyPair from '../models/RawCurrencyPair';
 import { pairs } from './ExchangeRateService';
+import ExchangeCountries from '../models/ExchangeCountries';
+import countries from '../seeds/countries.json';
 
+export async function seedCountries() {
+  try {
+    await ExchangeCountries.sync({ force: true });
+    await ExchangeCountries.bulkCreate(countries);
+    console.log('Countries have been populated successfully.');
+  } catch (error) {
+    console.error('Error populating countries:', error);
+  }
+}
 
 export const runCreateTables = async () => {
   const response = await sequelize.query(

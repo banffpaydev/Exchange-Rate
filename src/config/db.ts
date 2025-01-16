@@ -11,7 +11,6 @@
 //   synchronize: true,
 // });
 
-
 import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
 
@@ -52,6 +51,8 @@ const sequelize = new Sequelize(
     }
   }
 );
+
+
 
 sequelize.authenticate()
   .then(() => {

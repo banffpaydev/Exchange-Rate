@@ -599,20 +599,22 @@ export const handleAllFetch = async () => {
                 const rateData = await api(from, to);
 
                 if (rateData && rateData.rate !== undefined && rateData.rawRate !== undefined) {
-                    // @ts-ignore
-                    results[pair][rateData.name] = rateData.rate.toFixed(2);
+
                     // Only add to `rawResults` if not excluded
                     // @ts-ignore
                     if (!excludedNames.includes(rateData.name)) {
+                        // @ts-ignore
+                        results[pair][rateData.name] = rateData.rate.toFixed(2);
                         // @ts-ignore
                         rawResults[pair][rateData.name] = rateData.rawRate;
                     }
 
                 } else {
-                    // @ts-ignore
-                    results[pair][rateData.name] = null;
+
                     // @ts-ignore
                     if (!excludedNames.includes(rateData.name)) {
+                        // @ts-ignore
+                        results[pair][rateData.name] = null;
                         // @ts-ignore
                         rawResults[pair][rateData.name] = null;
                     }
@@ -638,7 +640,7 @@ export const handleAllFetch = async () => {
             currencyPair: pair,
             exchangeRate: rawStats[pair].mean
         }
-        console.log(pairData, "raw-pair")
+        console.log(pairData, "raw-pair", results[pair])
         // console.log(results[pair], "raw-pair-result")
 
         // console.log(rawPairData,"paidata", rawResults[pair], "raw-results")
@@ -972,8 +974,8 @@ export const analysisReVamp = async (currency: string) => {
 
 export const sendRate = async () => {
     try {
-        const mailList = ["dharold@bpay.africa", "mlawal@bpay.africa", "eamrovhe@bpay.africa", "osaliu@banffpay.com", "mebitanmi@banffpay.com", "eakinlua@bpay.africa", "cidefoh@banffpay.com"]
-        // const mailList = ["dharold@bpay.africa"]
+        // const mailList = ["dharold@bpay.africa", "mlawal@bpay.africa", "eamrovhe@bpay.africa", "osaliu@banffpay.com", "mebitanmi@banffpay.com", "eakinlua@bpay.africa", "cidefoh@banffpay.com"]
+        const mailList = ["dharold@bpay.africa"]
         const currencies = ["USD", "CAD", "GBP", "EUR", "NGN", "GHS", "XAF", "XOF", "SLL", "LRD", "GMD", "KES", "ZMW", "TZS"];
         const pairsCombo = currencies.flatMap(from => currencies.map(to => `${from}/${to}`));
         const pairs = await getAllCurrencyPairs();

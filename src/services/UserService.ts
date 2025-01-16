@@ -6,12 +6,12 @@ const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkey'; // Use environmen
 
 class UserService {
   // Register a new user
-  static async register(email: string, password: string) {
+  static async register(email: string, password: string, type: string) {
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
       throw new Error('User already exists');
     }
-    const user = await User.create({ email, password });
+    const user = await User.create({ email, password, type });
     return this.generateToken(user);
   }
 

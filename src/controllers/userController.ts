@@ -4,11 +4,11 @@ import UserService from '../services/UserService';
 class UserController {
   // Register a new user
   static async register(req: Request, res: Response) {
-    const { email, password } = req.body;
+    const { email, password, type } = req.body;
 
     try {
       const cleanEmail = email?.toLowerCase()?.trim();
-      const token = await UserService.register(cleanEmail, password);
+      const token = await UserService.register(cleanEmail, password, type);
       return res.status(201).json({ message: 'User registered successfully', token });
     } catch (error: any) {
       return res.status(400).json({ error: error.message });
