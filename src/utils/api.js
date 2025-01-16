@@ -2,8 +2,8 @@ import axios from 'axios';
 // import dotenv from 'dotenv';
 // dotenv.config();
 
-export const basisUrl = "https://www.api-exchange.bpay.africa";
-// export const basisUrl = "http://localhost:5000";
+// export const basisUrl = "https://www.api-exchange.bpay.africa";
+export const basisUrl = "http://localhost:5000";
 // export const basisUrl = "https://xchangerate-banf.onrender.com"
 
 
@@ -34,7 +34,7 @@ const getRequest = async (endpoint, config = {}) => {
 };
 
 export const getRates = () => getRequest('/rates');
-export const fetchDbRates = () => getRequest('/dbrates');
+export const fetchDbRates = () => getRequest('/filtered-dbrates');
 
 // Example of exporting various API functions
 export const createUser = (userData) => postRequest('/users', userData);
