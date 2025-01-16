@@ -34,7 +34,7 @@ const getRequest = async (endpoint, config = {}) => {
 };
 
 export const getRates = () => getRequest('/rates');
-export const fetchDbRates = () => getRequest('/filtered-dbrates');
+export const fetchDbRates = () => getRequest('/dbrates');
 
 // Example of exporting various API functions
 export const createUser = (userData) => postRequest('/users', userData);
