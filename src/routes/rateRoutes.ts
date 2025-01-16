@@ -8,6 +8,9 @@ router.get("/rates", RateController.getRates);
 // @ts-ignore
 router.get("/dbrates", RateController.getDBRATES);
 // @ts-ignore
+router.get("/filtered-dbrates", RateController.getFilteredDBRATES);
+
+// @ts-ignore
 router.get("/dbrates/pairs", RateController.getDBPairRATES);
 
 // @ts-ignore

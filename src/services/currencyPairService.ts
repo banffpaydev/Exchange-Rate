@@ -63,21 +63,23 @@ export const getPaginatedCurrencyPairs = async (page = 1, limit = 10) => {
     totalPages: Math.ceil(data.count / limit),
   };
 };
-export const getAllCurrencyPairs = async (pairData?: string[] | undefined) => {
-
-const pair = pairData ?? pairs
-  return await CurrencyPair.findAll({
-    where: {
-      currencyPair: { [Op.in]: pairs },
-      createdAt: {
-        [Op.in]: Sequelize.literal(`(
-                    SELECT MAX("createdAt") 
-                    FROM "currency_pairs" 
-                    WHERE "currencyPair" = "CurrencyPair"."currencyPair"
-                )`)
-      }
-    },
-    order: [['currencyPair', 'ASC']],
+export const getAllCurrencyPairs = async () => {
+  return await sequelize.query(`
+    WITH RankedPairs AS (
+      SELECT *,
+        ROW_NUMBER() OVER (
+          PARTITION BY "currencyPair" 
+          ORDER BY "createdAt" DESC
+        ) as rn
+      FROM currency_pairs
+      WHERE "currencyPair" IN (${pairs.map(p => `'${p}'`).join(',')})
+    )
+    SELECT * FROM RankedPairs 
+    WHERE rn = 1
+    ORDER BY "currencyPair" ASC
+  `, {
+    model: CurrencyPair,
+    mapToModel: true
   });
 };
 

@@ -234,6 +234,17 @@ const cadrRemitRate = async (from: string, to: string) => {
     }
 }
 
+export const sendWaveRate = async (from: string, to: string) => {
+    //console.log("Wise started")
+    try {
+        const response = await axios.get(`https://app.sendwave.com/v2/pricing-public?amountType=SEND&receiveCurrency=${to}&amount=1&sendCurrency=${from}&sendCountryIso2=ca&receiveCountryIso2=ng`);
+        const data = response.data;
+      console.log(data)
+    } catch (err: any) {
+        console.error('Error fetching Afri Exchange rate:', err);
+        return { msg: "error message", err }
+    }
+}
 
 const wiseRate = async (from: string, to: string) => {
     //console.log("Wise started")
@@ -734,7 +745,29 @@ export const getRawRatesFromDBPairs = async (pair: string) => {
 
 //     }
 // }
+export const removeRateKeyForAllPairs = async (keyToRemove: string) => {
+    try {
+        // Fetch all exchange rates
+        const exchangeRates = await ExchangeRate.findAll();
 
+        for (const exchangeRate of exchangeRates) {
+            if (exchangeRate.rates && keyToRemove in exchangeRate.rates) {
+                // Clone the rates object
+                const updatedRates = { ...exchangeRate.rates };
+                delete updatedRates[keyToRemove]; // Remove the specified key
+
+                // Update the record
+                exchangeRate.rates = updatedRates;
+                await exchangeRate.save();
+            }
+        }
+
+        console.log(`Key "${keyToRemove}" removed from rates for all pairs.`);
+    } catch (error) {
+        console.error("Error removing key from rates for all pairs:", error);
+        throw error;
+    }
+};
 export const getRatesFromDB = async () => {
 
     try {
@@ -742,6 +775,49 @@ export const getRatesFromDB = async () => {
         const exchangeRates = await ExchangeRate.findAll({
             raw: true,
             attributes: ['id', 'pair', 'rates', 'createdAt', 'updatedAt'],
+            order: [['createdAt', 'ASC']] // Ensure the rates are ordered by creation date
+        });
+
+        if (!exchangeRates || exchangeRates.length === 0) {
+            throw new Error(`Exchange rates not found`);
+        }
+
+        // Grouping the data by 'createdAt' date
+        const groupedByDate = exchangeRates.reduce((acc, rate) => {
+            // Get the date in 'YYYY-MM-DD' format (ignoring time)
+            const dateKey = new Date(rate.createdAt).toISOString().split('T')[0];
+
+            // If the date key doesn't exist in the accumulator, create an empty array for it
+            if (!acc[dateKey]) {
+                acc[dateKey] = [];
+            }
+
+            // Push the current rate into the corresponding date group
+            acc[dateKey].push(rate);
+
+            return acc;
+        }, {} as { [key: string]: any[] }); // Initial accumulator is an empty object
+
+        return groupedByDate;
+    } catch (error: any) {
+        throw new Error(`Failed to fetch exchange rates: ${error.message}`);
+    }
+};
+export const getRatesFromDBWithDateFilter = async (startDate?: string, endDate?: string) => {
+    try {
+        const whereClause: any = {};
+
+        if (startDate && endDate) {
+            whereClause.createdAt = {
+                [Op.between]: [new Date(startDate), new Date(endDate)]
+            };
+        }
+
+        // Fetch all exchange rates with raw data
+        const exchangeRates = await ExchangeRate.findAll({
+            raw: true,
+            attributes: ['id', 'pair', 'rates', 'createdAt', 'updatedAt'],
+            where: whereClause,
             order: [['createdAt', 'ASC']] // Ensure the rates are ordered by creation date
         });
 
@@ -974,8 +1050,8 @@ export const analysisReVamp = async (currency: string) => {
 
 export const sendRate = async () => {
     try {
-        // const mailList = ["dharold@bpay.africa", "mlawal@bpay.africa", "eamrovhe@bpay.africa", "osaliu@banffpay.com", "mebitanmi@banffpay.com", "eakinlua@bpay.africa", "cidefoh@banffpay.com"]
-        const mailList = ["dharold@bpay.africa"]
+        const mailList = ["dharold@bpay.africa", "mlawal@bpay.africa", "eamrovhe@bpay.africa", "osaliu@banffpay.com", "mebitanmi@banffpay.com", "eakinlua@bpay.africa", "cidefoh@banffpay.com"]
+        // const mailList = ["dharold@bpay.africa"]
         const currencies = ["USD", "CAD", "GBP", "EUR", "NGN", "GHS", "XAF", "XOF", "SLL", "LRD", "GMD", "KES", "ZMW", "TZS"];
         const pairsCombo = currencies.flatMap(from => currencies.map(to => `${from}/${to}`));
         const pairs = await getAllCurrencyPairs();
