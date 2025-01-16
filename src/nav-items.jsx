@@ -15,7 +15,7 @@ export const navItems = [
   {
     title: "Dashboard",
     to: "/",
-    page: <Dashboard />
+    page: <Dashboard />,
   },
   // {
   //   title: "Heatmap",
@@ -25,39 +25,45 @@ export const navItems = [
   {
     title: "Exchange Rates",
     to: "/exchange-rates",
-    page: <ExchangeRates />
+    page: <ExchangeRates />,
   },
   {
     title: "Historical Rates",
     to: "/historical-rates",
-    page: <TapExchangeRates />
+    page: <TapExchangeRates />,
   },
   {
     title: "Admin",
     to: "/admin/rates",
-    page: <AdminRatesChn />
+    page: <AdminRatesChn />,
   },
   {
     title: "Login",
     to: "/login",
-    page: <Login />
+    page: <Login />,
   },
   {
     title: "Register",
     to: "/register",
-    page: <Register />
+    page: <Register />,
   },
   {
     title: "",
     to: "/currency-pair/:pairs",
-    page: <CurrencyPairAnalysis />
-  }
+    page: <CurrencyPairAnalysis />,
+  },
+  {
+    title: "Logout",
+    action: () => {
+      localStorage.clear();
+    },
+  },
 ];
 
 // Add a route that won't show in navigation
 export const hiddenRoutes = [
   {
     to: "/currency-pair/:pairs",
-    page: <CurrencyPairAnalysis />
-  }
+    page: <CurrencyPairAnalysis />,
+  },
 ];

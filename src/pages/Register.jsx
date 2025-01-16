@@ -1,15 +1,18 @@
-import React, { useState } from 'react';
+import  { useState } from 'react';
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import axios from 'axios';
 import { basisUrl } from '@/utils/api';
+import { adminEmails } from './Login';
+import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
   const form = useForm();
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState(null); // To store success or error message
+  const navigate = useNavigate();
 
   // Function to handle the form submission
   const onSubmit = async (data) => {
@@ -23,9 +26,12 @@ const Register = () => {
         username: data.username,
         password: data.password,
       });
-
+      const isAdmin = adminEmails.includes(data?.email?.toLowerCase());
+      localStorage.setItem("isAdmin", isAdmin);
+      localStorage.setItem("token", response.data.token);
       // If registration is successful
       setNotification({ type: 'success', message: 'Registration successful!' });
+      navigate(isAdmin ? "/admin/rates" : "/");
     } catch (error) {
       // Handle registration error
       setNotification({ type: 'error', message: error.response?.data?.message || 'Registration failed!' });

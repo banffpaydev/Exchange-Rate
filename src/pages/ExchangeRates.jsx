@@ -13,6 +13,12 @@ import { getRates } from '@/utils/api';
 // ];
 
 const currencyPairs = [
+  'GHS/EUR', 'GHS/CAD', 'GHS/USD', 'GHS/GBP',
+  'EUR/GHS', 'CAD/GHS', 'USD/GHS', 'GBP/GHS',
+  'GBP/GMD', 'GMD/GBP',
+  'GMD/CAD', 'GMD/EUR', 'CAD/USD', 'CAD/EUR',
+  'CAD/GBP', 'EUR/USD', 'EUR/CAD', 'EUR/GBP',
+  'GBP/USD', 'GBP/CAD', 'GBP/EUR',
   'USD/NGN', 'EUR/NGN', 'GBP/NGN', 'CAD/NGN',
   'USD/LRD', 'EUR/LRD', 'GBP/LRD', 'CAD/LRD',
   'GHS/NGN', 'AED/NGN', 'SLL/NGN', 'RWF/NGN',
@@ -20,7 +26,23 @@ const currencyPairs = [
   'NGN/USD', 'NGN/EUR', 'NGN/GBP', 'NGN/CAD',
   'LRD/USD', 'LRD/EUR', 'LRD/GBP', 'LRD/CAD',
   'NGN/GHS', 'NGN/AED', 'NGN/SLL', 'NGN/RWF',
-  'LRD/GHS', 'LRD/AED', 'LRD/SLL', 'LRD/RWF'
+  'LRD/GHS', 'LRD/AED', 'LRD/SLL', 'LRD/RWF',
+  'USD/KES', 'EUR/KES', 'GBP/KES', 'CAD/KES',
+  'USD/ZMW', 'EUR/ZMW', 'GBP/ZMW', 'CAD/ZMW',
+  'USD/TZS', 'EUR/TZS', 'GBP/TZS', 'CAD/TZS',
+  'USD/XOF', 'EUR/XOF', 'GBP/XOF', 'CAD/XOF',
+  'USD/XAF', 'EUR/XAF', 'GBP/XAF', 'CAD/XAF',
+  'KES/USD', 'KES/EUR', 'KES/GBP', 'KES/CAD',
+  'ZMW/USD', 'ZMW/EUR', 'ZMW/GBP', 'ZMW/CAD',
+  'TZS/USD', 'TZS/EUR', 'TZS/GBP', 'TZS/CAD',
+  'XOF/USD', 'XOF/EUR', 'XOF/GBP', 'XOF/CAD',
+  'XAF/USD', 'XAF/EUR', 'XAF/GBP', 'XAF/CAD',
+  'KES/ZMW', 'KES/TZS', 'KES/XOF', 'KES/XAF',
+  'ZMW/TZS', 'ZMW/XOF', 'ZMW/XAF', 'USD/CAD',
+  'TZS/XOF', 'TZS/XAF', 'USD/GBP', 'USD/EUR',
+  'XOF/XAF', 'USD/SLL', 'SLL/NGN', 'SLL/LRD',
+  'NGN/SLL', 'CAD/GMD', 'EUR/GMD', 'USD/GMD',
+  'CAD/SLL', 'GBP/SLL', 'EUR/SLL', 'GMD/USD',
 ];
 
 function convertCurrencyPair(currencyPair) {

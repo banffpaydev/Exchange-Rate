@@ -14,7 +14,12 @@ import {
 import axios from "axios";
 import { basisUrl } from "@/utils/api";
 import { toast } from "sonner";
-
+export const adminEmails = [
+  "mebitanmi@banffpay.com",
+  "care@banffpay.com",
+  "osaliu@banffpay.com",
+  "banffpay@bpay.africa",
+];
 const Login = () => {
   const form = useForm();
   const [loading, setLoading] = useState(false);
@@ -28,12 +33,7 @@ const Login = () => {
         email: data.email,
         password: data.password,
       });
-      const adminEmails = [
-        "mebitanmi@banffpay.com",
-        "care@banffpay.com",
-        "osaliu@banffpay.com",
-        "banffpay@bpay.africa",
-      ];
+     
       // Check if user is admin
       const isAdmin = adminEmails.includes(data?.email?.toLowerCase());
       localStorage.setItem("isAdmin", isAdmin);

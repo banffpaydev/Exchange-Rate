@@ -1,16 +1,30 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { getRates, fetchDbRates, basisUrl } from '@/utils/api';
-import { AdminRateRow } from '@/components/admin/AdminRateRow';
-import { SaveRatesDialog } from '@/components/admin/SaveRatesDialog';
-import axios from 'axios';
-import { AdminRateRowChn } from '@/components/admin/AdminRateRowChn';
+import { getRates, fetchDbRates, basisUrl } from "@/utils/api";
+import { AdminRateRow } from "@/components/admin/AdminRateRow";
+import { SaveRatesDialog } from "@/components/admin/SaveRatesDialog";
+import axios from "axios";
+import { AdminRateRowChn } from "@/components/admin/AdminRateRowChn";
 
 const AdminRatesChn = () => {
   const navigate = useNavigate();
@@ -19,6 +33,7 @@ const AdminRatesChn = () => {
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [remitOneCountries, setRemitOneCountries] = useState({});
 
   // const { data: rates, isLoading } = useQuery({
   //   queryKey: ['admin-rates'],
@@ -26,51 +41,55 @@ const AdminRatesChn = () => {
   // });
 
   React.useEffect(() => {
-    const isAdmin = localStorage.getItem('isAdmin') === 'true';
+    const isAdmin = localStorage.getItem("isAdmin") === "true";
     if (!isAdmin) {
-      navigate('/login');
+      navigate("/login");
       return;
     }
   }, [navigate]);
 
   const handleRateChange = (pair, vendor, value) => {
-    setEditedRates(prev => ({
+    setEditedRates((prev) => ({
       ...prev,
       [pair]: {
         ...(prev[pair] || {}),
-        [vendor]: value
-      }
+        [vendor]: value,
+      },
     }));
   };
 
-  const fetchRecentRates = async() => {
+  const fetchRecentRates = async () => {
     try {
-      const response = await axios.get(`${basisUrl}/api/current/pairs`)
+      const response = await axios.get(`${basisUrl}/api/current/pairs`);
+      const countries = await axios.get(
+        `${basisUrl}/api/current/remitoneCountries`
+      );
+      setRemitOneCountries(countries.data);
       setRates(response.data);
       setIsLoading(false);
-      toast.success("Rate data fetched")
+      toast.success("Rate data fetched");
     } catch (error) {
-      setIsLoading(false)
+      setIsLoading(false);
       setError("Unable to fetch Rates!!");
-      toast.error("Unable to fetch Rates!!")
+      toast.error("Unable to fetch Rates!!");
     }
-  } 
+  };
   React.useEffect(() => {
     fetchRecentRates();
-  }, [])
+  }, []);
 
   const handleSave = async () => {
     setShowConfirmDialog(false);
     try {
       // Here you would make the API call to save the rates
-      toast.success('Rates updated successfully');
+      toast.success("Rates updated successfully");
     } catch (error) {
-      toast.error('Failed to update rates');
+      toast.error("Failed to update rates");
     }
   };
 
   if (isLoading) return <div>Loading...</div>;
-  if (!isLoading && error) return <div>{error}</div>
+  if (!isLoading && error) return <div>{error}</div>;
 
   return (
     <div className="container mx-auto py-10">
@@ -90,17 +109,30 @@ const AdminRatesChn = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {rates.map((data, index) => (
-              <AdminRateRowChn
-                key={data.id}
-                id={data.id}
-                pair={data.currencyPair}
-                rateData={data.exchangeRate}
-                editedRates={editedRates}
-                onRateChange={handleRateChange}
-              />
-            ))}
-           
+            {rates.map((data, index) => {
+              const pairArray = data.currencyPair.split("/");
+
+              const findSourceCountry = remitOneCountries?.source.find(
+                (country) => country.currency === pairArray[0]
+              );
+              const findDestCountry = remitOneCountries?.destination.find(
+                (country) => country.currency === pairArray[1]
+              );
+              const remitOneEnabled = findSourceCountry && findDestCountry;
+
+              return (
+                <AdminRateRowChn
+                  key={data.id}
+                  id={data.id}
+                  pair={data.currencyPair}
+                  rateData={data.exchangeRate}
+                  editedRates={editedRates}
+                  onRateChange={handleRateChange}
+                  remitOneEnabled={remitOneEnabled}
+                />
+              );
+            })}
+
             {/* {Object.entries(rates?.data || {}).map(([pair, rateData]) => (
               <AdminRateRow
                 key={pair}
