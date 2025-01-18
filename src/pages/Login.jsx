@@ -14,16 +14,13 @@ import {
 import axios from "axios";
 import { basisUrl } from "@/utils/api";
 import { toast } from "sonner";
-export const adminEmails = [
-  "mebitanmi@banffpay.com",
-  "care@banffpay.com",
-  "osaliu@banffpay.com",
-  "banffpay@bpay.africa",
-];
+import { useStore } from "../../store/store";
+
 const Login = () => {
   const form = useForm();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { setUser } = useStore();
 
   const onSubmit = async (data) => {
     setLoading(true);
@@ -33,17 +30,17 @@ const Login = () => {
         email: data.email,
         password: data.password,
       });
-     
-      // Check if user is admin
-      const isAdmin = adminEmails.includes(data?.email?.toLowerCase());
-      localStorage.setItem("isAdmin", isAdmin);
-      localStorage.setItem("token", response.data.token);
+
+      setUser(response.data.data.user);
+      sessionStorage.setItem("token", response.data.data.token);
 
       toast.success("Login successful! Redirecting...");
 
       // Redirect after successful login
       setTimeout(() => {
-        navigate(isAdmin ? "/admin/rates" : "/");
+        navigate(
+          response.data?.data?.user.type === "admin" ? "/admin/rates" : "/"
+        );
       }, 1000);
     } catch (error) {
       toast.error(error.response?.data?.message || "Login failed!");

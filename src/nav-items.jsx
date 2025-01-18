@@ -1,5 +1,6 @@
 import { lazy } from "react";
 import AdminRatesChn from "./pages/AdminRates copy";
+import { useNavigate } from "react-router-dom";
 
 const Index = lazy(() => import("./pages/Index"));
 const Login = lazy(() => import("./pages/Login"));
@@ -10,7 +11,6 @@ const CurrencyPairAnalysis = lazy(() => import("./pages/CurrencyPairAnalysis"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const HeatmapDashboard = lazy(() => import("./pages/HeatmapDashboard"));
 const AdminRates = lazy(() => import("./pages/AdminRates"));
-
 export const navItems = [
   {
     title: "Dashboard",
@@ -55,7 +55,8 @@ export const navItems = [
   {
     title: "Logout",
     action: () => {
-      localStorage.clear();
+      sessionStorage.clear();
+
     },
   },
 ];

@@ -2,11 +2,21 @@ import { Suspense, useEffect, useState } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Link, Navigate } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Link,
+  Navigate,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 import { ErrorBoundary } from "react-error-boundary";
 import { navItems } from "./nav-items";
 import { ErrorFallback } from "./components/ErrorBoundary";
 import { Loader2 } from "lucide-react";
+import { getUser } from "./utils/api";
+import { useStore } from "../store/store";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -24,35 +34,71 @@ const LoadingSpinner = () => (
 );
 
 const Layout = ({ children }) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { user, setUser } = useStore();
   const [isLoggedIn, setLoggedIn] = useState(false);
+
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    setLoggedIn(!!token);
-  }, []);
+    const fetchUserData = async () => {
+      const token = sessionStorage.getItem("token");
+      if (token) {
+        const response = await getUser();
+        setUser(response.data);
+      }
+      setLoggedIn(!!token);
+    };
+    fetchUserData();
+  }, [location]);
   return (
     <div className="min-h-screen flex flex-col">
       <header className="bg-gray-800 text-white p-4 sticky top-0 z-50">
         <nav>
+          {console.log(user)}
           <ul className="flex space-x-4">
             {navItems
               .filter((item) => {
                 if (isLoggedIn) {
+                  if (user?.type !== "admin") {
+                    // Show only items relevant to admins when the user is an admin
+                    return (
+                      item.title.toLowerCase() !== "register" &&
+                      item.title.toLowerCase() !== "login" &&
+                      item.title.toLowerCase() !== "admin"
+                    );
+                  }
+
                   // Exclude "Register" and "Login" when logged in
                   return (
                     item.title.toLowerCase() !== "register" &&
                     item.title.toLowerCase() !== "login"
                   );
                 } else {
-                  return item.title.toLowerCase() !== "logout";
+                  return (
+                    item.title.toLowerCase() !== "admin" &&
+                    item.title.toLowerCase() !== "logout"
+                  );
                 }
               })
               .map(
-                ({ title, to }) =>
+                ({ title, to, action }) =>
                   title && (
                     <li key={to}>
-                      <Link to={to} className="hover:text-gray-300">
-                        {title}
-                      </Link>
+                      {title.toLowerCase() === "logout" ? (
+                        <button
+                          onClick={() => {
+                            action();
+                            navigate("/login");
+                          }}
+                          className="hover:text-gray-300"
+                        >
+                          {title}
+                        </button>
+                      ) : (
+                        <Link to={to} className="hover:text-gray-300">
+                          {title}
+                        </Link>
+                      )}
                     </li>
                   )
               )}

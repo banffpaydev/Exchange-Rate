@@ -1,30 +1,20 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+
 import { toast } from "sonner";
-import { getRates, fetchDbRates, basisUrl } from "@/utils/api";
-import { AdminRateRow } from "@/components/admin/AdminRateRow";
+import { basisUrl } from "@/utils/api";
 import { SaveRatesDialog } from "@/components/admin/SaveRatesDialog";
 import axios from "axios";
 import { AdminRateRowChn } from "@/components/admin/AdminRateRowChn";
+import { useStore } from "../../store/store";
 
 const AdminRatesChn = () => {
   const navigate = useNavigate();
@@ -34,6 +24,7 @@ const AdminRatesChn = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [remitOneCountries, setRemitOneCountries] = useState({});
+  const { user } = useStore();
 
   // const { data: rates, isLoading } = useQuery({
   //   queryKey: ['admin-rates'],
@@ -41,11 +32,11 @@ const AdminRatesChn = () => {
   // });
 
   React.useEffect(() => {
-    const isAdmin = localStorage.getItem("isAdmin") === "true";
-    if (!isAdmin) {
-      navigate("/login");
-      return;
-    }
+    if (user)
+      if (user?.type !== "admin") {
+        navigate("/login");
+        return;
+      }
   }, [navigate]);
 
   const handleRateChange = (pair, vendor, value) => {
@@ -103,13 +94,12 @@ const AdminRatesChn = () => {
           <TableHeader>
             <TableRow>
               <TableHead>Currency Pair</TableHead>
-              <TableHead>Vendor</TableHead>
               <TableHead>Current Rate</TableHead>
-              <TableHead>New Rate</TableHead>
+              <TableHead>Banffpay Rate</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {rates.map((data, index) => {
+            {rates.map((data) => {
               const pairArray = data.currencyPair.split("/");
 
               const findSourceCountry = remitOneCountries?.source.find(

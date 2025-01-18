@@ -48,7 +48,7 @@ export const CurrencyAnalysis = ({ pair }) => {
           
           <div className="text-xs space-y-2">
             <div>
-              <div className="text-green-600 font-medium mb-1">Top 5 Rates</div>
+              <div className="text-green-600 font-medium mb-1">Top 3 Rates</div>
               {analysis.top5.map((item, idx) => (
                 <div key={idx} className="flex justify-between">
                   <span>{item.vendor}</span>
@@ -58,7 +58,7 @@ export const CurrencyAnalysis = ({ pair }) => {
             </div>
             
             <div className="mt-2">
-              <div className="text-red-600 font-medium mb-1">Bottom 5 Rates</div>
+              <div className="text-red-600 font-medium mb-1">Bottom 3 Rates</div>
               {analysis.bottom5.map((item, idx) => (
                 <div key={idx} className="flex justify-between">
                   <span>{item.vendor}</span>

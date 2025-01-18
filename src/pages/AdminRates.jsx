@@ -1,40 +1,47 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { Input } from "@/components/ui/input";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
 import { toast } from "sonner";
-import { getRates, fetchDbRates } from '@/utils/api';
-import { AdminRateRow } from '@/components/admin/AdminRateRow';
-import { SaveRatesDialog } from '@/components/admin/SaveRatesDialog';
+import { fetchDbRates } from "@/utils/api";
+import { AdminRateRow } from "@/components/admin/AdminRateRow";
+import { SaveRatesDialog } from "@/components/admin/SaveRatesDialog";
+import { useStore } from "../../store/store";
 
 const AdminRates = () => {
   const navigate = useNavigate();
   const [editedRates, setEditedRates] = useState({});
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const { user } = useStore();
 
   const { data: rates, isLoading } = useQuery({
-    queryKey: ['admin-rates'],
+    queryKey: ["admin-rates"],
     queryFn: fetchDbRates,
   });
 
   React.useEffect(() => {
-    const isAdmin = localStorage.getItem('isAdmin') === 'true';
-    if (!isAdmin) {
-      navigate('/login');
-      return;
-    }
+    if (user)
+      if (user?.type !== "admin") {
+        navigate("/login");
+        return;
+      }
   }, [navigate]);
 
   const handleRateChange = (pair, vendor, value) => {
-    setEditedRates(prev => ({
+    setEditedRates((prev) => ({
       ...prev,
       [pair]: {
         ...(prev[pair] || {}),
-        [vendor]: value
-      }
+        [vendor]: value,
+      },
     }));
   };
 
@@ -42,9 +49,9 @@ const AdminRates = () => {
     setShowConfirmDialog(false);
     try {
       // Here you would make the API call to save the rates
-      toast.success('Rates updated successfully');
+      toast.success("Rates updated successfully");
     } catch (error) {
-      toast.error('Failed to update rates');
+      toast.error("Failed to update rates");
     }
   };
 

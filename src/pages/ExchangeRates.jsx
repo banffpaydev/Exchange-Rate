@@ -90,7 +90,7 @@ const ExchangeRates = () => {
   }, [selectedPair, startDate, endDate]);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     if (!token) {
       navigate('/login');
     }

@@ -7,28 +7,40 @@ import axios from "axios";
 import { formatNumber, formatNumberStr } from "../dashboard/ScrollingRates";
 import { ColorRing } from "react-loader-spinner";
 import { toast } from "sonner";
+import { SaveRatesDialog } from "./SaveRatesDialog";
 
 export const AdminRateRowChn = ({ pair, rateData, id, remitOneEnabled }) => {
   // console.log("mape: ", formatNumberStr(rateData))
   const [editedRates, setEditedRates] = useState(formatNumberStr(rateData));
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
   const [analysis, setAnalysis] = useState(null);
   const [loading, setLoading] = useState(false);
   const [analysing, setAnalysing] = useState(false);
+  const token = sessionStorage.getItem("token");
 
   const handleSave = async () => {
     const pairArray = pair.split("/");
     try {
       setLoading(true);
-      const response = await axios.put(`${basisUrl}/api/current/pairs/${id}`, {
-        exchangeRate: editedRates,
-        from: pairArray[0],
-        to: pairArray[1],
-      });
+      const response = await axios.put(
+        `${basisUrl}/api/current/pairs/${id}`,
+        {
+          exchangeRate: editedRates,
+          from: pairArray[0],
+          to: pairArray[1],
+        },
+        {
+          headers: {
+            Authorization: token ? `Bearer ${token}` : undefined,
+          },
+        }
+      );
       toast.success("Rate data updated");
       // if (response.data != null) {
       //   toast.success("Rate data updated");
       // }
+      setShowConfirmDialog(false);
     } catch (error) {
       toast.error("Unable to update Rates!!");
     } finally {
@@ -85,6 +97,15 @@ export const AdminRateRowChn = ({ pair, rateData, id, remitOneEnabled }) => {
 
   return (
     <>
+      <SaveRatesDialog
+        loading={loading}
+        open={showConfirmDialog}
+        onOpenChange={setShowConfirmDialog}
+        onConfirm={handleSave}
+        editedRates={editedRates}
+        pair={pair}
+        oldRate={rateData.toFixed(2)}
+      />
       <TableRow key={`${pair}`}>
         <TableCell>
           {pair}{" "}
@@ -94,7 +115,6 @@ export const AdminRateRowChn = ({ pair, rateData, id, remitOneEnabled }) => {
             </small>
           )}
         </TableCell>
-        <TableCell>Banffpay</TableCell>
         <TableCell>
           {rateData?.toFixed(2).toLocaleString("en-US") || "N/A"}
         </TableCell>
@@ -110,7 +130,9 @@ export const AdminRateRowChn = ({ pair, rateData, id, remitOneEnabled }) => {
         <TableCell>
           <Button
             disabled={loading || analysing}
-            onClick={handleSave}
+            onClick={() => {
+              setShowConfirmDialog(true);
+            }}
             className="mr-2"
           >
             Save{" "}

@@ -2,8 +2,8 @@ import axios from 'axios';
 // import dotenv from 'dotenv';
 // dotenv.config();
 
-export const basisUrl = "https://www.api-exchange.bpay.africa";
-// export const basisUrl = "http://localhost:5000";
+// export const basisUrl = "https://www.api-exchange.bpay.africa";
+export const basisUrl = "http://localhost:5000";
 // export const basisUrl = "https://xchangerate-banf.onrender.com"
 
 
@@ -25,7 +25,18 @@ const postRequest = async (endpoint, data = {}, config = {}) => {
 // Helper function to handle all GET requests
 const getRequest = async (endpoint, config = {}) => {
   try {
-    const response = await axios.get(`${BASE_URL}${endpoint}`, config);
+      // Retrieve the token from session storage
+      const token = sessionStorage.getItem('token');
+
+      // Add the token to the headers if it exists
+      const updatedConfig = {
+        ...config,
+        headers: {
+          ...config.headers,
+          Authorization: token ? `Bearer ${token}` : undefined,
+        },
+      };
+    const response = await axios.get(`${BASE_URL}${endpoint}`, updatedConfig);
     return response.data;
   } catch (error) {
     console.error(`GET request to ${endpoint} failed:`, error);
@@ -33,8 +44,32 @@ const getRequest = async (endpoint, config = {}) => {
   }
 };
 
+const getGeneralRequest = async (endpoint, config = {}) => {
+  try {
+    // Retrieve the token from session storage
+    const token = sessionStorage.getItem('token');
+
+    // Add the token to the headers if it exists
+    const updatedConfig = {
+      ...config,
+      headers: {
+        ...config.headers,
+        authorization: token ? `Bearer ${token}` : undefined,
+      },
+    };
+
+    const response = await axios.get(`${basisUrl}/api${endpoint}`, updatedConfig);
+    return response.data;
+  } catch (error) {
+    console.error(`GET request to ${endpoint} failed:`, error);
+    throw error.response ? error.response.data : error;
+  }
+};
+
+
 export const getRates = () => getRequest('/rates');
 export const fetchDbRates = () => getRequest('/dbrates');
+export const getUser = () => getGeneralRequest('/users/user');
 
 // Example of exporting various API functions
 export const createUser = (userData) => postRequest('/users', userData);

@@ -1221,7 +1221,7 @@
   dependencies:
     "@types/react" "*"
 
-"@types/react@*", "@types/react@^16.8.0 || ^17.0.0 || ^18.0.0", "@types/react@^16.9.0 || ^17.0.0 || ^18.0.0", "@types/react@^18.2.56":
+"@types/react@*", "@types/react@^16.8.0 || ^17.0.0 || ^18.0.0", "@types/react@^16.9.0 || ^17.0.0 || ^18.0.0", "@types/react@^18.2.56", "@types/react@>=18.0.0":
   version "18.3.3"
   resolved "https://registry.npmjs.org/@types/react/-/react-18.3.3.tgz"
   integrity sha512-hti/R0pS0q1/xx+TsI73XIqk26eBsISZ2R0wUijXIngRK9R/e7Xw/cXVxQK7R5JjW+SV4zGcn5hXjudkN/pLIw==
@@ -3341,7 +3341,7 @@ react-transition-group@^4.4.2, react-transition-group@^4.4.5:
     loose-envify "^1.4.0"
     prop-types "^15.6.2"
 
-"react@^16.0.0 || ^17.0.0 || ^18.0.0", "react@^16.14.0 || ^17.0.0 || ^18.0.0", "react@^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0", "react@^16.8 || ^17 || ^18", "react@^16.8 || ^17.0 || ^18.0", "react@^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc", "react@^16.8.0 || ^17 || ^18", "react@^16.8.0 || ^17 || ^18 || ^19", "react@^16.8.0 || ^17.0.0 || ^18.0.0", "react@^16.8.0 || ^17.0.1 || ^18.0.0", react@^18.0.0, react@^18.2.0, react@^18.3.1, "react@>= 16.8.0", react@>=16.13.1, react@>=16.6.0, react@>=16.8, react@>=16.8.0:
+"react@^16.0.0 || ^17.0.0 || ^18.0.0", "react@^16.14.0 || ^17.0.0 || ^18.0.0", "react@^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0", "react@^16.8 || ^17 || ^18", "react@^16.8 || ^17.0 || ^18.0", "react@^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc", "react@^16.8.0 || ^17 || ^18", "react@^16.8.0 || ^17 || ^18 || ^19", "react@^16.8.0 || ^17.0.0 || ^18.0.0", "react@^16.8.0 || ^17.0.1 || ^18.0.0", react@^18.0.0, react@^18.2.0, react@^18.3.1, "react@>= 16.8.0", react@>=16.13.1, react@>=16.6.0, react@>=16.8, react@>=16.8.0, react@>=18.0.0:
   version "18.3.1"
   resolved "https://registry.npmjs.org/react/-/react-18.3.1.tgz"
   integrity sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==
@@ -4092,3 +4092,8 @@ zod@^3.23.8:
   version "3.23.8"
   resolved "https://registry.npmjs.org/zod/-/zod-3.23.8.tgz"
   integrity sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==
+
+zustand@^5.0.3:
+  version "5.0.3"
+  resolved "https://registry.npmjs.org/zustand/-/zustand-5.0.3.tgz"
+  integrity sha512-14fwWQtU3pH4dE0dOpdMiWjddcH+QzKIgk1cl8epwSE7yag43k/AD/m4L6+K7DytAOr9gGBe3/EXj9g7cdostg==
