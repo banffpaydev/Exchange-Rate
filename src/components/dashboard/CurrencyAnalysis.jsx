@@ -56,6 +56,11 @@ export const CurrencyAnalysis = ({ pair }) => {
                 </div>
               ))}
             </div>
+            <div className="flex justify-between">
+                <span className='text-green-900 font-semibold text-[20px]'>Top 3 Rate Avg:</span>
+                {/* <span>{analysis.minAvg.toFixed(4) || 'null'}</span> */}
+                <span className='text-green-600'>{formatNumber(analysis.top5Avg) || 'null'}</span>
+              </div>
             
             <div className="mt-2">
               <div className="text-red-600 font-medium mb-1">Bottom 3 Rates</div>
@@ -77,9 +82,9 @@ export const CurrencyAnalysis = ({ pair }) => {
                 <span>{analysis.bottom5Avg.toFixed(4)}</span>
               </div> */}
               <div className="flex justify-between">
-                <span className='text-green-900 font-semibold text-[30px]'>Rate Avg:</span>
+                <span className='text-green-900 font-semibold text-[20px]'>Bottom Rate Avg:</span>
                 {/* <span>{analysis.minAvg.toFixed(4) || 'null'}</span> */}
-                <span className='text-green-600'>{formatNumber(analysis.minAvg) || 'null'}</span>
+                <span className='text-green-600'>{formatNumber(analysis.bottom5Avg) || 'null'}</span>
               </div>
             </div>
           </div>
