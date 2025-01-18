@@ -31,7 +31,7 @@ cron.schedule('0 8,14,20,2 * * *', () => {
   console.log("Sending rate at", new Date().toLocaleString("en-US", { timeZone: "Africa/Lagos" }));
   sendRate();
 });
-seedCountries()
+// seedCountries()
 runCreateTables();
 
 // Routes

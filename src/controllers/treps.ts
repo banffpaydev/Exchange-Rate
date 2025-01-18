@@ -23,7 +23,11 @@ const data: CurrencyData = {
 
 // Helper functions
 const calculateMean = (rates: number[]): number => {
-  return rates.reduce((sum, rate) => +sum + +rate, 0) / rates.length;
+  const top3Rates = rates.sort((a, b) => b - a).slice(0, 3);
+
+  // Calculate the mean of the top 3 rates
+  return top3Rates.reduce((sum, rate) => +sum + +rate, 0) / top3Rates.length;
+  // return rates.reduce((sum, rate) => +sum + +rate, 0) / rates.length;
 };
 
 const calculateMedian = (rates: number[]): number => {

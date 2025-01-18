@@ -8,11 +8,11 @@ const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
   // sendWaveRate("CAD", "NGN")
-  removeRateKeyForAllPairs("Twelve Data exchage")
-  removeRateKeyForAllPairs("xchangeRt exchange")
-  removeRateKeyForAllPairs("abokifxng")
+  // removeRateKeyForAllPairs("Twelve Data exchange")
+  // removeRateKeyForAllPairs("xchangeRt exchange")
+  // removeRateKeyForAllPairs("abokifxng")
 
-  // handleAllFetch()
+  handleAllFetch()
   // sendRate()
   console.log(`Server is running on port ${PORT}`);
 });

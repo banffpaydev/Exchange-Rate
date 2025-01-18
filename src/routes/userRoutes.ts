@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import UserController from '../controllers/userController';
+import { authenticateToken } from '../middleware/auth';
 
 const router = Router();
 
@@ -10,5 +11,11 @@ router.post('/register', UserController.register);
 // User login route
 // @ts-ignore
 router.post('/login', UserController.login);
+
+// @ts-ignore
+router.get('/users', UserController.getAll);
+
+// @ts-ignore
+router.get('/user', authenticateToken, UserController.getuser);
 
 export default router;

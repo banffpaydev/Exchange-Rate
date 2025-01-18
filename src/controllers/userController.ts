@@ -8,13 +8,22 @@ class UserController {
 
     try {
       const cleanEmail = email?.toLowerCase()?.trim();
-      const token = await UserService.register(cleanEmail, password, type);
-      return res.status(201).json({ message: 'User registered successfully', token });
+      const data = await UserService.register(cleanEmail, password, "admin");
+      return res.status(201).json({ message: 'User registered successfully', data });
     } catch (error: any) {
       return res.status(400).json({ error: error.message });
     }
   }
 
+  // Get all users
+  static async getAll(req: Request, res: Response) {
+    try {
+      const users = await UserService.getAllUsers();
+      return res.status(200).json({ message: 'successful', users });
+    } catch (error: any) {
+      return res.status(400).json({ error: error.message });
+    }
+  }
   // Login an existing user
   static async login(req: Request, res: Response) {
     const { email, password } = req.body;
@@ -22,8 +31,20 @@ class UserController {
     try {
       const cleanEmail = email?.toLowerCase()?.trim();
 
-      const token = await UserService.login(cleanEmail, password);
-      return res.status(200).json({ message: 'Login successful', token });
+      const data = await UserService.login(cleanEmail, password);
+      return res.status(200).json({ message: 'Login successful', data });
+    } catch (error: any) {
+      return res.status(400).json({ error: error.message });
+    }
+  }
+
+  // Get a  user
+  static async getuser(req: any, res: Response) {
+    const { id } = req.user;
+
+    try {
+      const data = await UserService.getUserById(id);
+      return res.status(200).json({ message: 'Successful', data });
     } catch (error: any) {
       return res.status(400).json({ error: error.message });
     }

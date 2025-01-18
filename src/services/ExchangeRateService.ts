@@ -7,6 +7,8 @@ import { createCurrencyPair, createRawCurrencyPair, getAdditionalRates, getAddit
 import RawExchangeRate from "../models/RawExchangeRate";
 import RawCurrencyPair from "../models/RawCurrencyPair";
 import nodemailer from "nodemailer";
+import ExchangeCountries from "../models/ExchangeCountries";
+import sequelize from "../config/db";
 
 dotenv.config();
 export const username = process.env.USER_NAME;
@@ -234,12 +236,39 @@ const cadrRemitRate = async (from: string, to: string) => {
     }
 }
 
+// {
+//     name: 'Xe Exchange',
+//     rate: 0.06551546424270462,
+//     rawRate: 0.06551546424270462
+//   }
+
 export const sendWaveRate = async (from: string, to: string) => {
-    //console.log("Wise started")
+
+    // console.log("wave started")
+
     try {
-        const response = await axios.get(`https://app.sendwave.com/v2/pricing-public?amountType=SEND&receiveCurrency=${to}&amount=1&sendCurrency=${from}&sendCountryIso2=ca&receiveCountryIso2=ng`);
-        const data = response.data;
-      console.log(data)
+        // Find the "from" and "to" countries in the database
+        const fromCountry = await ExchangeCountries.findOne({
+            where: sequelize.where(sequelize.fn('LOWER', sequelize.col('currency')), from.toLowerCase())
+        });
+        const toCountry = await ExchangeCountries.findOne({
+            where: sequelize.where(sequelize.fn('LOWER', sequelize.col('currency')), to.toLowerCase())
+        });
+
+        if (fromCountry && toCountry) {
+            const response = await axios.get(`https://app.sendwave.com/v2/pricing-public?amountType=SEND&receiveCurrency=${to}&amount=1&sendCurrency=${from}&sendCountryIso2=${from === "USD" ? "us" : from === "GBP" ? "gb" : fromCountry.code.toLowerCase()}&receiveCountryIso2=${to === "USD" ? "us" : to === "GBP" ? "gb" : toCountry.code.toLowerCase()}`);
+            const data = response.data;
+            return {
+                name: "Send Wave",
+                rate: data.baseExchangeRate,
+                rawRate: data.baseExchangeRate
+            }
+        }
+        // const url = "https://app.sendwave.com/v2/pricing-public?amountType=SEND&receiveCurrency=NGN&amount=1&sendCurrency=USD&sendCountryIso2=us&receiveCountryIso2=ng"
+        // const response = await axios.get(url);
+
+
+
     } catch (err: any) {
         console.error('Error fetching Afri Exchange rate:', err);
         return { msg: "error message", err }
@@ -248,6 +277,7 @@ export const sendWaveRate = async (from: string, to: string) => {
 
 const wiseRate = async (from: string, to: string) => {
     //console.log("Wise started")
+
     try {
         const response = await axios.get(`https://wise.com/rates/live?source=${from}&target=${to}&length=30&resolution=hourly&unit=day`);
         const data = response.data;
@@ -591,9 +621,9 @@ export const handleAllFetch = async () => {
     //     'NGN/USD', 'NGN/EUR', 'NGN/GBP', 'NGN/CAD',
     //     // 'USD/LRD', 'EUR/LRD', 'GBP/LRD', 'CAD/LRD'
     // ];
-    const apis = [afriXchangeRate, wiseRate, transfergoRate, xeRates, abokifxng, cadrRemitRate, lemfiRate];
-    const excludedNames = ['abokifxng', 'cadrRemitRate', 'CadRemit Exchange', 'Abokifx'];
-    // const apis = [abokifxng, cadrRemitRate];
+    const apis = [sendWaveRate, afriXchangeRate, wiseRate, transfergoRate, xeRates, abokifxng, cadrRemitRate, lemfiRate];
+    const excludedNames = ['abokifxng', 'cadrRemitRate', 'CadRemit Exchange', 'Abokifx', "Twelve Data Exchange", "Alphatvantage Exchange", "xchangeRt exchange"];
+    // const apis = [sendWaveRate, cadrRemitRate];
 
 
     const results: Record<string, Record<string, number | null>> = {};
@@ -608,7 +638,7 @@ export const handleAllFetch = async () => {
         for (const api of apis) {
             try {
                 const rateData = await api(from, to);
-
+                // console.log(rateData, "rateIino")
                 if (rateData && rateData.rate !== undefined && rateData.rawRate !== undefined) {
 
                     // Only add to `rawResults` if not excluded
@@ -651,14 +681,14 @@ export const handleAllFetch = async () => {
             currencyPair: pair,
             exchangeRate: rawStats[pair].mean
         }
-        console.log(pairData, "raw-pair", results[pair])
+        // console.log(pairData, "raw-pair", results[pair])
         // console.log(results[pair], "raw-pair-result")
 
         // console.log(rawPairData,"paidata", rawResults[pair], "raw-results")
         await createCurrencyPair(pairData);
         await createRawCurrencyPair(rawPairData);
 
-        // console.log(results, "results")
+        console.log(pair, "results", results[pair])
         await saveExchangeRate(pair, results[pair]);
         await saveRawExchangeRate(pair, rawResults[pair]);
         // await clearAllRawExchangeRates()
@@ -976,8 +1006,8 @@ export const getAnalyzedRates = async (currency: string, startDate: string, endD
         );
 
         // Get the bottom 5 (smallest rates) and top 5 (largest rates)
-        const bottom5 = uniqueRates.slice(0, 5);
-        const top5 = uniqueRates.slice(-5).reverse(); // Get last 5 and reverse for descending order
+        const bottom5 = uniqueRates.slice(0, 3);
+        const top5 = uniqueRates.slice(-3).reverse(); // Get last 5 and reverse for descending order
         // Helper function to calculate average
         const calculateAverage = (items: VendorRate[]): number => {
             // @ts-ignore
