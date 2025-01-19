@@ -101,6 +101,10 @@ export const getAllRawCurrencyPairs = async () => {
   });
 };
 
+export const getCurrencyPairByPair = async (pair: string) => {
+  return await CurrencyPair.findOne({ where: { currencyPair: pair }, order: [['createdAt', 'DESC']] });
+};
+
 export const getCurrencyPairById = async (id: number) => {
   return await CurrencyPair.findByPk(id);
 };

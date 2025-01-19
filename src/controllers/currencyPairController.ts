@@ -54,7 +54,11 @@ export const getRemitOneSourceandDest = async (req: Request, res: Response) => {
     }
 };
 
-export const updatePair = async (req: Request, res: Response) => {
+export const updatePair = async (req: any, res: Response) => {
+    if (req.user?.type !== "admin") {
+        res.status(401).json({ message: 'Forbidden', });
+
+    }
     try {
 
         // Fetch source and destination countries from the cache or API

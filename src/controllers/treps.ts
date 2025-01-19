@@ -66,6 +66,10 @@ export const calculateStats = (data: CurrencyData): Result => {
   return result;
 };
 
+export const calculateBanffPayBuySellRate = (exchangeRate:string,)=>{
+
+}
+
 // Calculate and log the result
 // const stats = calculateStats(data);
 // console.log(stats);

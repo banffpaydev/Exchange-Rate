@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import ExchangeRate from "../models/ExchangeRate";
 import { Op } from "sequelize";
 import { calculateStats } from "../controllers/treps";
-import { createCurrencyPair, createRawCurrencyPair, getAdditionalRates, getAdditionalRatesId, getAllCurrencyPairs } from "./currencyPairService";
+import { createCurrencyPair, createRawCurrencyPair, getAdditionalRates, getAdditionalRatesId, getAllCurrencyPairs, getCurrencyPairByPair } from "./currencyPairService";
 import RawExchangeRate from "../models/RawExchangeRate";
 import RawCurrencyPair from "../models/RawCurrencyPair";
 import nodemailer from "nodemailer";
@@ -270,7 +270,7 @@ export const sendWaveRate = async (from: string, to: string) => {
 
 
     } catch (err: any) {
-        console.error('Error fetching Afri Exchange rate:', err);
+        // console.error('Error fetching Afri Exchange rate:', err);
         return { msg: "error message", err }
     }
 }
@@ -680,7 +680,7 @@ export const handleAllFetch = async () => {
             exchangeRate: rawStats[pair].mean
         }
         results[pair]["BanffPay Rate"] = stats[pair].mean;
-        // console.log(pairData, "raw-pair", results[pair])
+        console.log(pairData, "raw-pair", results[pair])
         // console.log(results[pair], "raw-pair-result")
 
         // console.log(rawPairData,"paidata", rawResults[pair], "raw-results")
@@ -970,7 +970,7 @@ export const getAnalyzedRates = async (currency: string, startDate: string, endD
     //     }));
     // });
 
-
+{console.log(allRates)}
     const rateVendorPairs = Object.entries(allRates).flatMap(([pair, vendors]) => {
         // For each pair (e.g., 'CAD/NGN'), filter the vendors to get only valid rates
         return Object.entries(vendors).filter(([vendor, rateValue]) => {
@@ -992,10 +992,10 @@ export const getAnalyzedRates = async (currency: string, startDate: string, endD
 
 
     function getTopAndBottomRatesWithAverages(rates: VendorRate[]): {
-        top5: VendorRate[],
-        bottom5: VendorRate[],
-        top5Avg: number,
-        bottom5Avg: number,
+        top3: VendorRate[],
+        bottom3: VendorRate[],
+        top3Avg: number,
+        bottom3Avg: number,
         minAvg: number,
     } {
         // Sort rates in ascending order by rate and remove duplicates
@@ -1004,20 +1004,20 @@ export const getAnalyzedRates = async (currency: string, startDate: string, endD
             index === 0 || item.rate !== arr[index - 1].rate
         );
 
-        // Get the bottom 5 (smallest rates) and top 5 (largest rates)
-        const bottom5 = uniqueRates.slice(0, 3);
-        const top5 = uniqueRates.slice(-3).reverse(); // Get last 5 and reverse for descending order
+        // Get the bottom 3 (smallest rates) and top 3 (largest rates)
+        const bottom3 = uniqueRates.slice(0, 3);
+        const top3 = uniqueRates.slice(-3).reverse(); // Get last 3 and reverse for descending order
         // Helper function to calculate average
         const calculateAverage = (items: VendorRate[]): number => {
             // @ts-ignore
             return items.reduce((sum, item) => sum + parseFloat(item.rate), 0) / items.length;
         };
         // Calculate averages
-        const top5Avg = calculateAverage(top5);
-        const bottom5Avg = calculateAverage(bottom5);
-        const minAvg = (top5Avg + bottom5Avg) / 2
+        const top3Avg = calculateAverage(top3);
+        const bottom3Avg = calculateAverage(bottom3);
+        const minAvg = (top3Avg + bottom3Avg) / 2
 
-        return { top5, bottom5, top5Avg, bottom5Avg, minAvg };
+        return { top3, bottom3, top3Avg, bottom3Avg, minAvg };
     }
 
     // //console.log(getTopAndBottomRatesWithAverages(rateVendorPairs))
@@ -1055,14 +1055,15 @@ export const getAnalyzedRates = async (currency: string, startDate: string, endD
     // const bottom5Avg = bottom5Rates.reduce((acc, rate) => acc + rate, 0) / bottom5Rates.length;
 
     const answer = getTopAndBottomRatesWithAverages(rateVendorPairs);
-    //    const bpayRate=  const recentRates = await CurrencyPair.findAll({
+    const banffPayRate = await getCurrencyPairByPair(currency)
+    //    const anffP  const recentRates = await CurrencyPair.findAll({
     //     // @ts-ignore
     //     where: { currencyPair: pair },
     //     limit: 4,
     //     order: [['createdAt', 'DESC']]
     // });
 
-    return answer;
+    return { ...answer, banffPayRate: banffPayRate?.exchangeRate };
     // lows: lowestFiveRates,
     // highs: highestFiveRates,
     // lowAvg: calculateAverage(lowestFiveRates),
