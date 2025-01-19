@@ -9,6 +9,7 @@ import RawCurrencyPair from "../models/RawCurrencyPair";
 import nodemailer from "nodemailer";
 import ExchangeCountries from "../models/ExchangeCountries";
 import sequelize from "../config/db";
+import { getPairById } from "../controllers/currencyPairController";
 
 dotenv.config();
 export const username = process.env.USER_NAME;
@@ -254,14 +255,13 @@ export const sendWaveRate = async (from: string, to: string) => {
         const toCountry = await ExchangeCountries.findOne({
             where: sequelize.where(sequelize.fn('LOWER', sequelize.col('currency')), to.toLowerCase())
         });
-
         if (fromCountry && toCountry) {
             const response = await axios.get(`https://app.sendwave.com/v2/pricing-public?amountType=SEND&receiveCurrency=${to}&amount=1&sendCurrency=${from}&sendCountryIso2=${from === "USD" ? "us" : from === "GBP" ? "gb" : fromCountry.code.toLowerCase()}&receiveCountryIso2=${to === "USD" ? "us" : to === "GBP" ? "gb" : toCountry.code.toLowerCase()}`);
             const data = response.data;
             return {
                 name: "Send Wave",
-                rate: data.baseExchangeRate,
-                rawRate: data.baseExchangeRate
+                rate: +data.baseExchangeRate,
+                rawRate: +data.baseExchangeRate
             }
         }
         // const url = "https://app.sendwave.com/v2/pricing-public?amountType=SEND&receiveCurrency=NGN&amount=1&sendCurrency=USD&sendCountryIso2=us&receiveCountryIso2=ng"
@@ -559,9 +559,7 @@ const getCurrencyRate = async (gofrom: string, goto: string): Promise<number | n
 
 
 // export const pairs = [
-//     'GHS/NGN', 'GHS/LRD', 'NGN/GHS', 'LRD/GHS',
-//     'GHS/EUR', 'GHS/CAD', 'GHS/USD', 'GHS/GBP',
-//     'EUR/GHS', 'CAD/GHS', 'USD/GHS', 'GBP/GHS'
+//     'USD/NGN'
 // ];
 
 export const pairs = [
@@ -681,6 +679,7 @@ export const handleAllFetch = async () => {
             currencyPair: pair,
             exchangeRate: rawStats[pair].mean
         }
+        results[pair]["BanffPay Rate"] = stats[pair].mean;
         // console.log(pairData, "raw-pair", results[pair])
         // console.log(results[pair], "raw-pair-result")
 
@@ -688,7 +687,6 @@ export const handleAllFetch = async () => {
         await createCurrencyPair(pairData);
         await createRawCurrencyPair(rawPairData);
 
-        console.log(pair, "results", results[pair])
         await saveExchangeRate(pair, results[pair]);
         await saveRawExchangeRate(pair, rawResults[pair]);
         // await clearAllRawExchangeRates()
@@ -972,10 +970,11 @@ export const getAnalyzedRates = async (currency: string, startDate: string, endD
     //     }));
     // });
 
+
     const rateVendorPairs = Object.entries(allRates).flatMap(([pair, vendors]) => {
         // For each pair (e.g., 'CAD/NGN'), filter the vendors to get only valid rates
         return Object.entries(vendors).filter(([vendor, rateValue]) => {
-            return rateValue !== null && rateValue !== 0; // Filter out invalid rates
+            return rateValue !== null && rateValue !== 0 && vendor !== "BanffPay Rate"; // Filter out invalid rates
         }).map(([vendor, rateValue]) => ({
             pair, // Add the currency pair as part of the result
             vendor,
@@ -1056,7 +1055,12 @@ export const getAnalyzedRates = async (currency: string, startDate: string, endD
     // const bottom5Avg = bottom5Rates.reduce((acc, rate) => acc + rate, 0) / bottom5Rates.length;
 
     const answer = getTopAndBottomRatesWithAverages(rateVendorPairs);
-
+    //    const bpayRate=  const recentRates = await CurrencyPair.findAll({
+    //     // @ts-ignore
+    //     where: { currencyPair: pair },
+    //     limit: 4,
+    //     order: [['createdAt', 'DESC']]
+    // });
 
     return answer;
     // lows: lowestFiveRates,
