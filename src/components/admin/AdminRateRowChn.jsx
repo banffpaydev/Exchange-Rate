@@ -104,7 +104,7 @@ export const AdminRateRowChn = ({ pair, rateData, id, remitOneEnabled }) => {
         onConfirm={handleSave}
         editedRates={editedRates}
         pair={pair}
-        oldRate={rateData.toFixed(2)}
+        oldRate={rateData?.toFixed(2)}
       />
       <TableRow key={`${pair}`}>
         <TableCell>
@@ -116,7 +116,14 @@ export const AdminRateRowChn = ({ pair, rateData, id, remitOneEnabled }) => {
           )}
         </TableCell>
         <TableCell>
-          {rateData?.toFixed(2).toLocaleString("en-US") || "N/A"}
+        <Input
+            type="number"
+            step="0.0001"
+            className="bg-slate-400 w-32"
+            value={editedRates || ""}
+            onChange={(e) => setEditedRates(e.target.value)}
+          />
+          {/* {rateData?.toFixed(2).toLocaleString("en-US") || "N/A"} */}
         </TableCell>
         <TableCell>
           <Input
@@ -135,7 +142,7 @@ export const AdminRateRowChn = ({ pair, rateData, id, remitOneEnabled }) => {
             }}
             className="mr-2"
           >
-            Save{" "}
+            Update{" "}
             {loading && (
               <ColorRing
                 visible={true}
@@ -181,7 +188,7 @@ export const AdminRateRowChn = ({ pair, rateData, id, remitOneEnabled }) => {
                     Top Rates:
                   </h5>
                   <div className="space-y-2">
-                    {analysis.top5.map((item, index) => (
+                    {analysis.top3.map((item, index) => (
                       <div key={index} className="flex justify-between">
                         <span className="font-medium">
                           {item.vendor.toUpperCase()}:
@@ -199,7 +206,7 @@ export const AdminRateRowChn = ({ pair, rateData, id, remitOneEnabled }) => {
                     Bottom Rates:
                   </h5>
                   <div className="space-y-2">
-                    {analysis.bottom5.map((item, index) => (
+                    {analysis.bottom3.map((item, index) => (
                       <div key={index} className="flex justify-between">
                         <span className="font-medium">
                           {item.vendor.toUpperCase()}:
@@ -215,23 +222,23 @@ export const AdminRateRowChn = ({ pair, rateData, id, remitOneEnabled }) => {
               </div>
               <div className="grid grid-cols-3 gap-4 mt-4">
                 <div>
-                  <span className="font-semibold">Top 5 Average:</span>
+                  <span className="font-semibold">Top 3 Average:</span>
                   <span className="ml-2">
-                    {analysis.top5Avg.toFixed(2).toLocaleString("en-US") ||
+                    {analysis.top3Avg?.toFixed(2).toLocaleString("en-US") ||
                       "null"}
                   </span>
                 </div>
                 <div>
-                  <span className="font-semibold">Bottom 5 Average:</span>
+                  <span className="font-semibold">Bottom 3 Average:</span>
                   <span className="ml-2">
-                    {analysis.bottom5Avg.toFixed(2).toLocaleString("en-US") ||
+                    {analysis.bottom3Avg?.toFixed(2).toLocaleString("en-US") ||
                       "null"}
                   </span>
                 </div>
                 <div>
                   <span className="font-semibold">Overall Average:</span>
                   <span className="ml-2">
-                    {analysis.minAvg.toFixed(2).toLocaleString("en-US") ||
+                    {analysis.minAvg?.toFixed(2).toLocaleString("en-US") ||
                       "null"}
                   </span>
                 </div>

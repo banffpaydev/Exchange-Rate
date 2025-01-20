@@ -19,6 +19,7 @@ export const SaveRatesDialog = ({
   pair,
   oldRate,
   loading,
+  remitOne,
 }) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -27,6 +28,7 @@ export const SaveRatesDialog = ({
           <DialogTitle>Confirm Rate Changes</DialogTitle>
           <DialogDescription>
             Are you sure you want to update rate of <strong>({pair})</strong>:
+            <small>This will update the rate on RemitOne platform</small>
           </DialogDescription>
         </DialogHeader>
 

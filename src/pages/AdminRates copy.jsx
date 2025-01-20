@@ -26,10 +26,32 @@ const AdminRatesChn = () => {
   const [remitOneCountries, setRemitOneCountries] = useState({});
   const { user } = useStore();
 
-  // const { data: rates, isLoading } = useQuery({
-  //   queryKey: ['admin-rates'],
-  //   queryFn: fetchDbRates,
-  // });
+  const prioritizedPairs = [
+    "USD/NGN",
+    "USD/GHS",
+    "USD/XAF",
+    "USD/XOF",
+    "USD/SLL",
+    "USD/GAM",
+    "GBP/NGN",
+    "GBP/GHS",
+    "GBP/XAF",
+    "GBP/XOF",
+    "GBP/SLL",
+    "GBP/GAM",
+    "CAD/NGN",
+    "CAD/GHS",
+    "CAD/XAF",
+    "CAD/XOF",
+    "CAD/SLL",
+    "CAD/GAM",
+    "EUR/NGN",
+    "EUR/GHS",
+    "EUR/XAF",
+    "EUR/XOF",
+    "EUR/SLL",
+    "EUR/GAM",
+  ];
 
   React.useEffect(() => {
     if (user)
@@ -94,44 +116,44 @@ const AdminRatesChn = () => {
           <TableHeader>
             <TableRow>
               <TableHead>Currency Pair</TableHead>
-              <TableHead>Current Rate</TableHead>
-              <TableHead>Banffpay Rate</TableHead>
+              {/* <TableHead>Current Rate</TableHead> */}
+              <TableHead>BanffPay Buy Rate</TableHead>
+              <TableHead>Banffpay Sell Rate</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {rates.map((data) => {
-              const pairArray = data.currencyPair.split("/");
+            {rates
+              .sort((a, b) => {
+                const isPriorityA = prioritizedPairs.includes(a.currencyPair);
+                const isPriorityB = prioritizedPairs.includes(b.currencyPair);
 
-              const findSourceCountry = remitOneCountries?.source.find(
-                (country) => country.currency === pairArray[0]
-              );
-              const findDestCountry = remitOneCountries?.destination.find(
-                (country) => country.currency === pairArray[1]
-              );
-              const remitOneEnabled = findSourceCountry && findDestCountry;
+                if (isPriorityA && !isPriorityB) return -1;
+                if (!isPriorityA && isPriorityB) return 1;
+                return 0; // Maintain original order for non-priority pairs
+              })
+              .map((data) => {
+                const pairArray = data.currencyPair.split("/");
 
-              return (
-                <AdminRateRowChn
-                  key={data.id}
-                  id={data.id}
-                  pair={data.currencyPair}
-                  rateData={data.exchangeRate}
-                  editedRates={editedRates}
-                  onRateChange={handleRateChange}
-                  remitOneEnabled={remitOneEnabled}
-                />
-              );
-            })}
+                const findSourceCountry = remitOneCountries?.source.find(
+                  (country) => country.currency === pairArray[0]
+                );
+                const findDestCountry = remitOneCountries?.destination.find(
+                  (country) => country.currency === pairArray[1]
+                );
+                const remitOneEnabled = findSourceCountry && findDestCountry;
 
-            {/* {Object.entries(rates?.data || {}).map(([pair, rateData]) => (
-              <AdminRateRow
-                key={pair}
-                pair={pair}
-                rateData={rateData}
-                editedRates={editedRates}
-                onRateChange={handleRateChange}
-              />
-            ))} */}
+                return (
+                  <AdminRateRowChn
+                    key={data.id}
+                    id={data.id}
+                    pair={data.currencyPair}
+                    rateData={data.exchangeRate}
+                    editedRates={editedRates}
+                    onRateChange={handleRateChange}
+                    remitOneEnabled={remitOneEnabled}
+                  />
+                );
+              })}
           </TableBody>
         </Table>
       </div>
@@ -141,6 +163,7 @@ const AdminRatesChn = () => {
         onOpenChange={setShowConfirmDialog}
         onConfirm={handleSave}
         editedRates={editedRates}
+        // remitOne={remitOneEnabled}
       />
     </div>
   );

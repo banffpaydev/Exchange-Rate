@@ -54,7 +54,6 @@ const Layout = ({ children }) => {
     <div className="min-h-screen flex flex-col">
       <header className="bg-gray-800 text-white p-4 sticky top-0 z-50">
         <nav>
-          {console.log(user)}
           <ul className="flex space-x-4">
             {navItems
               .filter((item) => {
