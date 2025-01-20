@@ -6,6 +6,7 @@ import { resolve } from "path";
 // https://vitejs.dev/config/
 export default defineConfig({
   server: {
+    allowedHosts: ['exchange.bpay.africa'],
     host: "::",
     port: "3004",
   },
