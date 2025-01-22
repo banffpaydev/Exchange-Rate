@@ -13,8 +13,11 @@ export default defineConfig({
   preview: {
     host: "0.0.0.0",
     port: "3004", // Set your desired preview port here
-    allowedHosts: ['exchange.bpay.africa'],
-
+    // allowedHosts: ['exchange.bpay.africa'],
+    headers: {
+      "Access-Control-Allow-Origin": "*", // Allow all origins
+    },
+    allowedHosts: "all",
   },
   plugins: [react()],
   resolve: {
