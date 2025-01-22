@@ -1,6 +1,6 @@
 import axios from "axios";
 
-/ export const basisUrl = "https://www.api-exchange.bpay.africa";
+export const basisUrl = "https://www.api-exchange.bpay.africa"
 // export const basisUrl = "http://localhost:5000";
 // export const basisUrl = "https://xchangerate-banf.onrender.com"
 
