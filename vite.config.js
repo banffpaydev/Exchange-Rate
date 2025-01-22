@@ -6,9 +6,9 @@ import { resolve } from "path";
 // https://vitejs.dev/config/
 export default defineConfig({
   server: {
-    allowedHosts: true,
-    // host: "::",
+    host: "0.0.0.0",
     port: 3004,
+    allowedHosts: ["*"],
   },
   preview: {
     port: 3004, // Force Vite preview to use port 3004
