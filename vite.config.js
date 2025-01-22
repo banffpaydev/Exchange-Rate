@@ -8,9 +8,12 @@ export default defineConfig({
   server: {
     host: "::",
     port: "3004",
+    allowedHosts: ['exchange.bpay.africa'],
   },
   preview: {
-    port: "3004" // Set your desired preview port here
+    port: "3004", // Set your desired preview port here
+    allowedHosts: ['exchange.bpay.africa'],
+
   },
   plugins: [react()],
   resolve: {
