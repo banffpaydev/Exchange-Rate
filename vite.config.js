@@ -11,6 +11,7 @@ export default defineConfig({
     allowedHosts: ['exchange.bpay.africa'],
   },
   preview: {
+    host: "0.0.0.0",
     port: "3004", // Set your desired preview port here
     allowedHosts: ['exchange.bpay.africa'],
 
