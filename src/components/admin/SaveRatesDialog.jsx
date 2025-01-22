@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Dialog,
   DialogContent,
@@ -19,7 +18,6 @@ export const SaveRatesDialog = ({
   pair,
   oldRate,
   loading,
-  remitOne,
 }) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

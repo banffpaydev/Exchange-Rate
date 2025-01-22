@@ -13,45 +13,50 @@ import { toast } from "sonner";
 import { basisUrl } from "@/utils/api";
 import { SaveRatesDialog } from "@/components/admin/SaveRatesDialog";
 import axios from "axios";
-import { AdminRateRowChn } from "@/components/admin/AdminRateRowChn";
+import {
+  AdminRateRowChn,
+  SpecialAdminRateRowChn,
+} from "@/components/admin/AdminRateRowChn";
 import { useStore } from "../../store/store";
-
+import { SpecialRatesDialog } from "@/components/admin/specialRatesDialog";
+export const prioritizedPairs = [
+  "USD/NGN",
+  "USD/GHS",
+  "USD/XAF",
+  "USD/XOF",
+  "USD/SLL",
+  "USD/GAM",
+  "GBP/NGN",
+  "GBP/GHS",
+  "GBP/XAF",
+  "GBP/XOF",
+  "GBP/SLL",
+  "GBP/GAM",
+  "CAD/NGN",
+  "CAD/GHS",
+  "CAD/XAF",
+  "CAD/XOF",
+  "CAD/SLL",
+  "CAD/GAM",
+  "EUR/NGN",
+  "EUR/GHS",
+  "EUR/XAF",
+  "EUR/XOF",
+  "EUR/SLL",
+  "EUR/GAM",
+];
 const AdminRatesChn = () => {
   const navigate = useNavigate();
   const [editedRates, setEditedRates] = useState({});
   const [rates, setRates] = useState(null);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingSpecial, setIsLoadingSpecials] = useState(true);
+  const [showRateDialog, setShowRateDialog] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [remitOneCountries, setRemitOneCountries] = useState({});
+  const [specialRates, setSpecialRates] = useState([]);
   const { user } = useStore();
-
-  const prioritizedPairs = [
-    "USD/NGN",
-    "USD/GHS",
-    "USD/XAF",
-    "USD/XOF",
-    "USD/SLL",
-    "USD/GAM",
-    "GBP/NGN",
-    "GBP/GHS",
-    "GBP/XAF",
-    "GBP/XOF",
-    "GBP/SLL",
-    "GBP/GAM",
-    "CAD/NGN",
-    "CAD/GHS",
-    "CAD/XAF",
-    "CAD/XOF",
-    "CAD/SLL",
-    "CAD/GAM",
-    "EUR/NGN",
-    "EUR/GHS",
-    "EUR/XAF",
-    "EUR/XOF",
-    "EUR/SLL",
-    "EUR/GAM",
-  ];
 
   React.useEffect(() => {
     if (user)
@@ -71,6 +76,21 @@ const AdminRatesChn = () => {
     }));
   };
 
+  const fetchSpecialRates = async () => {
+    setIsLoadingSpecials(true);
+    try {
+      const response = await axios.get(
+        `${basisUrl}/api/current/get-all-internal`
+      );
+      setSpecialRates(response.data);
+      setIsLoadingSpecials(false);
+      toast.success("Rate data fetched");
+    } catch (error) {
+      setIsLoadingSpecials(false);
+      setError("Unable to fetch Rates!!");
+      toast.error("Unable to fetch Rates!!");
+    }
+  };
   const fetchRecentRates = async () => {
     try {
       const response = await axios.get(`${basisUrl}/api/current/pairs`);
@@ -89,6 +109,7 @@ const AdminRatesChn = () => {
   };
   React.useEffect(() => {
     fetchRecentRates();
+    fetchSpecialRates();
   }, []);
 
   const handleSave = async () => {
@@ -101,15 +122,50 @@ const AdminRatesChn = () => {
     }
   };
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading || isLoadingSpecial) return <div>Loading...</div>;
   if (!isLoading && error) return <div>{error}</div>;
 
   return (
     <div className="container mx-auto py-10">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Admin Rate Management</h1>
-        <Button onClick={() => setShowConfirmDialog(true)}>Save Changes</Button>
+        <Button onClick={() => setShowRateDialog(true)}>
+          Create Special Rate
+        </Button>
       </div>
+      <h1 className="text-xl font-bold mb-2">Special Rates</h1>
+      <div className="rounded-md mb-4 border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Currency Pair</TableHead>
+              <TableHead>Buy Adder</TableHead>
+              <TableHead>BanffPay Buy Rate</TableHead>
+              <TableHead>Sell Reduct</TableHead>
+              <TableHead>Banffpay Sell Rate</TableHead>
+            </TableRow>
+          </TableHeader>
+
+          <TableBody>
+            {specialRates?.map((data) => {
+              return (
+                <SpecialAdminRateRowChn
+                  key={data.id}
+                  id={data.id}
+                  pair={data.pair}
+                  onRateChange={handleRateChange}
+                  remitOneEnabled={true}
+                  special
+                  fetchSpecialRates={fetchSpecialRates}
+                  {...data}
+                />
+              );
+            })}
+          </TableBody>
+        </Table>
+      </div>
+
+      <h1 className="text-xl font-bold mb-2">Other Rates</h1>
 
       <div className="rounded-md border">
         <Table>
@@ -158,6 +214,11 @@ const AdminRatesChn = () => {
         </Table>
       </div>
 
+      <SpecialRatesDialog
+        open={showRateDialog}
+        onOpenChange={setShowRateDialog}
+        onComplete={fetchSpecialRates}
+      />
       <SaveRatesDialog
         open={showConfirmDialog}
         onOpenChange={setShowConfirmDialog}

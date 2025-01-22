@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Button } from "../ui/button";
@@ -8,6 +8,8 @@ import { formatNumber, formatNumberStr } from "../dashboard/ScrollingRates";
 import { ColorRing } from "react-loader-spinner";
 import { toast } from "sonner";
 import { SaveRatesDialog } from "./SaveRatesDialog";
+import { SpecialRatesDialog } from "./specialRatesDialog";
+import { http } from "@/utils/config";
 
 export const AdminRateRowChn = ({ pair, rateData, id, remitOneEnabled }) => {
   // console.log("mape: ", formatNumberStr(rateData))
@@ -17,25 +19,16 @@ export const AdminRateRowChn = ({ pair, rateData, id, remitOneEnabled }) => {
   const [analysis, setAnalysis] = useState(null);
   const [loading, setLoading] = useState(false);
   const [analysing, setAnalysing] = useState(false);
-  const token = sessionStorage.getItem("token");
 
   const handleSave = async () => {
     const pairArray = pair.split("/");
     try {
       setLoading(true);
-      const response = await axios.put(
-        `${basisUrl}/api/current/pairs/${id}`,
-        {
-          exchangeRate: editedRates,
-          from: pairArray[0],
-          to: pairArray[1],
-        },
-        {
-          headers: {
-            Authorization: token ? `Bearer ${token}` : undefined,
-          },
-        }
-      );
+      await http.put(`/current/pairs/${id}`, {
+        exchangeRate: editedRates,
+        from: pairArray[0],
+        to: pairArray[1],
+      });
       toast.success("Rate data updated");
       // if (response.data != null) {
       //   toast.success("Rate data updated");
@@ -116,7 +109,7 @@ export const AdminRateRowChn = ({ pair, rateData, id, remitOneEnabled }) => {
           )}
         </TableCell>
         <TableCell>
-        <Input
+          <Input
             type="number"
             step="0.0001"
             className="bg-slate-400 w-32"
@@ -174,6 +167,260 @@ export const AdminRateRowChn = ({ pair, rateData, id, remitOneEnabled }) => {
             )}
           </Button>
           <Button onClick={handleDownloadCsv}>Download CSV</Button>
+        </TableCell>
+      </TableRow>
+
+      {analysis && (
+        <TableRow>
+          <TableCell colSpan="5">
+            <div className="p-4 space-y-4">
+              <h4 className="font-semibold text-lg mb-4">Analysis Data</h4>
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <h5 className="font-semibold text-green-600 mb-2">
+                    Top Rates:
+                  </h5>
+                  <div className="space-y-2">
+                    {analysis.top3.map((item, index) => (
+                      <div key={index} className="flex justify-between">
+                        <span className="font-medium">
+                          {item.vendor.toUpperCase()}:
+                        </span>
+                        <span>
+                          {formatNumber(item.rate).toLocaleString("en-US") ||
+                            "null"}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <h5 className="font-semibold text-red-600 mb-2">
+                    Bottom Rates:
+                  </h5>
+                  <div className="space-y-2">
+                    {analysis.bottom3.map((item, index) => (
+                      <div key={index} className="flex justify-between">
+                        <span className="font-medium">
+                          {item.vendor.toUpperCase()}:
+                        </span>
+                        <span>
+                          {formatNumber(item.rate).toLocaleString("en-US") ||
+                            "null"}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-4 mt-4">
+                <div>
+                  <span className="font-semibold">Top 3 Average:</span>
+                  <span className="ml-2">
+                    {analysis.top3Avg?.toFixed(2).toLocaleString("en-US") ||
+                      "null"}
+                  </span>
+                </div>
+                <div>
+                  <span className="font-semibold">Bottom 3 Average:</span>
+                  <span className="ml-2">
+                    {analysis.bottom3Avg?.toFixed(2).toLocaleString("en-US") ||
+                      "null"}
+                  </span>
+                </div>
+                <div>
+                  <span className="font-semibold">Overall Average:</span>
+                  <span className="ml-2">
+                    {analysis.minAvg?.toFixed(2).toLocaleString("en-US") ||
+                      "null"}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </TableCell>
+        </TableRow>
+      )}
+    </>
+  );
+};
+
+export const SpecialAdminRateRowChn = ({ pair, id, special,fetchSpecialRates, ...props }) => {
+  // console.log("mape: ", formatNumberStr(rateData))
+  const [editedRates, setEditedRates] = useState({
+    buy_rate: props.buy_rate,
+    sell_rate: props.sell_rate,
+    bpay_buy_adder: props.bpay_buy_adder,
+    bpay_sell_reduct: props.bpay_sell_reduct,
+  });
+  const [showCalcDialog, setShowCalcDialog] = useState(false);
+
+  const [analysis, setAnalysis] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [analysing, setAnalysing] = useState(false);
+
+  const handleSave = async () => {
+    const pairArray = pair.split("/");
+    try {
+      setLoading(true);
+      await http.put(`/current/pairs/${id}`, {
+        exchangeRate: editedRates,
+        from: pairArray[0],
+        to: pairArray[1],
+      });
+      toast.success("Rate data updated");
+      // if (response.data != null) {
+      //   toast.success("Rate data updated");
+      // }
+      setShowCalcDialog(false);
+    } catch (error) {
+      toast.error("Unable to update Rates!!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAnalysis = async () => {
+    try {
+      setAnalysing(true);
+      const currentDateTime = new Date().toISOString();
+      const response = await axios.get(`${basisUrl}/api/rates/getrates`, {
+        params: {
+          currency: pair,
+          startDate: currentDateTime.split("T")[0],
+          endDate: currentDateTime,
+        },
+      });
+
+      if (response.data) {
+        setAnalysis(response.data);
+      } else {
+        throw new Error("Empty response data");
+      }
+    } catch (error) {
+      console.error("Error fetching Rate Analysis:", error);
+    } finally {
+      setAnalysing(false);
+    }
+  };
+
+  return (
+    <>
+      <SpecialRatesDialog
+        loading={loading}
+        open={showCalcDialog}
+        onOpenChange={setShowCalcDialog}
+        onComplete={()=>{
+          fetchSpecialRates()
+          handleSave()
+        }}
+        pair={pair}
+        inverse_vendors_considered={props.sell_exchanges_considered}
+        bpay_buy_adder={props.bpay_buy_adder}
+        bpay_sell_reduct={props.bpay_sell_reduct}
+        {...props}
+      />
+      <TableRow key={`${pair}`}>
+        {console.log(props)}
+        <TableCell>
+          {pair}{" "}
+          {special && (
+            <small className="text-green-600 text-[10px] font-semibold mt-1">
+              Special Pair
+            </small>
+          )}
+        </TableCell>
+        <TableCell>
+          <Input
+            type="number"
+            step="0.0001"
+            className="bg-slate-400 w-32"
+            value={editedRates.bpay_buy_adder || ""}
+            onChange={(e) =>
+              setEditedRates((prev) => ({
+                ...prev,
+                bpay_buy_adder: e.target.value,
+              }))
+            }
+          />
+          {/* {rateData?.toFixed(2).toLocaleString("en-US") || "N/A"} */}
+        </TableCell>
+        <TableCell>
+          <Input
+            type="number"
+            step="0.0001"
+            className="bg-slate-400 w-32"
+            value={editedRates.buy_rate.toFixed(2) || ""}
+            onChange={(e) =>
+              setEditedRates((prev) => ({ ...prev, buy_rate: e.target.value }))
+            }
+          />
+          {/* {rateData?.toFixed(2).toLocaleString("en-US") || "N/A"} */}
+        </TableCell>
+        <TableCell>
+          <Input
+            type="number"
+            step="0.0001"
+            className="bg-slate-400 w-32"
+            value={editedRates.bpay_sell_reduct || ""}
+            onChange={(e) =>
+              setEditedRates((prev) => ({
+                ...prev,
+                bpay_sell_reduct: e.target.value,
+              }))
+            }
+          />
+          {/* {rateData?.toFixed(2).toLocaleString("en-US") || "N/A"} */}
+        </TableCell>
+        <TableCell>
+          <Input
+            type="number"
+            step="0.0001"
+            className="bg-slate-400 w-32"
+            value={editedRates.sell_rate.toFixed(2) || ""}
+            onChange={(e) =>
+              setEditedRates((prev) => ({ ...prev, sell_rate: e.target.value }))
+            }
+          />
+        </TableCell>
+        <TableCell>
+          <Button
+            disabled={loading || analysing}
+            onClick={() => {
+              setShowCalcDialog(true);
+            }}
+            className="mr-2"
+          >
+            Recalculate Rate{" "}
+            {loading && (
+              <ColorRing
+                visible={true}
+                height="25"
+                width="25"
+                ariaLabel="color-ring-loading"
+                wrapperStyle={{}}
+                wrapperClass={`color-ring-wrapper `}
+                colors={["#fff", "#fff", "#fff", "#fff", "#fff"]}
+              />
+            )}
+          </Button>
+          <Button
+            disabled={loading || analysing}
+            onClick={handleAnalysis}
+            className="mr-2"
+          >
+            Analyze{" "}
+            {analysing && (
+              <ColorRing
+                visible={true}
+                height="25"
+                width="25"
+                ariaLabel="color-ring-loading"
+                wrapperStyle={{}}
+                wrapperClass={`color-ring-wrapper `}
+                colors={["#fff", "#fff", "#fff", "#fff", "#fff"]}
+              />
+            )}
+          </Button>
         </TableCell>
       </TableRow>
 
