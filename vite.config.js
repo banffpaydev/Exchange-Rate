@@ -6,10 +6,13 @@ import { resolve } from "path";
 // https://vitejs.dev/config/
 export default defineConfig({
   server: {
-    host: "0.0.0.0",
-    port: 3004,
-    allowedHosts: ["*"],
-  },
+		cors: {
+			origin: ['https://exchange.bpay.africa'],
+			methods: ['GET', 'POST', 'PUT'],
+			allowedHeaders: ['Content-Type']
+		},
+		allowedHosts: ['exchange.bpay.africa'] //added this
+	},
   preview: {
     port: 3004, // Force Vite preview to use port 3004
   },
