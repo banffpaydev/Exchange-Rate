@@ -6,12 +6,11 @@ import { resolve } from "path";
 // https://vitejs.dev/config/
 export default defineConfig({
   server: {
-    allowedHosts: ['exchange.bpay.africa'],
     host: "::",
     port: "3004",
   },
   preview: {
-    port: 3004, // Force Vite preview to use port 3004
+    port: "3004" // Set your desired preview port here
   },
   plugins: [react()],
   resolve: {
