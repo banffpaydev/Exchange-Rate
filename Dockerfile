@@ -25,7 +25,7 @@ WORKDIR /app
 # Copy the necessary files from the build stage
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/package.json ./package.json
-COPY --from=build /app/yarn.lock ./yarn.lock
+# COPY --from=build /app/yarn.lock ./yarn.lock
 
 # Install production dependencies and Vite
 RUN yarn install --frozen-lockfile --production && yarn add vite --frozen-lockfile
