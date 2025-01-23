@@ -35,3 +35,4 @@ EXPOSE 3004
 
 # Start the application using Vite's preview server
 CMD ["yarn", "preview", "--host", "0.0.0.0"]
+ 
