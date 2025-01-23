@@ -4,16 +4,24 @@ import react from "@vitejs/plugin-react";
 import { resolve } from "path";
 
 // https://vitejs.dev/config/
+
 export default defineConfig({
   server: {
-    host: "::",
-    port: "3004",
-    allowedHosts: ['exchange.bpay.africa'],
-  },
+		cors: {
+			origin: ['https://exchange.bpay.africa', 'http://localhost:3004'],
+			methods: ['GET', 'POST', 'PUT', "DELETE"],
+			allowedHeaders: ['Content-Type']
+		},
+		allowedHosts: ['exchange.bpay.africa'] //added this
+	},
   preview: {
-    port: 3004, // Force Vite preview to use port 3004
-    allowedHosts: ['*'],
-  },
+		cors: {
+			origin: ['https://exchange.bpay.africa', 'http://localhost:3004'],
+			methods: ['GET', 'POST', 'PUT', "DELETE"],
+			allowedHeaders: ['Content-Type']
+		},
+		allowedHosts: ['exchange.bpay.africa'] //added this
+	},
   plugins: [react()],
   resolve: {
     alias: [
