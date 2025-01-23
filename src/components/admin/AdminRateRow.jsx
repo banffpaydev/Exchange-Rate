@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 

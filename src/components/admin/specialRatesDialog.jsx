@@ -36,7 +36,6 @@ export const SpecialRatesDialog = ({
   bpay_buy_adder,
   bpay_sell_reduct,
   inverse_vendors_considered,
-  ...props
 }) => {
   const [formData, setData] = useState({
     bpay_buy_adder: bpay_buy_adder ?? 0.2,
