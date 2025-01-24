@@ -30,3 +30,28 @@ export default defineConfig({
     ],
   },
 });
+console.log("vite.config.js",  defineConfig({
+  server: {
+    host: "0.0.0.0",
+    port: "3004",
+    allowedHosts: true,
+  },
+  preview: {
+    host: "0.0.0.0",
+    port: "5000", // Force Vite preview to use port 3004
+    allowedHosts: "*",
+  },
+  plugins: [react()],
+  resolve: {
+    alias: [
+      {
+        find: "@",
+        replacement: fileURLToPath(new URL("./src", import.meta.url)),
+      },
+      {
+        find: "lib",
+        replacement: resolve(__dirname, "lib"),
+      },
+    ],
+  },
+}));
