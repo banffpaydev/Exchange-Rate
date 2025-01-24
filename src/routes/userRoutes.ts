@@ -13,7 +13,7 @@ router.post('/register', UserController.register);
 router.post('/login', UserController.login);
 
 // @ts-ignore
-router.get('/users', UserController.getAll);
+// router.get('/users', UserController.getAll);
 
 // @ts-ignore
 router.get('/user', authenticateToken, UserController.getuser);
