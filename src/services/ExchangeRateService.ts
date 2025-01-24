@@ -633,7 +633,7 @@ export const handleAllFetch = async () => {
         results[pair] = {};
         rawResults[pair] = {};
 
-
+        console.log(pair)
         for (const api of apis) {
             try {
                 const rateData = await api(from, to);
