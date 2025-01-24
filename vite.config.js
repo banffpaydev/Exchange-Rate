@@ -7,21 +7,16 @@ import { resolve } from "path";
 
 export default defineConfig({
   server: {
-		cors: {
-			origin: ['https://exchange.bpay.africa', 'http://localhost:3004'],
-			methods: ['GET', 'POST', 'PUT', "DELETE"],
-			allowedHeaders: ['Content-Type']
-		},
-		allowedHosts: ['exchange.bpay.africa'] //added this
-	},
+    host: "0.0.0.0",
+    port: "3004",
+    allowedHosts: ['.bpay.africa'],
+  },
   preview: {
-		cors: {
-			origin: ['https://exchange.bpay.africa', 'http://localhost:3004'],
-			methods: ['GET', 'POST', 'PUT', "DELETE"],
-			allowedHeaders: ['Content-Type']
-		},
-		allowedHosts: ['exchange.bpay.africa'] //added this
-	},
+    host: "0.0.0.0",
+    port: "3004", // Force Vite preview to use port 3004
+    allowedHosts: ['.bpay.africa']
+    
+  },
   plugins: [react()],
   resolve: {
     alias: [
