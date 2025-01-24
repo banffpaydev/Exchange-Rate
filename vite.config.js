@@ -14,7 +14,7 @@ export default defineConfig({
   preview: {
     host: "0.0.0.0",
     port: "3004", // Force Vite preview to use port 3004
-    allowedHosts: "exchange.bpay.africa",
+    allowedHosts: "*",
   },
   plugins: [react()],
   resolve: {
