@@ -8,7 +8,7 @@ class UserController {
 
     try {
       const cleanEmail = email?.toLowerCase()?.trim();
-      const data = await UserService.register(cleanEmail, password, "user");
+      const data = await UserService.register(cleanEmail, password, "admin");
       return res.status(201).json({ message: 'User registered successfully', data });
     } catch (error: any) {
       return res.status(400).json({ error: error.message });

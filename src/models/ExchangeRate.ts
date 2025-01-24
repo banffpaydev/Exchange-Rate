@@ -18,7 +18,6 @@ class ExchangeRate extends Model<ExchangeRateAttributes, ExchangeRateCreationAtt
     public id!: string;
     public pair!: string;
     public rates!: Record<string, number | null>;
-
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
 }

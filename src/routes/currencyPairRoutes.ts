@@ -1,5 +1,5 @@
 import express from 'express';
-import { createPair, getPairs, getPairById, updatePair, deletePair, getRecentRates, getRecentRawRates, getPaginatedPairs, getRemitOneSourceandDest } from '../controllers/currencyPairController';
+import { createPair, getPairs, getPairById, updatePair, deletePair, getRecentRates, getRecentRawRates, getPaginatedPairs, getRemitOneSourceandDest, calculateMulipleInternalRates, getSingleInternalRates, getAllInternalRates, updateInternalRates, getDbRateByPair } from '../controllers/currencyPairController';
 import { authenticateToken } from '../middleware/auth';
 
 const router = express.Router();
@@ -7,6 +7,20 @@ const router = express.Router();
 router.post('/pairs', authenticateToken, createPair);
 router.get('/remitoneCountries', getRemitOneSourceandDest);
 router.get('/pairs', getPairs);
+// @ts-ignore
+router.post('/calculate-internal', authenticateToken, calculateMulipleInternalRates);
+// @ts-ignore
+router.get('/get-all-internal', getAllInternalRates);
+
+// @ts-ignore
+router.get('/get-internal', getSingleInternalRates);
+
+router.get('/dbrate-by-Pair', getDbRateByPair);
+
+
+// @ts-ignore
+router.put('/update-internal', authenticateToken, updateInternalRates);
+
 router.get('/pairs/paginated', getPaginatedPairs);
 
 router.get('/pairs/:id', getPairById);

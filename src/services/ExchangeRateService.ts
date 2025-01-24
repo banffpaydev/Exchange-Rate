@@ -559,7 +559,8 @@ const getCurrencyRate = async (gofrom: string, goto: string): Promise<number | n
 
 
 // export const pairs = [
-//     'USD/NGN'
+//     'CAD/NGN',
+//     'NGN/CAD'
 // ];
 
 export const pairs = [
@@ -620,7 +621,7 @@ export const handleAllFetch = async () => {
     //     // 'USD/LRD', 'EUR/LRD', 'GBP/LRD', 'CAD/LRD'
     // ];
     const apis = [sendWaveRate, afriXchangeRate, wiseRate, transfergoRate, xeRates, abokifxng, cadrRemitRate, lemfiRate];
-    const excludedNames = ['abokifxng', 'cadrRemitRate', 'CadRemit Exchange', 'Abokifx', "Twelve Data Exchange", "Alphatvantage Exchange", "xchangeRt exchange"];
+    const excludedNames = ['abokifxng', 'cadrRemitRate', "Twelve Data Exchange", "Alphatvantage Exchange", "xchangeRt exchange"];
     // const apis = [sendWaveRate, cadrRemitRate];
 
 
@@ -680,7 +681,7 @@ export const handleAllFetch = async () => {
             exchangeRate: rawStats[pair].mean
         }
         results[pair]["BanffPay Rate"] = stats[pair].mean;
-        console.log(pairData, "raw-pair", results[pair])
+        // console.log(pairData, "raw-pair", results[pair])
         // console.log(results[pair], "raw-pair-result")
 
         // console.log(rawPairData,"paidata", rawResults[pair], "raw-results")
@@ -724,6 +725,19 @@ export const saveRawDatatoDb = async (data: any) => {
 }
 
 
+export const getSingleRateFromDBPairs = async (pair: string) => {
+    try {
+        const exchangeRate = await ExchangeRate.findOne({ where: { pair }, order: [['createdAt', 'DESC']] });
+
+        if (!exchangeRate) {
+            throw new Error(`Exchange rate for pair ${pair} not found`);
+        }
+
+        return exchangeRate;
+    } catch (error: any) {
+        throw new Error(`Failed to fetch exchange rate: ${error.message}`);
+    }
+}
 export const getRatesFromDBPairs = async (pair: string) => {
     try {
         const exchangeRate = await ExchangeRate.findAll({ where: { pair } });
@@ -970,7 +984,6 @@ export const getAnalyzedRates = async (currency: string, startDate: string, endD
     //     }));
     // });
 
-{console.log(allRates)}
     const rateVendorPairs = Object.entries(allRates).flatMap(([pair, vendors]) => {
         // For each pair (e.g., 'CAD/NGN'), filter the vendors to get only valid rates
         return Object.entries(vendors).filter(([vendor, rateValue]) => {

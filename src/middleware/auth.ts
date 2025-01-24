@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkey';
 
 export function authenticateToken(req: Request, res: Response, next: NextFunction) {
-  const token = req.headers['authorization']?.split(' ')[1];
+  const token = req.headers['authorization']?.split(' ')[0];
   if (!token) return res.status(401).json({ message: 'Access denied. No token provided.' });
 
   try {

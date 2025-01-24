@@ -29,10 +29,11 @@ runAtInterval(handleAllFetch, 1000 * 60 * 60 * 2);//1000 * 5 * 2, 1000 * 7 * 2);
 // runAtInterval(sendRate, 1000 * 60 * 60 * 2);//1000 * 5 * 2, 1000 * 7 * 2);//1000 * 60 * 90)
 cron.schedule('0 8,14,20,2 * * *', () => {
   console.log("Sending rate at", new Date().toLocaleString("en-US", { timeZone: "Africa/Lagos" }));
-  // sendRate();
+  sendRate();
 });
 // seedCountries()
 runCreateTables();
+// console.log(getInternalRates())
 
 // Routes
 app.use('/api/rates', rateRoutes);
