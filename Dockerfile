@@ -35,4 +35,4 @@ EXPOSE 3004
 
 # Start the application using Vite's preview server
 CMD ["npm", "run", "dev"]
- 
+  #new
