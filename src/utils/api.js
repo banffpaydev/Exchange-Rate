@@ -36,7 +36,7 @@ export const getRates = () => getRequest("/rates");
 export const fetchDbRates = () => getRequest("/dbrates");
 export const getUser = async () => {
   try {
-    const response = await axios.get(`/users/user`);
+    const response = await http.get(`/users/user`);
     return response.data;
   } catch (error) {
     throw error.response ? error.response.data : error;

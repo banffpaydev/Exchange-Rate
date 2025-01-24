@@ -101,7 +101,6 @@ export const SpecialRatesDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          {console.log(formData.inverse_vendors_considered)}
           <DialogTitle>Confirm Rate Changes</DialogTitle>
           <DialogDescription>
             Creating/Updating this pair{" "}

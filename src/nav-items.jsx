@@ -1,8 +1,6 @@
 import { lazy } from "react";
 import AdminRatesChn from "./pages/AdminRates copy";
-import { useNavigate } from "react-router-dom";
 
-const Index = lazy(() => import("./pages/Index"));
 const Login = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));
 const ExchangeRates = lazy(() => import("./pages/ExchangeRates"));
