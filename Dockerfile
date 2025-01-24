@@ -34,5 +34,5 @@ RUN yarn install --frozen-lockfile --production && yarn add vite --frozen-lockfi
 EXPOSE 3004
 
 # Start the application using Vite's preview server
-CMD ["npm", "run", "dev", "--host", "0.0.0.0"]
+CMD ["yarn", "dev", "--host", "0.0.0.0"]
  
