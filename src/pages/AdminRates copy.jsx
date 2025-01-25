@@ -124,7 +124,8 @@ const AdminRatesChn = () => {
 
   if (isLoading || isLoadingSpecial) return <div>Loading...</div>;
   if (!isLoading && error) return <div>{error}</div>;
-
+  const specialRatePairs = new Set(specialRates.map((rate) => rate.pair)); // Collect all special pairs
+  const filteredRates = rates.filter((rate) => !specialRatePairs.has(rate.currencyPair)); // Exclude special pairs
   return (
     <div className="container mx-auto py-10">
       <div className="flex justify-between items-center mb-6">
@@ -178,7 +179,7 @@ const AdminRatesChn = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {rates
+            {filteredRates
               .sort((a, b) => {
                 const isPriorityA = prioritizedPairs.includes(a.currencyPair);
                 const isPriorityB = prioritizedPairs.includes(b.currencyPair);

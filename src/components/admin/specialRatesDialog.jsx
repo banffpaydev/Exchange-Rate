@@ -84,7 +84,9 @@ export const SpecialRatesDialog = ({
           `${basisUrl}/api/current/dbrate-by-Pair?pair=${pair}`
         );
         setLoading(false);
-        const keys = Object.keys(response.data?.rates || {});
+        const keys = Object.entries(response.data?.rates || {})
+          .filter(([key, value]) => key !== undefined && key !=="BanffPay Rate" && value != null)
+          .map(([key, value]) => ({ key, value }));
         setPairVendors(keys);
         toast.success("Vendors data fetched");
       } catch (error) {
@@ -144,14 +146,16 @@ export const SpecialRatesDialog = ({
             <MultipleSelector
               values={formData.inverse_vendors_considered}
               onChange={(value) => {
-                console.log(value);
                 setData((prev) => ({
                   ...prev,
                   inverse_vendors_considered: value,
                 }));
               }}
               options={pairVendors.map((vendor) => {
-                return { label: vendor, value: vendor };
+                return {
+                  label: `${vendor.key}(${vendor.value})`,
+                  value: vendor.key,
+                };
               })}
             />
           </div>
