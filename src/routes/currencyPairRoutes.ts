@@ -1,5 +1,5 @@
 import express from 'express';
-import { createPair, getPairs, getPairById, updatePair, deletePair, getRecentRates, getRecentRawRates, getPaginatedPairs, getRemitOneSourceandDest, calculateMulipleInternalRates, getSingleInternalRates, getAllInternalRates, updateInternalRates, getDbRateByPair } from '../controllers/currencyPairController';
+import { createPair, getPairs, getPairById, updatePair, deletePair, getRecentRates, getRecentRawRates, getPaginatedPairs, getRemitOneSourceandDest, calculateMulipleInternalRates, getSingleInternalRates, getAllInternalRates, updateInternalRates, getDbRateByPair, deleteInternalRate } from '../controllers/currencyPairController';
 import { authenticateToken } from '../middleware/auth';
 
 const router = express.Router();
@@ -14,6 +14,9 @@ router.get('/get-all-internal', getAllInternalRates);
 
 // @ts-ignore
 router.get('/get-internal', getSingleInternalRates);
+// @ts-ignore
+
+router.delete('/internal',authenticateToken, deleteInternalRate);
 
 router.get('/dbrate-by-Pair', getDbRateByPair);
 

@@ -5,7 +5,7 @@ import RawCurrencyPair from '../models/RawCurrencyPair';
 import { getSourceAndDesCountries, updateSellRate } from '../services/rateService';
 import { calculateBanffPayBuySellRate, inversePair } from './treps';
 import { getRatesFromDBPairs, getSingleRateFromDBPairs } from '../services/ExchangeRateService';
-import { getAllDBInternalRates, getInternalRateByPair, saveInternalRate, saveMultipleInternalRates, updateInternalRateByPair } from '../services/internalRateService';
+import { deleteInternalRateByPair, getAllDBInternalRates, getInternalRateByPair, saveInternalRate, saveMultipleInternalRates, updateInternalRateByPair } from '../services/internalRateService';
 import { InternalRateAttributes } from '../models/internalRate';
 
 export const createPair = async (req: Request, res: Response) => {
@@ -139,6 +139,19 @@ export const getDbRateByPair = async (req: Request, res: Response) => {
 
     }
 }
+
+export const deleteInternalRate = async (req: Request, res: Response) => {
+    const { pair } = req.query;
+    if (!pair) {
+        res.status(400).json({ message: 'Pair is required' });
+    }
+    try {
+        await deleteInternalRateByPair(pair as string);
+        res.status(200).json({ message: 'Internal rate deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error deleting internal rate', error });
+    }
+}
 export const calculateMulipleInternalRates = async (req: any, res: Response) => {
     const { pairs } = req.body;
 
@@ -195,12 +208,12 @@ export const calculateMulipleInternalRates = async (req: any, res: Response) => 
         const formattedResult = results.map((result) => {
             return {
                 pair: result.mainPair,
-                bpay_buy_adder: result.result?.bpay_buy_adder ?? 0.2,
-                bpay_sell_reduct: result.result?.bpay_sell_reduct ?? 0.2,
-                buy_rate: result.result?.bpay_buy_rate ?? 0,
-                sell_rate: result.result?.bpay_sell_rate ?? 0,
-                buy_rate_source: result.result?.buy_Rate_Source ?? 0,
-                sell_rate_source: result.result?.sell_Rate_Source ?? 0,
+                bpay_buy_adder: Number(result.result?.bpay_buy_adder?.toFixed(2)) ?? 0.2,
+                bpay_sell_reduct: Number(result.result?.bpay_sell_reduct?.toFixed(2)) ?? 0.2,
+                buy_rate: Number(result.result?.bpay_buy_rate?.toFixed(2)) ?? 0,
+                sell_rate: Number(result.result?.bpay_sell_rate?.toFixed(2)) ?? 0,
+                buy_rate_source: Number(result.result?.buy_Rate_Source?.toFixed(2)) ?? 0,
+                sell_rate_source: Number(result.result?.sell_Rate_Source?.toFixed(2)) ?? 0,
                 buy_exchanges_considered: result.filteredBuyRates,
                 sell_exchanges_considered: result.filteredSellRates
             }
@@ -244,35 +257,64 @@ export const getSingleInternalRates = async (req: Request, res: Response) => {
 
 export const updateInternalRates = async (req: any, res: Response) => {
     const { pair,
-        buy_rate,
-        sell_rate,
-        buy_rate_source,
-        sell_rate_source,
+
         bpay_buy_adder,
         bpay_sell_reduct,
-        buy_exchanges_considered,
-        sell_exchanges_considered,
+        inverse_vendors_considered,
     } = req.body;
 
-    // if (!pairs || pairs.length === 0) {
-    //     res.status(400).json({ message: 'Currency pairs and configurations are required' });
-    //     return;
-    // }
+    if (!pair || inverse_vendors_considered.length < 1) {
+        res.status(400).json({ message: 'Currency pair and exchanges considered are required' });
+        return;
+    }
 
     try {
-        // Create an array to store results
-        const data = updateInternalRateByPair({
-            pair,
-            buy_rate,
-            sell_rate,
-            buy_rate_source,
-            sell_rate_source,
-            bpay_buy_adder,
-            bpay_sell_reduct,
-            buy_exchanges_considered,
-            sell_exchanges_considered,
-        })
-        res.status(200).json({ message: "Success", data: data });
+        const invertedPair = inversePair(pair);
+
+        // Fetch buy rates for the main pair
+        const buyData = await getSingleRateFromDBPairs(pair);
+        const sellData = await getSingleRateFromDBPairs(invertedPair);
+
+        if (buyData && sellData) {
+            const filteredBuyRates = Object.fromEntries(
+                Object.entries(buyData.rates).filter(
+                    ([key, value]) => value !== null && value > 0
+                )
+            );
+            const filteredSellRates = Object.fromEntries(
+                Object.entries(sellData.rates).filter(
+                    ([key, value]) => inverse_vendors_considered.includes(key) && value !== null && value > 0
+                )
+            );
+
+            const buyValues = Object.values(filteredBuyRates).map(value => Number(value));
+            const sellValues = Object.values(filteredSellRates).map(value => Number(value));
+
+            const result = calculateBanffPayBuySellRate(buyValues, sellValues, +bpay_buy_adder, +bpay_sell_reduct);
+
+            if (result) {
+                const data = await updateInternalRateByPair({
+                    pair,
+                    buy_rate: result?.bpay_buy_rate,
+                    sell_rate: result?.bpay_sell_rate,
+                    buy_rate_source: result?.buy_Rate_Source,
+                    sell_rate_source: result?.sell_Rate_Source,
+                    bpay_buy_adder: result?.bpay_buy_adder,
+                    bpay_sell_reduct: result?.bpay_sell_reduct,
+                    buy_exchanges_considered: filteredBuyRates,
+                    sell_exchanges_considered: filteredSellRates,
+                });
+
+                res.status(200).json({ message: "Success", data: data });
+                return
+            }
+            res.status(404).json({ message: 'Error calculating rate' });
+            return
+        } else {
+            res.status(404).json({ message: 'Rates not found for the given pair' });
+            return
+
+        }
     } catch (error) {
         console.error("Error fetching internal rates:", error);
         res.status(500).json({ message: 'An error occurred while processing the request' });

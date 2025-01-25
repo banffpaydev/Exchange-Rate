@@ -30,7 +30,21 @@ export const saveMultipleInternalRates = async (data: InternalRateAttributes[]) 
         throw "Error saving/updating internal rates:"
     }
 };
+export const deleteInternalRateByPair = async (pair: string) => {
+    try {
+        const deletedCount = await InternalRate.destroy({
+            where: { pair },
+        });
 
+        if (deletedCount === 0) {
+            throw new Error(`Pair ${pair} not found`);
+        }
+
+    } catch (error) {
+        console.error('Error deleting internal rate:', error);
+        throw error;
+    }
+};
 
 export const getInternalRateByPair = async (pair: string) => {
     return await InternalRate.findOne({ where: { pair } });
