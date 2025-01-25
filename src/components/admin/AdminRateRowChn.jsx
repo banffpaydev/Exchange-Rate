@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { SaveRatesDialog } from "./SaveRatesDialog";
 import { SpecialRatesDialog } from "./specialRatesDialog";
 import { http } from "@/utils/config";
+import { ConfirmDeleteDialog } from "./confirmDeleteDialog";
 
 export const AdminRateRowChn = ({ pair, rateData, id, remitOneEnabled }) => {
   // console.log("mape: ", formatNumberStr(rateData))
@@ -244,7 +245,13 @@ export const AdminRateRowChn = ({ pair, rateData, id, remitOneEnabled }) => {
   );
 };
 
-export const SpecialAdminRateRowChn = ({ pair, id, special,fetchSpecialRates, ...props }) => {
+export const SpecialAdminRateRowChn = ({
+  pair,
+  id,
+  special,
+  fetchSpecialRates,
+  ...props
+}) => {
   // console.log("mape: ", formatNumberStr(rateData))
   const [editedRates, setEditedRates] = useState({
     buy_rate: props.buy_rate,
@@ -257,6 +264,9 @@ export const SpecialAdminRateRowChn = ({ pair, id, special,fetchSpecialRates, ..
   const [analysis, setAnalysis] = useState(null);
   const [loading, setLoading] = useState(false);
   const [analysing, setAnalysing] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
+
 
   const handleSave = async () => {
     const pairArray = pair.split("/");
@@ -276,6 +286,17 @@ export const SpecialAdminRateRowChn = ({ pair, id, special,fetchSpecialRates, ..
       toast.error("Unable to update Rates!!");
     } finally {
       setLoading(false);
+    }
+  };
+  const handleDelete = async () => {
+    try {
+      setDeleting(true);
+      await http.delete(`/current/internal?pair=${pair}`);
+      await fetchSpecialRates()
+    } catch (error) {
+      console.error("Error fetching Rate Analysis:", error);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -305,13 +326,19 @@ export const SpecialAdminRateRowChn = ({ pair, id, special,fetchSpecialRates, ..
 
   return (
     <>
+    <ConfirmDeleteDialog 
+    loading={deleting}
+    open={deleteConfirm}
+    onConfirm={handleDelete}
+    onOpenChange={setDeleteConfirm}
+    pair={pair}
+    />
       <SpecialRatesDialog
         loading={loading}
         open={showCalcDialog}
         onOpenChange={setShowCalcDialog}
-        onComplete={()=>{
-          fetchSpecialRates()
-          handleSave()
+        onComplete={() => {
+          fetchSpecialRates();
         }}
         pair={pair}
         inverse_vendors_considered={props.sell_exchanges_considered}
@@ -320,7 +347,6 @@ export const SpecialAdminRateRowChn = ({ pair, id, special,fetchSpecialRates, ..
         {...props}
       />
       <TableRow key={`${pair}`}>
-        {console.log(props)}
         <TableCell>
           {pair}{" "}
           {special && (
@@ -345,15 +371,7 @@ export const SpecialAdminRateRowChn = ({ pair, id, special,fetchSpecialRates, ..
           {/* {rateData?.toFixed(2).toLocaleString("en-US") || "N/A"} */}
         </TableCell>
         <TableCell>
-          <Input
-            type="number"
-            step="0.0001"
-            className="bg-slate-400 w-32"
-            value={editedRates.buy_rate.toFixed(2) || ""}
-            onChange={(e) =>
-              setEditedRates((prev) => ({ ...prev, buy_rate: e.target.value }))
-            }
-          />
+          {editedRates.buy_rate.toFixed(2)}
           {/* {rateData?.toFixed(2).toLocaleString("en-US") || "N/A"} */}
         </TableCell>
         <TableCell>
@@ -371,20 +389,10 @@ export const SpecialAdminRateRowChn = ({ pair, id, special,fetchSpecialRates, ..
           />
           {/* {rateData?.toFixed(2).toLocaleString("en-US") || "N/A"} */}
         </TableCell>
-        <TableCell>
-          <Input
-            type="number"
-            step="0.0001"
-            className="bg-slate-400 w-32"
-            value={editedRates.sell_rate.toFixed(2) || ""}
-            onChange={(e) =>
-              setEditedRates((prev) => ({ ...prev, sell_rate: e.target.value }))
-            }
-          />
-        </TableCell>
+        <TableCell>{editedRates.sell_rate.toFixed(2)}</TableCell>
         <TableCell>
           <Button
-            disabled={loading || analysing}
+            disabled={loading || analysing || deleting}
             onClick={() => {
               setShowCalcDialog(true);
             }}
@@ -404,12 +412,32 @@ export const SpecialAdminRateRowChn = ({ pair, id, special,fetchSpecialRates, ..
             )}
           </Button>
           <Button
-            disabled={loading || analysing}
+            disabled={loading || analysing || deleting}
             onClick={handleAnalysis}
             className="mr-2"
           >
             Analyze{" "}
             {analysing && (
+              <ColorRing
+                visible={true}
+                height="25"
+                width="25"
+                ariaLabel="color-ring-loading"
+                wrapperStyle={{}}
+                wrapperClass={`color-ring-wrapper `}
+                colors={["#fff", "#fff", "#fff", "#fff", "#fff"]}
+              />
+            )}
+          </Button>
+          <Button
+            disabled={loading || analysing || deleting}
+            onClick={()=>{
+              setDeleteConfirm(true)
+            }}
+            className="mr-2 bg-red-500 hover:bg-red-500/80"
+          >
+            Delete{" "}
+            {deleting && (
               <ColorRing
                 visible={true}
                 height="25"
