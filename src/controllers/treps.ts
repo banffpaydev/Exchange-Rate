@@ -71,20 +71,22 @@ export const calculateStats = (data: CurrencyData): Result => {
   return result;
 };
 
-export const calculateBanffPayBuySellRate = (rates: number[], sell_rates: number[], buy_adder?: number, sell_reduct?: number) => {
+export const calculateBanffPayBuySellRate = (rates: number[], sell_rates: number[], buy_adder: number, sell_reduct: number) => {
   let buy_Rate_Source;
   let sell_Rate_Source;
   buy_Rate_Source = Math.max(...rates) // Buy_Rate_Source
   sell_Rate_Source = Math.min(...sell_rates)// Sell_Rate_Source
 
-
+  let bpay_buy_adder = buy_adder ?? 0.2;
+  let bpay_sell_reduct = sell_reduct ?? 0.2;
+  let bpay_buy_rate = 0; // calculated buy rate
+  let bpay_sell_rate = 0; // calculated sell rate
   if (buy_Rate_Source && sell_Rate_Source) {
 
     // console.log(sell_Rate_Source)
     // const buy_Rate_Source = 1150  
     // const sell_Rate_Source = 1175
-    let bpay_buy_rate = 0; // calculated buy rate
-    let bpay_sell_rate = 0; // calculated sell rate
+
 
     const rateRoom = sell_Rate_Source - buy_Rate_Source
     // const rateRoom = buy_Rate_Source - sell_Rate_Source
@@ -93,8 +95,7 @@ export const calculateBanffPayBuySellRate = (rates: number[], sell_rates: number
     const margin_percentage = 1
     const rate_margin = buy_Rate_Source / 100
     const percentage_allocation_room = rateRoomPercentage - margin_percentage
-    let bpay_buy_adder = buy_adder ?? 0.2;
-    let bpay_sell_reduct = sell_reduct ?? 0.2;
+
 
     const bpay_buy_discount = (bpay_buy_adder / 100) * buy_Rate_Source
     const bpay_sell_discount = (bpay_sell_reduct / 100) * sell_Rate_Source

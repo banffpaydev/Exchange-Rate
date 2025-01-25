@@ -1,4 +1,5 @@
 import InternalRate, { InternalRateAttributes } from "../models/internalRate";
+import { getSourceAndDesCountries, updateSellRate } from "./rateService";
 
 export const saveInternalRate = async (data: InternalRateAttributes) => {
     await InternalRate.create({
@@ -23,8 +24,18 @@ export const saveMultipleInternalRates = async (data: InternalRateAttributes[]) 
             await InternalRate.upsert({
                 ...rate,  // Spread the current rate attributes
             });
+
+            const from = rate.pair.split("/")[0]
+            const to = rate.pair.split("/")[1]
+
+            const sourceAndDesCountries = await getSourceAndDesCountries();
+            const findSourceCountry = sourceAndDesCountries.source.find((country) => country.currency === from)
+            const findDestCountry = sourceAndDesCountries.destination.find((country) => country.currency === to)
+            if (findSourceCountry && findDestCountry) {
+                const response = await updateSellRate(findSourceCountry?.id, findSourceCountry?.currency, findDestCountry?.id, findDestCountry?.currency, rate.buy_rate)
+            }
         }
-        console.log('Internal rates saved/updated successfully.');
+
     } catch (error) {
         console.error('Error saving/updating internal rates:', error);
         throw "Error saving/updating internal rates:"
@@ -75,10 +86,15 @@ export const updateInternalRateByPair = async (newRateData: InternalRateAttribut
             where: { pair: newRateData.pair },  // Condition to match the pair
         });
 
-        if (updatedCount === 0) {
-            throw new Error('No changes made during the update');
-        }
+        const from = newRateData.pair.split("/")[0]
+        const to = newRateData.pair.split("/")[1]
 
+        const sourceAndDesCountries = await getSourceAndDesCountries();
+        const findSourceCountry = sourceAndDesCountries.source.find((country) => country.currency === from)
+        const findDestCountry = sourceAndDesCountries.destination.find((country) => country.currency === to)
+        if (findSourceCountry && findDestCountry) {
+            const response = await updateSellRate(findSourceCountry?.id, findSourceCountry?.currency, findDestCountry?.id, findDestCountry?.currency, newRateData.buy_rate)
+        }
         console.log(`Successfully updated internal rate for pair: ${newRateData.pair}`);
     } catch (error) {
         console.error('Error updating internal rate:', error);

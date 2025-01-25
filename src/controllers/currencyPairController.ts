@@ -164,7 +164,7 @@ export const calculateMulipleInternalRates = async (req: any, res: Response) => 
         // Create an array to store results
         const results = [];
 
-        for (const { pair, inverse_vendors_considered, buy_adder, sell_reduct } of pairs) {
+        for (const { pair, inverse_vendors_considered, bpay_buy_adder, bpay_sell_reduct } of pairs) {
             if (!pair || !inverse_vendors_considered || inverse_vendors_considered.length === 0) {
                 continue; // Skip invalid entries
             }
@@ -192,7 +192,7 @@ export const calculateMulipleInternalRates = async (req: any, res: Response) => 
                     );
                     const sellValues = Object.values(filteredSellRates).map(value => Number(value));
                     // Perform calculation
-                    const result = calculateBanffPayBuySellRate(buyValues, sellValues, +buy_adder, +sell_reduct);
+                    const result = calculateBanffPayBuySellRate(buyValues, sellValues, +bpay_buy_adder, +bpay_sell_reduct);
 
                     // Add result to the array
                     results.push({
@@ -368,6 +368,7 @@ export const updatePair = async (req: any, res: Response) => {
         res.status(500).json({ message: 'Error updating currency pair' });
     }
 };
+
 
 export const deletePair = async (req: Request, res: Response) => {
     try {
