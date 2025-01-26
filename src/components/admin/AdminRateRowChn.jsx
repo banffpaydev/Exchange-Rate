@@ -260,13 +260,13 @@ export const SpecialAdminRateRowChn = ({
     bpay_sell_reduct: props.bpay_sell_reduct,
   });
   const [showCalcDialog, setShowCalcDialog] = useState(false);
+  const [specialRateType, setSpecialRateType] = useState();
 
   const [analysis, setAnalysis] = useState(null);
   const [loading, setLoading] = useState(false);
   const [analysing, setAnalysing] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
-
 
   const handleSave = async () => {
     const pairArray = pair.split("/");
@@ -282,6 +282,7 @@ export const SpecialAdminRateRowChn = ({
       //   toast.success("Rate data updated");
       // }
       setShowCalcDialog(false);
+      setSpecialRateType(undefined);
     } catch (error) {
       toast.error("Unable to update Rates!!");
     } finally {
@@ -292,7 +293,7 @@ export const SpecialAdminRateRowChn = ({
     try {
       setDeleting(true);
       await http.delete(`/current/internal?pair=${pair}`);
-      await fetchSpecialRates()
+      await fetchSpecialRates();
     } catch (error) {
       console.error("Error fetching Rate Analysis:", error);
     } finally {
@@ -326,17 +327,21 @@ export const SpecialAdminRateRowChn = ({
 
   return (
     <>
-    <ConfirmDeleteDialog 
-    loading={deleting}
-    open={deleteConfirm}
-    onConfirm={handleDelete}
-    onOpenChange={setDeleteConfirm}
-    pair={pair}
-    />
+      <ConfirmDeleteDialog
+        loading={deleting}
+        open={deleteConfirm}
+        onConfirm={handleDelete}
+        onOpenChange={setDeleteConfirm}
+        pair={pair}
+      />
       <SpecialRatesDialog
+        type={specialRateType}
         loading={loading}
         open={showCalcDialog}
-        onOpenChange={setShowCalcDialog}
+        onOpenChange={() => {
+          setShowCalcDialog(false);
+          setSpecialRateType(undefined);
+        }}
         onComplete={() => {
           fetchSpecialRates();
         }}
@@ -356,49 +361,47 @@ export const SpecialAdminRateRowChn = ({
           )}
         </TableCell>
         <TableCell>
-          <Input
-            type="number"
-            step="0.0001"
-            className="bg-slate-400 w-32"
-            value={editedRates.bpay_buy_adder || ""}
-            onChange={(e) =>
-              setEditedRates((prev) => ({
-                ...prev,
-                bpay_buy_adder: e.target.value,
-              }))
-            }
-          />
-          {/* {rateData?.toFixed(2).toLocaleString("en-US") || "N/A"} */}
+        {editedRates.bpay_buy_adder}
         </TableCell>
         <TableCell>
           {editedRates.buy_rate.toFixed(2)}
           {/* {rateData?.toFixed(2).toLocaleString("en-US") || "N/A"} */}
         </TableCell>
         <TableCell>
-          <Input
-            type="number"
-            step="0.0001"
-            className="bg-slate-400 w-32"
-            value={editedRates.bpay_sell_reduct || ""}
-            onChange={(e) =>
-              setEditedRates((prev) => ({
-                ...prev,
-                bpay_sell_reduct: e.target.value,
-              }))
-            }
-          />
-          {/* {rateData?.toFixed(2).toLocaleString("en-US") || "N/A"} */}
+         {editedRates.bpay_sell_reduct}
         </TableCell>
         <TableCell>{editedRates.sell_rate.toFixed(2)}</TableCell>
         <TableCell>
           <Button
             disabled={loading || analysing || deleting}
             onClick={() => {
+              setSpecialRateType("sell");
               setShowCalcDialog(true);
             }}
             className="mr-2"
           >
-            Recalculate Rate{" "}
+            Recalculate Sell Rate{" "}
+            {loading && (
+              <ColorRing
+                visible={true}
+                height="25"
+                width="25"
+                ariaLabel="color-ring-loading"
+                wrapperStyle={{}}
+                wrapperClass={`color-ring-wrapper `}
+                colors={["#fff", "#fff", "#fff", "#fff", "#fff"]}
+              />
+            )}
+          </Button>
+          <Button
+            disabled={loading || analysing || deleting}
+            onClick={() => {
+              setSpecialRateType("buy");
+              setShowCalcDialog(true);
+            }}
+            className="mr-2"
+          >
+            Recalculate Buy Rate{" "}
             {loading && (
               <ColorRing
                 visible={true}
@@ -431,8 +434,8 @@ export const SpecialAdminRateRowChn = ({
           </Button>
           <Button
             disabled={loading || analysing || deleting}
-            onClick={()=>{
-              setDeleteConfirm(true)
+            onClick={() => {
+              setDeleteConfirm(true);
             }}
             className="mr-2 bg-red-500 hover:bg-red-500/80"
           >
