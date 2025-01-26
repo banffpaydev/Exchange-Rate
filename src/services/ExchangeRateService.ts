@@ -10,6 +10,8 @@ import nodemailer from "nodemailer";
 import ExchangeCountries from "../models/ExchangeCountries";
 import sequelize from "../config/db";
 import { getPairById } from "../controllers/currencyPairController";
+import InternalRate from "../models/internalRate";
+import { autoUpdateInternalRatesOnFetch, getInternalRateByPair } from "./internalRateService";
 
 dotenv.config();
 export const username = process.env.USER_NAME;
@@ -558,44 +560,44 @@ const getCurrencyRate = async (gofrom: string, goto: string): Promise<number | n
 
 
 
-// export const pairs = [
-//     'CAD/NGN',
-//     'NGN/CAD'
-// ];
-
 export const pairs = [
-    'GHS/EUR', 'GHS/CAD', 'GHS/USD', 'GHS/GBP',
-    'EUR/GHS', 'CAD/GHS', 'USD/GHS', 'GBP/GHS',
-    'GBP/GMD', 'GMD/GBP',
-    'GMD/CAD', 'GMD/EUR', 'CAD/USD', 'CAD/EUR',
-    'CAD/GBP', 'EUR/USD', 'EUR/CAD', 'EUR/GBP',
-    'GBP/USD', 'GBP/CAD', 'GBP/EUR',
-    'USD/NGN', 'EUR/NGN', 'GBP/NGN', 'CAD/NGN',
-    'USD/LRD', 'EUR/LRD', 'GBP/LRD', 'CAD/LRD',
-    'GHS/NGN', 'AED/NGN', 'SLL/NGN', 'RWF/NGN',
-    'GHS/LRD', 'AED/LRD', 'SLL/LRD', 'RWF/LRD',
-    'NGN/USD', 'NGN/EUR', 'NGN/GBP', 'NGN/CAD',
-    'LRD/USD', 'LRD/EUR', 'LRD/GBP', 'LRD/CAD',
-    'NGN/GHS', 'NGN/AED', 'NGN/SLL', 'NGN/RWF',
-    'LRD/GHS', 'LRD/AED', 'LRD/SLL', 'LRD/RWF',
-    'USD/KES', 'EUR/KES', 'GBP/KES', 'CAD/KES',
-    'USD/ZMW', 'EUR/ZMW', 'GBP/ZMW', 'CAD/ZMW',
-    'USD/TZS', 'EUR/TZS', 'GBP/TZS', 'CAD/TZS',
-    'USD/XOF', 'EUR/XOF', 'GBP/XOF', 'CAD/XOF',
-    'USD/XAF', 'EUR/XAF', 'GBP/XAF', 'CAD/XAF',
-    'KES/USD', 'KES/EUR', 'KES/GBP', 'KES/CAD',
-    'ZMW/USD', 'ZMW/EUR', 'ZMW/GBP', 'ZMW/CAD',
-    'TZS/USD', 'TZS/EUR', 'TZS/GBP', 'TZS/CAD',
-    'XOF/USD', 'XOF/EUR', 'XOF/GBP', 'XOF/CAD',
-    'XAF/USD', 'XAF/EUR', 'XAF/GBP', 'XAF/CAD',
-    'KES/ZMW', 'KES/TZS', 'KES/XOF', 'KES/XAF',
-    'ZMW/TZS', 'ZMW/XOF', 'ZMW/XAF', 'USD/CAD',
-    'TZS/XOF', 'TZS/XAF', 'USD/GBP', 'USD/EUR',
-    'XOF/XAF', 'USD/SLL', 'SLL/NGN', 'SLL/LRD',
-    'NGN/SLL', 'CAD/GMD', 'EUR/GMD', 'USD/GMD',
-    'CAD/SLL', 'GBP/SLL', 'EUR/SLL', 'GMD/USD',
-
+    'CAD/NGN',
+    'NGN/CAD'
 ];
+
+// export const pairs = [
+//     'GHS/EUR', 'GHS/CAD', 'GHS/USD', 'GHS/GBP',
+//     'EUR/GHS', 'CAD/GHS', 'USD/GHS', 'GBP/GHS',
+//     'GBP/GMD', 'GMD/GBP',
+//     'GMD/CAD', 'GMD/EUR', 'CAD/USD', 'CAD/EUR',
+//     'CAD/GBP', 'EUR/USD', 'EUR/CAD', 'EUR/GBP',
+//     'GBP/USD', 'GBP/CAD', 'GBP/EUR',
+//     'USD/NGN', 'EUR/NGN', 'GBP/NGN', 'CAD/NGN',
+//     'USD/LRD', 'EUR/LRD', 'GBP/LRD', 'CAD/LRD',
+//     'GHS/NGN', 'AED/NGN', 'SLL/NGN', 'RWF/NGN',
+//     'GHS/LRD', 'AED/LRD', 'SLL/LRD', 'RWF/LRD',
+//     'NGN/USD', 'NGN/EUR', 'NGN/GBP', 'NGN/CAD',
+//     'LRD/USD', 'LRD/EUR', 'LRD/GBP', 'LRD/CAD',
+//     'NGN/GHS', 'NGN/AED', 'NGN/SLL', 'NGN/RWF',
+//     'LRD/GHS', 'LRD/AED', 'LRD/SLL', 'LRD/RWF',
+//     'USD/KES', 'EUR/KES', 'GBP/KES', 'CAD/KES',
+//     'USD/ZMW', 'EUR/ZMW', 'GBP/ZMW', 'CAD/ZMW',
+//     'USD/TZS', 'EUR/TZS', 'GBP/TZS', 'CAD/TZS',
+//     'USD/XOF', 'EUR/XOF', 'GBP/XOF', 'CAD/XOF',
+//     'USD/XAF', 'EUR/XAF', 'GBP/XAF', 'CAD/XAF',
+//     'KES/USD', 'KES/EUR', 'KES/GBP', 'KES/CAD',
+//     'ZMW/USD', 'ZMW/EUR', 'ZMW/GBP', 'ZMW/CAD',
+//     'TZS/USD', 'TZS/EUR', 'TZS/GBP', 'TZS/CAD',
+//     'XOF/USD', 'XOF/EUR', 'XOF/GBP', 'XOF/CAD',
+//     'XAF/USD', 'XAF/EUR', 'XAF/GBP', 'XAF/CAD',
+//     'KES/ZMW', 'KES/TZS', 'KES/XOF', 'KES/XAF',
+//     'ZMW/TZS', 'ZMW/XOF', 'ZMW/XAF', 'USD/CAD',
+//     'TZS/XOF', 'TZS/XAF', 'USD/GBP', 'USD/EUR',
+//     'XOF/XAF', 'USD/SLL', 'SLL/NGN', 'SLL/LRD',
+//     'NGN/SLL', 'CAD/GMD', 'EUR/GMD', 'USD/GMD',
+//     'CAD/SLL', 'GBP/SLL', 'EUR/SLL', 'GMD/USD',
+
+// ];
 export const handleAllFetch = async () => {
     console.log("all fetches runing ========>")
 
@@ -633,7 +635,6 @@ export const handleAllFetch = async () => {
         results[pair] = {};
         rawResults[pair] = {};
 
-        console.log(pair)
         for (const api of apis) {
             try {
                 const rateData = await api(from, to);
@@ -681,7 +682,7 @@ export const handleAllFetch = async () => {
             exchangeRate: rawStats[pair].mean
         }
         results[pair]["BanffPay Rate"] = stats[pair].mean;
-        // console.log(pairData, "raw-pair", results[pair])
+        console.log(pairData, "raw-pair", results[pair])
         // console.log(results[pair], "raw-pair-result")
 
         // console.log(rawPairData,"paidata", rawResults[pair], "raw-results")
@@ -691,6 +692,8 @@ export const handleAllFetch = async () => {
         await saveExchangeRate(pair, results[pair]);
         await saveRawExchangeRate(pair, rawResults[pair]);
         // await clearAllRawExchangeRates()
+        autoUpdateInternalRatesOnFetch(pair, results[pair]);
+
 
     }
 
@@ -1069,14 +1072,21 @@ export const getAnalyzedRates = async (currency: string, startDate: string, endD
 
     const answer = getTopAndBottomRatesWithAverages(rateVendorPairs);
     const banffPayRate = await getCurrencyPairByPair(currency)
+    const internalRate = await getInternalRateByPair(currency)
     //    const anffP  const recentRates = await CurrencyPair.findAll({
     //     // @ts-ignore
     //     where: { currencyPair: pair },
     //     limit: 4,
     //     order: [['createdAt', 'DESC']]
     // });
+if (internalRate){
+    return { ...answer, banffPayRate: internalRate?.sell_rate };
 
-    return { ...answer, banffPayRate: banffPayRate?.exchangeRate };
+}else{
+    return { ...answer, banffPayRate: answer?.top3Avg };
+
+}
+
     // lows: lowestFiveRates,
     // highs: highestFiveRates,
     // lowAvg: calculateAverage(lowestFiveRates),

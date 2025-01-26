@@ -28,7 +28,7 @@ const data: CurrencyData = {
 // Helper functions
 const calculateMean = (rates: number[]): number => {
   const top3Rates = rates.sort((a, b) => b - a).slice(0, 3);
-
+console.log(top3Rates, "top3", rates)
   // Calculate the mean of the top 3 rates
   return top3Rates.reduce((sum, rate) => +sum + +rate, 0) / top3Rates.length;
   // return rates.reduce((sum, rate) => +sum + +rate, 0) / rates.length;
@@ -83,9 +83,6 @@ export const calculateBanffPayBuySellRate = (rates: number[], sell_rates: number
   let bpay_sell_rate = 0; // calculated sell rate
   if (buy_Rate_Source && sell_Rate_Source) {
 
-    // console.log(sell_Rate_Source)
-    // const buy_Rate_Source = 1150  
-    // const sell_Rate_Source = 1175
 
 
     const rateRoom = sell_Rate_Source - buy_Rate_Source
