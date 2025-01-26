@@ -193,6 +193,10 @@ export const calculateMulipleInternalRates = async (req: any, res: Response) => 
                     const sellValues = Object.values(filteredSellRates).map(value => Number(value));
                     // Perform calculation
                     const result = calculateBanffPayBuySellRate(buyValues, sellValues, +bpay_buy_adder, +bpay_sell_reduct);
+                    // if (result)
+                    //     if (result?.bpay_sell_rate < result?.bpay_buy_rate) {
+
+                    //     }
 
                     // Add result to the array
                     results.push({
@@ -224,7 +228,7 @@ export const calculateMulipleInternalRates = async (req: any, res: Response) => 
         res.status(200).json(results);
     } catch (error) {
         console.error("Error fetching internal rates:", error);
-        res.status(500).json({ message: 'An error occurred while processing the request' });
+        res.status(500).json({ message: `${error ?? "Error updating rates"}` });
     }
 };
 
@@ -317,7 +321,7 @@ export const updateInternalRates = async (req: any, res: Response) => {
         }
     } catch (error) {
         console.error("Error fetching internal rates:", error);
-        res.status(500).json({ message: 'An error occurred while processing the request' });
+        res.status(500).json({ message: `${error ?? "Error updating rates"}` });
     }
 };
 export const getPairById = async (req: Request, res: Response) => {
