@@ -72,19 +72,26 @@ export const SpecialRatesDialog = ({
       onComplete();
     } catch (error) {
       console.log(error);
-      toast.error("Unable to update Rates!!");
+      toast.error(error?.response?.data?.message ?? "Unable to update Rates!!");
     } finally {
       setLoading(false);
     }
   };
-
+  useEffect(() => {
+    setData((prev) => ({
+      ...prev,
+      inverse_vendors_considered: inverse_vendors_considered
+        ? Object.keys(inverse_vendors_considered)
+        : [],
+    }));
+  }, []);
   useEffect(() => {
     const fetchRateByPair = async (pair) => {
       setLoading(true);
       try {
         const response = await axios.get(
           `${basisUrl}/api/current/dbrate-by-Pair?pair=${
-            !type || type === "buy" ? inversePair(pair) : pair
+            !type || type === "buy" ? pair : inversePair(pair)
           }`
         );
         setLoading(false);

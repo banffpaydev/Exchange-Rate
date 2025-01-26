@@ -11,6 +11,7 @@ import { SaveRatesDialog } from "./SaveRatesDialog";
 import { SpecialRatesDialog } from "./specialRatesDialog";
 import { http } from "@/utils/config";
 import { ConfirmDeleteDialog } from "./confirmDeleteDialog";
+import { inversePair } from "@/lib/utils";
 
 export const AdminRateRowChn = ({ pair, rateData, id, remitOneEnabled }) => {
   // console.log("mape: ", formatNumberStr(rateData))
@@ -267,6 +268,7 @@ export const SpecialAdminRateRowChn = ({
   const [analysing, setAnalysing] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
+  const [analysisType, setAnalysisType] = useState("");
 
   const handleSave = async () => {
     const pairArray = pair.split("/");
@@ -301,13 +303,13 @@ export const SpecialAdminRateRowChn = ({
     }
   };
 
-  const handleAnalysis = async () => {
+  const handleAnalysis = async (pairData) => {
     try {
       setAnalysing(true);
       const currentDateTime = new Date().toISOString();
       const response = await axios.get(`${basisUrl}/api/rates/getrates`, {
         params: {
-          currency: pair,
+          currency: pairData,
           startDate: currentDateTime.split("T")[0],
           endDate: currentDateTime,
         },
@@ -360,16 +362,12 @@ export const SpecialAdminRateRowChn = ({
             </small>
           )}
         </TableCell>
-        <TableCell>
-        {editedRates.bpay_buy_adder}
-        </TableCell>
+        <TableCell>{editedRates.bpay_buy_adder}</TableCell>
         <TableCell>
           {editedRates.buy_rate.toFixed(2)}
           {/* {rateData?.toFixed(2).toLocaleString("en-US") || "N/A"} */}
         </TableCell>
-        <TableCell>
-         {editedRates.bpay_sell_reduct}
-        </TableCell>
+        <TableCell>{editedRates.bpay_sell_reduct}</TableCell>
         <TableCell>{editedRates.sell_rate.toFixed(2)}</TableCell>
         <TableCell>
           <Button
@@ -416,10 +414,36 @@ export const SpecialAdminRateRowChn = ({
           </Button>
           <Button
             disabled={loading || analysing || deleting}
-            onClick={handleAnalysis}
+            onClick={() => {
+              // BUY CAD/NGN i have cad and i want to buy ngn
+              //SELL NGN/CAD
+              setAnalysisType("buy")
+              handleAnalysis(pair);
+            }}
             className="mr-2"
           >
-            Analyze{" "}
+            Analyze Buy{" "}
+            {analysing && (
+              <ColorRing
+                visible={true}
+                height="25"
+                width="25"
+                ariaLabel="color-ring-loading"
+                wrapperStyle={{}}
+                wrapperClass={`color-ring-wrapper `}
+                colors={["#fff", "#fff", "#fff", "#fff", "#fff"]}
+              />
+            )}
+          </Button>
+          <Button
+            disabled={loading || analysing || deleting}
+            onClick={() => {
+              setAnalysisType("sell")
+              handleAnalysis(inversePair(pair));
+            }}
+            className="mr-2"
+          >
+            Analyze Sell{" "}
             {analysing && (
               <ColorRing
                 visible={true}
@@ -459,7 +483,7 @@ export const SpecialAdminRateRowChn = ({
         <TableRow>
           <TableCell colSpan="5">
             <div className="p-4 space-y-4">
-              <h4 className="font-semibold text-lg mb-4">Analysis Data</h4>
+              <h4 className="font-semibold capitalize text-lg mb-4">Analysis Data ({analysisType} Rate)</h4>
               <div className="grid grid-cols-2 gap-6">
                 <div>
                   <h5 className="font-semibold text-green-600 mb-2">
