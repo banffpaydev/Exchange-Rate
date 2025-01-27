@@ -12,6 +12,7 @@ import sequelize from "../config/db";
 import { getPairById } from "../controllers/currencyPairController";
 import InternalRate from "../models/internalRate";
 import { autoUpdateInternalRatesOnFetch, getInternalRateByPair } from "./internalRateService";
+import { matchesGlob } from "path";
 
 dotenv.config();
 export const username = process.env.USER_NAME;
@@ -1013,6 +1014,7 @@ export const getAnalyzedRates = async (currency: string, startDate: string, endD
         top3Avg: number,
         bottom3Avg: number,
         minAvg: number,
+        maxRate: number;
     } {
         // Sort rates in ascending order by rate and remove duplicates
         const sortedRates = rates.slice().sort((a, b) => a.rate - b.rate);
@@ -1032,8 +1034,9 @@ export const getAnalyzedRates = async (currency: string, startDate: string, endD
         const top3Avg = calculateAverage(top3);
         const bottom3Avg = calculateAverage(bottom3);
         const minAvg = (top3Avg + bottom3Avg) / 2
+        const maxRate = Math.max(...top3.map((vendRate) => vendRate.rate))
 
-        return { top3, bottom3, top3Avg, bottom3Avg, minAvg };
+        return { top3, bottom3, top3Avg, bottom3Avg, minAvg, maxRate };
     }
 
     // //console.log(getTopAndBottomRatesWithAverages(rateVendorPairs))
@@ -1081,13 +1084,13 @@ export const getAnalyzedRates = async (currency: string, startDate: string, endD
     //     order: [['createdAt', 'DESC']]
     // });
     if (inverse) {
-        return { ...answer, banffPayRate: inverse?.buy_rate };
+        return { ...answer, banffPayRate: inverse?.sell_rate };
     }
     if (internalRate) {
-        return { ...answer, banffPayRate: internalRate?.sell_rate };
+        return { ...answer, banffPayRate: internalRate?.buy_rate };
 
     } else {
-        return { ...answer, banffPayRate: answer?.top3Avg };
+        return { ...answer, banffPayRate: answer?.maxRate.toFixed(2) };
 
     }
 
