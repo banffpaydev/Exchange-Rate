@@ -176,3 +176,7 @@ export const calculateBanffPayBuySellRate = (rates: number[], sell_rates: number
 export function inversePair(pair: string) {
   return pair.split("/").reverse().join("/");
 }
+
+
+export const central_adder = 0.2
+export const central_reduct = 0.2

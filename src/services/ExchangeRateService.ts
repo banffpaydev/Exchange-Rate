@@ -2,7 +2,7 @@ import axios, { all } from "axios";
 import dotenv from 'dotenv';
 import ExchangeRate from "../models/ExchangeRate";
 import { Op } from "sequelize";
-import { calculateStats, inversePair } from "../controllers/treps";
+import { calculateStats, central_adder, central_reduct, inversePair } from "../controllers/treps";
 import { createCurrencyPair, createRawCurrencyPair, getAdditionalRates, getAdditionalRatesId, getAllCurrencyPairs, getCurrencyPairByPair } from "./currencyPairService";
 import RawExchangeRate from "../models/RawExchangeRate";
 import RawCurrencyPair from "../models/RawCurrencyPair";
@@ -928,6 +928,14 @@ export const getRawRatesFromDB = async () => {
     }
 };
 
+const buyPairs = [
+    "USD/CAD", "USD/GBP", "USD/EUR", "USD/NGN", "USD/GHS", "USD/XAF", "USD/XOF", "USD/SLL", "USD/LRD", "USD/GMD", "USD/KES", "USD/ZMW", "USD/TZS",
+    "CAD/NGN", "CAD/GHS", "CAD/XAF", "CAD/XOF", "CAD/SLL", "CAD/LRD", "CAD/GMD", "CAD/KES", "CAD/ZMW", "CAD/TZS",
+    "GBP/NGN", "GBP/GHS", "GBP/XAF", "GBP/XOF", "GBP/SLL", "GBP/LRD", "GBP/GMD", "GBP/KES", "GBP/ZMW", "GBP/TZS",
+    "EUR/NGN", "EUR/GHS", "EUR/XAF", "EUR/XOF", "EUR/SLL", "EUR/LRD", "EUR/GMD", "EUR/KES", "EUR/ZMW", "EUR/TZS",
+    "NGN/GHS", "NGN/XAF", "NGN/XOF", "NGN/SLL", "NGN/LRD", "NGN/GMD", "NGN/KES", "NGN/ZMW", "NGN/TZS",
+    "GHS/LRD",
+];
 
 export const getAnalyzedRates = async (currency: string, startDate: string, endDate: string) => {
     let latestRates: Record<string, any> = {};
@@ -1014,7 +1022,9 @@ export const getAnalyzedRates = async (currency: string, startDate: string, endD
         top3Avg: number,
         bottom3Avg: number,
         minAvg: number,
-        maxRate: number;
+        buyRate: number;
+        sellRate: number;
+
     } {
         // Sort rates in ascending order by rate and remove duplicates
         const sortedRates = rates.slice().sort((a, b) => a.rate - b.rate);
@@ -1035,8 +1045,11 @@ export const getAnalyzedRates = async (currency: string, startDate: string, endD
         const bottom3Avg = calculateAverage(bottom3);
         const minAvg = (top3Avg + bottom3Avg) / 2
         const maxRate = Math.max(...top3.map((vendRate) => vendRate.rate))
+        const minRate = Math.min(...top3.map((vendRate) => vendRate.rate))
 
-        return { top3, bottom3, top3Avg, bottom3Avg, minAvg, maxRate };
+        const buyRate = maxRate * (1 + central_adder / 100) // Increase by 0.2%
+        const sellRate = minRate * (1 - central_reduct / 100); // Decrease by 0.2%
+        return { top3, bottom3, top3Avg, bottom3Avg, minAvg, buyRate, sellRate };
     }
 
     // //console.log(getTopAndBottomRatesWithAverages(rateVendorPairs))
@@ -1083,16 +1096,26 @@ export const getAnalyzedRates = async (currency: string, startDate: string, endD
     //     limit: 4,
     //     order: [['createdAt', 'DESC']]
     // });
-    if (inverse) {
-        return { ...answer, banffPayRate: inverse?.sell_rate };
-    }
-    if (internalRate) {
-        return { ...answer, banffPayRate: internalRate?.buy_rate };
 
+    const isBuy = buyPairs.includes(currency)
+    const isBuyInverse = buyPairs.includes(inversePair(currency))
+    if (inverse || internalRate) {
+        return {
+            ...answer,
+            banffPayRate: inverse?.sell_rate || internalRate?.buy_rate,
+        };
+
+    } else if (isBuy) {
+        return { ...answer, banffPayRate: answer.buyRate.toFixed(2) };
+    } else if (isBuyInverse) {
+        return { ...answer, banffPayRate: answer.sellRate.toFixed(2) };
     } else {
-        return { ...answer, banffPayRate: answer?.maxRate.toFixed(2) };
-
+        return {
+            ...answer,
+            banffPayRate: answer.top3Avg.toFixed(2),
+        };
     }
+
 
     // lows: lowestFiveRates,
     // highs: highestFiveRates,
@@ -1119,17 +1142,14 @@ export const sendRate = async () => {
         // const mailList = ["dharold@bpay.africa"]
         const currencies = ["USD", "CAD", "GBP", "EUR", "NGN", "GHS", "XAF", "XOF", "SLL", "LRD", "GMD", "KES", "ZMW", "TZS"];
         const pairsCombo = currencies.flatMap(from => currencies.map(to => `${from}/${to}`));
-        const pairs = await getAllCurrencyPairs();
-        // console.log(pairs)
-
-        // const currencies = [...new Set(pairs.map(pair => pair.currencyPair.split("/")).flat())];
 
         const exchangeRates: { [key: string]: { [key: string]: number } } = {};
-        pairs.forEach(pair => {
-            const [from, to] = pair.currencyPair.split("/");
+        for (let pair of pairsCombo) {
+            const rate = await getAnalyzedRates(pair, "startDate", "endDate"); // Ensure to pass the correct dates
+            const [from, to] = pair.split("/");
             if (!exchangeRates[from]) exchangeRates[from] = {};
-            exchangeRates[from][to] = pair.exchangeRate;
-        });
+            exchangeRates[from][to] = rate?.banffPayRate ? +rate?.banffPayRate : 0; // Use the banffpayRate from the analysis
+        }
         const tableRows = currencies.map(rowCurrency => `
             <tr>
                 <td style="background-color: #4CAF50; color: white;">${rowCurrency}</td>
