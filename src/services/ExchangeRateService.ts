@@ -47,12 +47,13 @@ const lemfiRate = async (from: string, to: string) => {
         const vape = Number(data.rate)
 
         if (from === 'NGN' || from === 'ngn' || from === 'LRD' || from === "lrd") {
+            // console.log(1/vape)
             return { name: 'Lemfi', rate: 1 / vape, rawRate: vape };
         }
 
         return { name: 'Lemfi', rate: Number(data.rate), rawRate: vape };
     } catch (err: any) {
-        // //console.error('Error fetching Afri Exchange rate:', err);
+        //console.error('Error fetching Afri Exchange rate:', err);
         return { msg: "error message", err }
     }
 }
@@ -567,9 +568,9 @@ const getCurrencyRate = async (gofrom: string, goto: string): Promise<number | n
 // ];
 
 export const pairs = [
-    'CAD/NGN', 'NGN/CAD', 'GHS/EUR', 'GHS/CAD', 
-    'GHS/USD', 'GHS/GBP', 'EUR/GHS', 'CAD/GHS', 
-    'USD/GHS', 'GBP/GHS', 'GBP/GMD', 'GMD/GBP', 
+    'CAD/NGN', 'NGN/CAD', 'GHS/EUR', 'GHS/CAD',
+    'GHS/USD', 'GHS/GBP', 'EUR/GHS', 'CAD/GHS',
+    'USD/GHS', 'GBP/GHS', 'GBP/GMD', 'GMD/GBP',
     'GMD/CAD', 'GMD/EUR', 'CAD/USD', 'CAD/EUR',
     'CAD/GBP', 'EUR/USD', 'EUR/CAD', 'EUR/GBP',
     'GBP/USD', 'GBP/CAD', 'GBP/EUR',
@@ -637,8 +638,10 @@ export const handleAllFetch = async () => {
         rawResults[pair] = {};
 
         for (const api of apis) {
+            // console.log(api)
             try {
                 const rateData = await api(from, to);
+                // console.log(rateData)
                 // console.log(rateData, "rateIino")
                 if (rateData && rateData.rate !== undefined && rateData.rawRate !== undefined) {
 
@@ -693,8 +696,11 @@ export const handleAllFetch = async () => {
         await saveExchangeRate(pair, results[pair]);
         await saveRawExchangeRate(pair, rawResults[pair]);
         // await clearAllRawExchangeRates()
-        if (pair === "CAD/NGN" || pair === "NGN/CAD")
-        autoUpdateInternalRatesOnFetch(pair, results[pair]);
+        if (pair === "CAD/NGN" || pair === "NGN/CAD") {
+            console.log(pair)
+            autoUpdateInternalRatesOnFetch(pair, results[pair]);
+
+        }
 
 
     }

@@ -136,6 +136,7 @@ export const autoUpdateInternalRatesOnFetch = async (pair: string, fetchedRates:
             .map(([, rate]) => rate);
         const buyRates = buy_exchanges_considered ? Object.entries(buy_exchanges_considered).map(([, rate]) => rate).filter(rate => rate != null) : [];
 
+        console.log(updatedSellRates)
         // Recalculate sell rates based on updated sell rates
         recalculatedRates = calculateBanffPayBuySellRate(
             buyRates, // No buy rate adjustment needed for inverse
