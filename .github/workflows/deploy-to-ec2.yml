@@ -99,7 +99,7 @@ jobs:
             fi
             # Run the new Docker container with environment variables
             echo "Running new container with environment variables..."
-            docker run -d -p ${{env.PORT}}:${{env.PORT}} --name ${{ env.CONTAINER_NAME }} \
+            docker run -d --restart=always -p ${{env.PORT}}:${{env.PORT}} --name ${{ env.CONTAINER_NAME }} \
               --env NODE_ENV=production \
               --env DB_HOST=middleware-dev-snap.chqkma826ygl.eu-west-2.rds.amazonaws.com \
               --env DB_PORT=5432 \

@@ -28,7 +28,7 @@ const data: CurrencyData = {
 // Helper functions
 const calculateMean = (rates: number[]): number => {
   const top3Rates = rates.sort((a, b) => b - a).slice(0, 3);
-  console.log(top3Rates, "top3", rates)
+  // console.log(top3Rates, "top3", rates)
   // Calculate the mean of the top 3 rates
   return top3Rates.reduce((sum, rate) => +sum + +rate, 0) / top3Rates.length;
   // return rates.reduce((sum, rate) => +sum + +rate, 0) / rates.length;

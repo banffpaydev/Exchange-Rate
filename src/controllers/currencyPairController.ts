@@ -7,6 +7,8 @@ import { calculateBanffPayBuySellRate, inversePair } from './treps';
 import { getRatesFromDBPairs, getSingleRateFromDBPairs } from '../services/ExchangeRateService';
 import { deleteInternalRateByPair, getAllDBInternalRates, getInternalRateByPair, saveInternalRate, saveMultipleInternalRates, updateInternalRateByPair } from '../services/internalRateService';
 import { InternalRateAttributes } from '../models/internalRate';
+import { readFile } from '../config/mutler';
+import fs from 'fs';
 
 export const createPair = async (req: Request, res: Response) => {
     try {
@@ -140,10 +142,33 @@ export const getDbRateByPair = async (req: Request, res: Response) => {
     }
 }
 
+export const uploadRate = async (req: Request, res: Response) => {
+    const filePath = req.file?.path;
+
+    if (!filePath) {
+        res.status(400).json({ message: 'No file uploaded' });
+        return
+    }
+
+    console.log(filePath)
+    const fileContents = await readFile((req as any).file.path);
+    try {
+
+        fs.unlink(filePath, (err) => {
+            if (err) console.error("Error deleting file:", err);
+        });
+        res.status(200).json({ message: 'Agent Upload Successful', data: fileContents });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Error uploading rates internal rate', error });
+
+    }
+};
 export const deleteInternalRate = async (req: Request, res: Response) => {
     const { pair } = req.query;
     if (!pair) {
         res.status(400).json({ message: 'Pair is required' });
+        return
     }
     try {
         await deleteInternalRateByPair(pair as string);

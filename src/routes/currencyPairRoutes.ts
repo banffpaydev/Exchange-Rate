@@ -1,7 +1,23 @@
 import express from 'express';
-import { createPair, getPairs, getPairById, updatePair, deletePair, getRecentRates, getRecentRawRates, getPaginatedPairs, getRemitOneSourceandDest, calculateMulipleInternalRates, getSingleInternalRates, getAllInternalRates, updateInternalRates, getDbRateByPair, deleteInternalRate } from '../controllers/currencyPairController';
+import { createPair, getPairs, getPairById, updatePair, deletePair, getRecentRates, getRecentRawRates, getPaginatedPairs, getRemitOneSourceandDest, calculateMulipleInternalRates, getSingleInternalRates, getAllInternalRates, updateInternalRates, getDbRateByPair, deleteInternalRate, uploadRate } from '../controllers/currencyPairController';
 import { authenticateToken } from '../middleware/auth';
+import multer from 'multer';
 
+//multer config
+export const upload = multer({
+    dest: "tmp/csv",
+    fileFilter: (req, file, cb) => {
+        if (
+            file.mimetype === "text/csv" ||
+           "application/vnd.ms-excel",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        ) {
+            cb(null, true); // Accept file
+        } else {
+            cb(new Error("Only CSV and Excel files are allowed!")); // Reject file
+        }
+    },
+});
 const router = express.Router();
 // @ts-ignore
 router.post('/pairs', authenticateToken, createPair);
@@ -16,10 +32,11 @@ router.get('/get-all-internal', getAllInternalRates);
 router.get('/get-internal', getSingleInternalRates);
 // @ts-ignore
 
-router.delete('/internal',authenticateToken, deleteInternalRate);
+router.delete('/internal', authenticateToken, deleteInternalRate);
 
 router.get('/dbrate-by-Pair', getDbRateByPair);
-
+// @ts-ignore
+router.post("/upload-rates", upload.single("file"),  uploadRate);
 
 // @ts-ignore
 router.put('/update-internal', authenticateToken, updateInternalRates);

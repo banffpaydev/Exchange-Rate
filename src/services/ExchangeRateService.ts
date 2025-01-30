@@ -567,17 +567,17 @@ const getCurrencyRate = async (gofrom: string, goto: string): Promise<number | n
 // ];
 
 export const pairs = [
-    'GHS/EUR', 'GHS/CAD', 'GHS/USD', 'GHS/GBP',
-    'EUR/GHS', 'CAD/GHS', 'USD/GHS', 'GBP/GHS',
-    'GBP/GMD', 'GMD/GBP',
+    'CAD/NGN', 'NGN/CAD', 'GHS/EUR', 'GHS/CAD', 
+    'GHS/USD', 'GHS/GBP', 'EUR/GHS', 'CAD/GHS', 
+    'USD/GHS', 'GBP/GHS', 'GBP/GMD', 'GMD/GBP', 
     'GMD/CAD', 'GMD/EUR', 'CAD/USD', 'CAD/EUR',
     'CAD/GBP', 'EUR/USD', 'EUR/CAD', 'EUR/GBP',
     'GBP/USD', 'GBP/CAD', 'GBP/EUR',
-    'USD/NGN', 'EUR/NGN', 'GBP/NGN', 'CAD/NGN',
+    'USD/NGN', 'EUR/NGN', 'GBP/NGN',
     'USD/LRD', 'EUR/LRD', 'GBP/LRD', 'CAD/LRD',
     'GHS/NGN', 'AED/NGN', 'SLL/NGN', 'RWF/NGN',
     'GHS/LRD', 'AED/LRD', 'SLL/LRD', 'RWF/LRD',
-    'NGN/USD', 'NGN/EUR', 'NGN/GBP', 'NGN/CAD',
+    'NGN/USD', 'NGN/EUR', 'NGN/GBP',
     'LRD/USD', 'LRD/EUR', 'LRD/GBP', 'LRD/CAD',
     'NGN/GHS', 'NGN/AED', 'NGN/SLL', 'NGN/RWF',
     'LRD/GHS', 'LRD/AED', 'LRD/SLL', 'LRD/RWF',
@@ -683,7 +683,7 @@ export const handleAllFetch = async () => {
             exchangeRate: rawStats[pair].mean
         }
         results[pair]["BanffPay Rate"] = stats[pair].mean;
-        console.log(pairData, "raw-pair", results[pair])
+        // console.log(pairData, "raw-pair", results[pair])
         // console.log(results[pair], "raw-pair-result")
 
         // console.log(rawPairData,"paidata", rawResults[pair], "raw-results")
