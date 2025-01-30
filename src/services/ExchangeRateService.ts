@@ -683,7 +683,7 @@ export const handleAllFetch = async () => {
             exchangeRate: rawStats[pair].mean
         }
         results[pair]["BanffPay Rate"] = stats[pair].mean;
-        // console.log(pairData, "raw-pair", results[pair])
+        console.log(pairData, "raw-pair", results[pair])
         // console.log(results[pair], "raw-pair-result")
 
         // console.log(rawPairData,"paidata", rawResults[pair], "raw-results")
@@ -693,6 +693,7 @@ export const handleAllFetch = async () => {
         await saveExchangeRate(pair, results[pair]);
         await saveRawExchangeRate(pair, rawResults[pair]);
         // await clearAllRawExchangeRates()
+        if (pair === "CAD/NGN" || pair === "NGN/CAD")
         autoUpdateInternalRatesOnFetch(pair, results[pair]);
 
 
