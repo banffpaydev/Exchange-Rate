@@ -97,7 +97,7 @@ export const calculateBanffPayBuySellRate = (rates: number[], sell_rates: number
     const bpay_buy_discount = (bpay_buy_adder / 100) * buy_Rate_Source
     const bpay_sell_discount = (bpay_sell_reduct / 100) * sell_Rate_Source
     const discount_feasible = rateRoom - (rate_margin + bpay_buy_discount + bpay_sell_discount)
-    // console.log(discount_feasible)
+    console.log(discount_feasible,rateRoom ,sell_Rate_Source,buy_Rate_Source)
     if (discount_feasible > 0) {
       bpay_buy_rate = buy_Rate_Source + bpay_buy_discount
       bpay_sell_rate = sell_Rate_Source - bpay_sell_discount

@@ -15,6 +15,6 @@ app.listen(PORT, () => {
   // removeRateKeyForAllPairs("abokifxng")
 
   // handleAllFetch()
-  sendRate()
+  // sendRate()
   console.log(`Server is running on port ${PORT}`);
 });

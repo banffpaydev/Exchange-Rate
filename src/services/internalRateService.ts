@@ -105,7 +105,8 @@ export const updateInternalRateByPair = async (newRateData: InternalRateAttribut
 
 export const autoUpdateInternalRatesOnFetch = async (pair: string, fetchedRates: Record<string, number | null>) => {
     const cleanedFetchedRates: Record<string, number> = Object.fromEntries(
-        Object.entries(fetchedRates).filter(([, rate]) => rate !== null) as [string, number][]
+        Object.entries(fetchedRates)
+            .filter(([exchange, rate]) => rate !== null && exchange !== 'BanffPay Rate') as [string, number][]
     );
     const invertPair = inversePair(pair)
     const internalRate = await InternalRate.findOne({ where: { pair: [pair, invertPair] } });
@@ -130,17 +131,30 @@ export const autoUpdateInternalRatesOnFetch = async (pair: string, fetchedRates:
 
     // If it's an inverse pair, only update the sell rate
     if (isInverse) {
+        let modifiedSellRates: number[] = [];
         // Filter the sell rates based on exchanges considered
         const updatedSellRates = Object.entries(cleanedFetchedRates)
             .filter(([exchange]) => sell_exchanges_considered?.hasOwnProperty(exchange)) // Match only the exchanges considered for selling
             .map(([, rate]) => rate);
-        const buyRates = buy_exchanges_considered ? Object.entries(buy_exchanges_considered).map(([, rate]) => rate).filter(rate => rate != null) : [];
+        const buyRates = buy_exchanges_considered ? Object.entries(buy_exchanges_considered).map(([key, rate]) => rate).filter(rate => rate != null) : [];
+        console.log(sell_exchanges_considered, cleanedFetchedRates)
+        if (!confirmExchangesFetched(cleanedFetchedRates, sell_exchanges_considered)) {
+            const remainingRates = Object.entries(cleanedFetchedRates)
+                .filter(([exchange]) => !sell_exchanges_considered?.hasOwnProperty(exchange)) // Exclude already considered exchanges
+                .map(([, rate]) => rate)
+                .sort((a, b) => b - a); // Sort rates in descending order
 
-        console.log(updatedSellRates)
+            if (remainingRates.length > 0) {
+                modifiedSellRates.push(...updatedSellRates, remainingRates[0]); // Add the top rate from remaining rates
+            }
+        } else {
+            modifiedSellRates = updatedSellRates
+        }
+
         // Recalculate sell rates based on updated sell rates
         recalculatedRates = calculateBanffPayBuySellRate(
             buyRates, // No buy rate adjustment needed for inverse
-            updatedSellRates, // Only sell rates matter here
+            modifiedSellRates, // Only sell rates matter here
             bpay_buy_adder,
             bpay_sell_reduct
         );
@@ -151,7 +165,6 @@ export const autoUpdateInternalRatesOnFetch = async (pair: string, fetchedRates:
             .filter(([exchange]) => buy_exchanges_considered?.hasOwnProperty(exchange)) // Match only the exchanges considered for buying
             .map(([, rate]) => rate);
         const sellRates = sell_exchanges_considered ? Object.entries(sell_exchanges_considered).map(([, rate]) => rate).filter(rate => rate != null) : [];
-
         // Recalculate buy rates based on updated buy rates
         recalculatedRates = calculateBanffPayBuySellRate(
             updatedBuyRates, // Only buy rates matter here
@@ -183,4 +196,12 @@ export const autoUpdateInternalRatesOnFetch = async (pair: string, fetchedRates:
 
 
     console.log(`Updated internal rates for pair: ${pair}`);
+};
+
+
+const confirmExchangesFetched = (a: object, b: any): boolean => {
+    const keysA = Object.keys(a);
+    const keysB = Object.keys(b);
+    // console.log(keysA, keysB)
+    return keysB.every(key => keysA.includes(key));
 };
