@@ -56,7 +56,7 @@ cron.schedule('0 8,14,20,2 * * *', async () => {
 
     const mailOptions = {
       from: `Exchange@bpay.africa`,
-      to: ["olamidedavid10@gmail.com", "dharold@bpay.africa"],
+      to: ["olamidedavid10@gmail.com", "dharold@bpay.africa", "pm@bpay.africa"],
       subject: 'Server Down Alert',
       text: 'The server at https://www.api-exchange.bpay.africa is down.'
     };
