@@ -29,6 +29,9 @@ app.use(cors({ origin: true }));
 //   getExchangeRate();
 
 // Routes
+app.get('/test', (req: Request, res: Response) => {
+  res.json({ success: true });
+});
 app.use('/api/rates', rateRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/current', currentPlay);
@@ -42,7 +45,7 @@ runAtInterval(handleAllFetch, 1000 * 60 * 60 * 2);//1000 * 5 * 2, 1000 * 7 * 2);
 cron.schedule('0 8,14,20,2 * * *', async () => {
   async function checkServerStatus() {
     try {
-      const response = await axios.get('https://www.api-exchange.bpay.africa');
+      const response = await axios.get('https://www.api-exchange.bpay.africa/test');
       if (response.status === 200) {
         console.log('Server is active');
       }
