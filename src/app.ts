@@ -2,12 +2,14 @@ import rateRoutes from './routes/rateRoutes';
 import userRoutes from './routes/userRoutes';
 import currentPlay from './routes/currencyPairRoutes'
 import cors from 'cors'
-import { abokifxng, handleAllFetch, sendRate, xeRates } from './services/ExchangeRateService';
+import { abokifxng, handleAllFetch, sendRate, transporter, xeRates } from './services/ExchangeRateService';
 import { runAtInterval } from './services/jobs';
 import { runCreateTables, seedCountries } from './services/currencyPairService';
 import cron from 'node-cron';
 import express, { Request, Response, NextFunction } from 'express';
 import { errorHandler } from './middleware/errors';
+import axios from 'axios';
+import nodemailer from 'nodemailer';
 
 // import momoRoutes from './routes/momoRoutes';
 
@@ -37,7 +39,37 @@ app.use(errorHandler);
 
 runAtInterval(handleAllFetch, 1000 * 60 * 60 * 2);//1000 * 5 * 2, 1000 * 7 * 2);//1000 * 60 * 90)
 // runAtInterval(sendRate, 1000 * 60 * 60 * 2);//1000 * 5 * 2, 1000 * 7 * 2);//1000 * 60 * 90)
-cron.schedule('0 8,14,20,2 * * *', () => {
+cron.schedule('0 8,14,20,2 * * *', async () => {
+  async function checkServerStatus() {
+    try {
+      const response = await axios.get('https://www.api-exchange.bpay.africa');
+      if (response.status === 200) {
+        console.log('Server is active');
+      }
+    } catch (error) {
+      console.error('Server is down, sending email...');
+      sendEmailNotification();
+    }
+  }
+
+  function sendEmailNotification() {
+
+    const mailOptions = {
+      from: `Exchange@bpay.africa`,
+      to: ["olamidedavid10@gmail.com", "dharold@bpay.africa"],
+      subject: 'Server Down Alert',
+      text: 'The server at https://www.api-exchange.bpay.africa is down.'
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        return console.log(error);
+      }
+      console.log('Email sent: ' + info.response);
+    });
+  }
+
+  await checkServerStatus();
   console.log("Sending rate at", new Date().toLocaleString("en-US", { timeZone: "Africa/Lagos" }));
   sendRate();
 });

@@ -699,6 +699,8 @@ export const handleAllFetch = async () => {
             await autoUpdateInternalRatesOnFetch(pair, results[pair]);
 
         } catch (error) {
+
+            const info = await transporter.sendMail(errorMailOptions);
             console.log(error)
         }
 
@@ -712,7 +714,17 @@ export const handleAllFetch = async () => {
     return results;
 };
 
-
+export const errorMailOptions = {
+    from: `Exchange@bpay.africa`,
+    to: ["olamidedavid10@gmail.com", "dharold@bpay.africa"],
+    subject: "EMERGENCY BanffPay Exchange Rate Update",
+    html: `
+        <h1>Exchange Rate Portal Is Having Issues, Review ASAP</h1>
+      
+        </table>
+        <p>Best Regards,</p>
+    `,
+};
 export const saveDatatoDb = async (data: any) => {
     try {
         for (const pair in data) {
@@ -1194,6 +1206,7 @@ export const sendRate = async () => {
         const info = await transporter.sendMail(mailOptions);
         console.log("email sent")
     } catch (error) {
+
         console.log(error)
 
     }
