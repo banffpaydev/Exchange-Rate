@@ -297,6 +297,7 @@ export const updateInternalRates = async (req: any, res: Response) => {
         bpay_buy_adder,
         bpay_sell_reduct,
         inverse_vendors_considered,
+        vendors_considered
     } = req.body;
 
     if (!pair || inverse_vendors_considered.length < 1) {
@@ -314,7 +315,7 @@ export const updateInternalRates = async (req: any, res: Response) => {
         if (buyData && sellData) {
             const filteredBuyRates = Object.fromEntries(
                 Object.entries(buyData.rates).filter(
-                    ([key, value]) => value !== null && value > 0
+                    ([key, value]) => value !== null && value > 0 && (!vendors_considered || vendors_considered.includes(key))
                 )
             );
             const filteredSellRates = Object.fromEntries(

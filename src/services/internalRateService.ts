@@ -90,12 +90,12 @@ export const updateInternalRateByPair = async (newRateData: InternalRateAttribut
         const from = newRateData.pair.split("/")[0]
         const to = newRateData.pair.split("/")[1]
 
-        const sourceAndDesCountries = await getSourceAndDesCountries();
-        const findSourceCountry = sourceAndDesCountries.source.find((country) => country.currency === from)
-        const findDestCountry = sourceAndDesCountries.destination.find((country) => country.currency === to)
-        if (findSourceCountry && findDestCountry) {
-            const response = await updateSellRate(findSourceCountry?.id, findSourceCountry?.currency, findDestCountry?.id, findDestCountry?.currency, newRateData.buy_rate)
-        }
+        // const sourceAndDesCountries = await getSourceAndDesCountries();
+        // const findSourceCountry = sourceAndDesCountries.source.find((country) => country.currency === from)
+        // const findDestCountry = sourceAndDesCountries.destination.find((country) => country.currency === to)
+        // if (findSourceCountry && findDestCountry) {
+        //     const response = await updateSellRate(findSourceCountry?.id, findSourceCountry?.currency, findDestCountry?.id, findDestCountry?.currency, newRateData.buy_rate)
+        // }
         console.log(`Successfully updated internal rate for pair: ${newRateData.pair}`);
     } catch (error) {
         console.error('Error updating internal rate:', error);

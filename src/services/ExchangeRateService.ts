@@ -1164,7 +1164,8 @@ export const sendRate = async () => {
                 ${currencies.map(colCurrency => {
             const rate = rowCurrency === colCurrency ? 1 : exchangeRates[rowCurrency]?.[colCurrency] || '';
             const bgColor = rowCurrency === colCurrency ? '#FFFF00' : ''; // Highlight diagonal cells in yellow
-            return `<td style="background-color: ${bgColor}; text-align: center;">${typeof rate === 'number' ? rate.toFixed(2) : rate}</td>`;
+            // { console.log(typeof rate === 'number' && isFinite(rate) && rate.toFixed(2), rate) }
+            return `<td style="background-color: ${bgColor}; text-align: center;">${typeof rate === 'number' && isFinite(rate) ? rate.toFixed(2) : 0}</td>`;
         }).join('')}
             </tr>
         `).join('');
