@@ -136,8 +136,13 @@ export const autoUpdateInternalRatesOnFetch = async (pair: string, fetchedRates:
         const updatedSellRates = Object.entries(cleanedFetchedRates)
             .filter(([exchange]) => sell_exchanges_considered?.hasOwnProperty(exchange)) // Match only the exchanges considered for selling
             .map(([, rate]) => rate);
-        const buyRates = buy_exchanges_considered ? Object.entries(buy_exchanges_considered).map(([key, rate]) => rate).filter(rate => rate != null) : [];
-        console.log(sell_exchanges_considered, cleanedFetchedRates)
+        const buyRates = buy_exchanges_considered 
+            ? Object.entries(buy_exchanges_considered)
+            .filter(([exchange]) => exchange !== 'BanffPay Rate')
+            .map(([key, rate]) => rate)
+            .filter(rate => rate != null) 
+            : [];
+        // console.log(sell_exchanges_considered,"sell", cleanedFetchedRates, confirmExchangesFetched(cleanedFetchedRates, sell_exchanges_considered))
         if (!confirmExchangesFetched(cleanedFetchedRates, sell_exchanges_considered)) {
             const remainingRates = Object.entries(cleanedFetchedRates)
                 .filter(([exchange]) => !sell_exchanges_considered?.hasOwnProperty(exchange)) // Exclude already considered exchanges
@@ -150,7 +155,6 @@ export const autoUpdateInternalRatesOnFetch = async (pair: string, fetchedRates:
         } else {
             modifiedSellRates = updatedSellRates
         }
-
         // Recalculate sell rates based on updated sell rates
         recalculatedRates = calculateBanffPayBuySellRate(
             buyRates, // No buy rate adjustment needed for inverse
@@ -162,8 +166,9 @@ export const autoUpdateInternalRatesOnFetch = async (pair: string, fetchedRates:
         // If it's not an inverse pair, only update the buy rate
         // Filter the buy rates based on exchanges considered
         const updatedBuyRates = Object.entries(cleanedFetchedRates)
-            .filter(([exchange]) => buy_exchanges_considered?.hasOwnProperty(exchange)) // Match only the exchanges considered for buying
+            .filter(([exchange]) => buy_exchanges_considered?.hasOwnProperty(exchange) && exchange !== "Abokifx") // Match only the exchanges considered for buying
             .map(([, rate]) => rate);
+            console.log(updatedBuyRates)
         const sellRates = sell_exchanges_considered ? Object.entries(sell_exchanges_considered).map(([, rate]) => rate).filter(rate => rate != null) : [];
         // Recalculate buy rates based on updated buy rates
         recalculatedRates = calculateBanffPayBuySellRate(

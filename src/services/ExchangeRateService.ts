@@ -695,7 +695,12 @@ export const handleAllFetch = async () => {
         await saveExchangeRate(pair, results[pair]);
         await saveRawExchangeRate(pair, rawResults[pair]);
         // await clearAllRawExchangeRates()
-        autoUpdateInternalRatesOnFetch(pair, results[pair]);
+        try {
+            await autoUpdateInternalRatesOnFetch(pair, results[pair]);
+
+        } catch (error) {
+            console.log(error)
+        }
 
 
 

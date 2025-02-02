@@ -9,13 +9,15 @@ import { deleteInternalRateByPair, getAllDBInternalRates, getInternalRateByPair,
 import { InternalRateAttributes } from '../models/internalRate';
 import { readFile } from '../config/mutler';
 import fs from 'fs';
+import { CustomError } from '../middleware/errors';
 
 export const createPair = async (req: Request, res: Response) => {
     try {
         const newPair = await createCurrencyPair(req.body);
         res.status(201).json(newPair);
     } catch (error) {
-        res.status(500).json({ message: 'Error creating currency pair', error });
+        throw new CustomError("Error creating currency pair", 500);
+
     }
 };
 export const getPaginatedPairs = async (req: Request, res: Response) => {
@@ -189,7 +191,7 @@ export const calculateMulipleInternalRates = async (req: any, res: Response) => 
         // Create an array to store results
         const results = [];
 
-        for (const { pair, inverse_vendors_considered, bpay_buy_adder, bpay_sell_reduct } of pairs) {
+        for (const { pair, inverse_vendors_considered, bpay_buy_adder, bpay_sell_reduct, vendors_considered } of pairs) {
             if (!pair || !inverse_vendors_considered || inverse_vendors_considered.length === 0) {
                 continue; // Skip invalid entries
             }
@@ -200,9 +202,14 @@ export const calculateMulipleInternalRates = async (req: any, res: Response) => 
             const buyData = await getSingleRateFromDBPairs(pair);
 
             if (buyData) {
+                // const filteredBuyRates = Object.fromEntries(
+                //     Object.entries(buyData.rates).filter(
+                //         ([key, value]) => vendors_considered.includes(key) && value !== null && value > 0
+                //     )
+                // );
                 const filteredBuyRates = Object.fromEntries(
                     Object.entries(buyData.rates).filter(
-                        ([key, value]) => value !== null && value > 0
+                        ([key, value]) => value !== null && value > 0 && (!vendors_considered || vendors_considered.includes(key))
                     )
                 );
                 const buyValues = Object.values(filteredBuyRates).map(value => Number(value));
@@ -368,7 +375,7 @@ export const getRemitOneSourceandDest = async (req: Request, res: Response) => {
         res.status(200).json(sourceAndDesCountries);
 
     } catch (error) {
-        res.status(500).json({ message: 'Error fetching currency pair', error });
+        res.status(500).json({ message: 'Error fetching currency pair' });
     }
 };
 

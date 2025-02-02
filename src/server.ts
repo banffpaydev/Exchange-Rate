@@ -14,7 +14,7 @@ app.listen(PORT, () => {
   // removeRateKeyForAllPairs("xchangeRt exchange")
   // removeRateKeyForAllPairs("abokifxng")
 
-  // handleAllFetch()
+  handleAllFetch()
   // sendRate()
   console.log(`Server is running on port ${PORT}`);
 });

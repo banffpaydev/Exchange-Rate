@@ -1,3 +1,5 @@
+import { CustomError } from "../middleware/errors";
+
 interface ExchangeRates {
   [key: string]: number | null;
 }
@@ -102,7 +104,7 @@ export const calculateBanffPayBuySellRate = (rates: number[], sell_rates: number
       bpay_buy_rate = buy_Rate_Source + bpay_buy_discount
       bpay_sell_rate = sell_Rate_Source - bpay_sell_discount
     } else {
-      throw new Error("Sell rate cannot be lower than buy rate")
+      throw new CustomError("Sell rate cannot be lower than buy rate", 400);
       if (bpay_buy_adder === 0) {
         bpay_buy_adder = buy_Rate_Source
         return
