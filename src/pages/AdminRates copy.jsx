@@ -53,6 +53,8 @@ const AdminRatesChn = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingSpecial, setIsLoadingSpecials] = useState(true);
   const [showRateDialog, setShowRateDialog] = useState(false);
+  const [showUploadRateDialog, setShowUploadRateDialog] = useState(false);
+
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [remitOneCountries, setRemitOneCountries] = useState({});
   const [specialRates, setSpecialRates] = useState([]);
@@ -94,10 +96,10 @@ const AdminRatesChn = () => {
   const fetchRecentRates = async () => {
     try {
       const response = await axios.get(`${basisUrl}/api/current/pairs`);
-      const countries = await axios.get(
-        `${basisUrl}/api/current/remitoneCountries`
-      );
-      setRemitOneCountries(countries.data);
+      // const countries = await axios.get(
+      //   `${basisUrl}/api/current/remitoneCountries`
+      // );
+      // setRemitOneCountries(countries.data);
       setRates(response.data);
       setIsLoading(false);
       toast.success("Rate data fetched");
@@ -125,16 +127,23 @@ const AdminRatesChn = () => {
   if (isLoading || isLoadingSpecial) return <div>Loading...</div>;
   if (!isLoading && error) return <div>{error}</div>;
   const specialRatePairs = new Set(specialRates.map((rate) => rate.pair)); // Collect all special pairs
-  const filteredRates = rates.filter((rate) => !specialRatePairs.has(rate.currencyPair)); // Exclude special pairs
+  const filteredRates = rates.filter(
+    (rate) => !specialRatePairs.has(rate.currencyPair)
+  ); // Exclude special pairs
   return (
     <div className="container mx-auto py-10">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Admin Rate Management</h1>
-        <Button onClick={() => setShowRateDialog(true)}>
-          Create Special Rate
-        </Button>
+        <div>
+          <Button onClick={() => setShowRateDialog(true)}>
+            Create Special Rate
+          </Button>
+          <Button onClick={() => setShowUploadRateDialog(true)}>
+            Upload Rate CSV
+          </Button>
+        </div>
       </div>
-      <h1 className="text-xl font-bold mb-2">Special Rates</h1>
+      <h1 className="text-xl font-bold mb-2">Special Buy Rates</h1>
       <div className="rounded-md mb-4 border">
         <Table>
           <TableHeader>
@@ -142,6 +151,35 @@ const AdminRatesChn = () => {
               <TableHead>Currency Pair</TableHead>
               <TableHead>Buy Adder</TableHead>
               <TableHead>BanffPay Buy Rate</TableHead>
+            </TableRow>
+          </TableHeader>
+
+          <TableBody>
+            {specialRates?.map((data) => {
+              return (
+                <SpecialAdminRateRowChn
+                  key={data.id}
+                  id={data.id}
+                  pair={data.pair}
+                  onRateChange={handleRateChange}
+                  remitOneEnabled={true}
+                  special
+                  fetchSpecialRates={fetchSpecialRates}
+                  type="buy"
+                  {...data}
+                />
+              );
+            })}
+          </TableBody>
+        </Table>
+      </div>
+
+      <h1 className="text-xl font-bold mb-2">Special Sell Rates</h1>
+      <div className="rounded-md mb-4 border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Currency Pair</TableHead>
               <TableHead>Sell Reduct</TableHead>
               <TableHead>Banffpay Sell Rate</TableHead>
             </TableRow>
@@ -157,6 +195,7 @@ const AdminRatesChn = () => {
                   onRateChange={handleRateChange}
                   remitOneEnabled={true}
                   special
+                  type="sell"
                   fetchSpecialRates={fetchSpecialRates}
                   {...data}
                 />
@@ -165,7 +204,6 @@ const AdminRatesChn = () => {
           </TableBody>
         </Table>
       </div>
-
       <h1 className="text-xl font-bold mb-2">Other Rates</h1>
 
       <div className="rounded-md border">
@@ -191,10 +229,10 @@ const AdminRatesChn = () => {
               .map((data) => {
                 const pairArray = data.currencyPair.split("/");
 
-                const findSourceCountry = remitOneCountries?.source.find(
+                const findSourceCountry = remitOneCountries?.source?.find(
                   (country) => country.currency === pairArray[0]
                 );
-                const findDestCountry = remitOneCountries?.destination.find(
+                const findDestCountry = remitOneCountries?.destination?.find(
                   (country) => country.currency === pairArray[1]
                 );
                 const remitOneEnabled = findSourceCountry && findDestCountry;

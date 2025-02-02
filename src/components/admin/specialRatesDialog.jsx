@@ -38,6 +38,7 @@ export const SpecialRatesDialog = ({
   bpay_sell_reduct,
   inverse_vendors_considered,
   type,
+  vendors_considered
 }) => {
   const [formData, setData] = useState({
     bpay_buy_adder: bpay_buy_adder ?? 0.2,
@@ -46,6 +47,9 @@ export const SpecialRatesDialog = ({
       ? Object.keys(inverse_vendors_considered)
       : [],
     pair: pair ?? "",
+    vendors_considered:  vendors_considered
+    ? Object.keys(vendors_considered)
+    : [],
   });
 
   const [loading, setLoading] = useState(false);
@@ -176,6 +180,26 @@ export const SpecialRatesDialog = ({
                   setData((prev) => ({
                     ...prev,
                     inverse_vendors_considered: value,
+                  }));
+                }}
+                options={pairVendors.map((vendor) => {
+                  return {
+                    label: `${vendor.key}(${vendor.value})`,
+                    value: vendor.key,
+                  };
+                })}
+              />
+            </div>
+          )}
+           {type !== "sell" && (
+            <div>
+              <p>Buy Rates to Consider</p>
+              <MultipleSelector
+                values={formData.vendors_considered}
+                onChange={(value) => {
+                  setData((prev) => ({
+                    ...prev,
+                    vendors_considered: value,
                   }));
                 }}
                 options={pairVendors.map((vendor) => {

@@ -251,6 +251,7 @@ export const SpecialAdminRateRowChn = ({
   id,
   special,
   fetchSpecialRates,
+  type,
   ...props
 }) => {
   // console.log("mape: ", formatNumberStr(rateData))
@@ -349,133 +350,153 @@ export const SpecialAdminRateRowChn = ({
         }}
         pair={pair}
         inverse_vendors_considered={props.sell_exchanges_considered}
+        vendors_considered={props.buy_exchanges_considered}
         bpay_buy_adder={props.bpay_buy_adder}
         bpay_sell_reduct={props.bpay_sell_reduct}
         {...props}
       />
       <TableRow key={`${pair}`}>
         <TableCell>
-          {pair}{" "}
+          {type === "buy" ? pair : inversePair(pair)}{" "}
           {special && (
             <small className="text-green-600 text-[10px] font-semibold mt-1">
               Special Pair
             </small>
           )}
         </TableCell>
-        <TableCell>{editedRates.bpay_buy_adder}</TableCell>
-        <TableCell>
-          {editedRates.buy_rate.toFixed(2)}
-          {/* {rateData?.toFixed(2).toLocaleString("en-US") || "N/A"} */}
-        </TableCell>
-        <TableCell>{editedRates.bpay_sell_reduct}</TableCell>
-        <TableCell>{editedRates.sell_rate.toFixed(2)}</TableCell>
-        <TableCell>
-          <Button
-            disabled={loading || analysing || deleting}
-            onClick={() => {
-              setSpecialRateType("sell");
-              setShowCalcDialog(true);
-            }}
-            className="mr-2"
-          >
-            Recalculate Sell Rate{" "}
-            {loading && (
-              <ColorRing
-                visible={true}
-                height="25"
-                width="25"
-                ariaLabel="color-ring-loading"
-                wrapperStyle={{}}
-                wrapperClass={`color-ring-wrapper `}
-                colors={["#fff", "#fff", "#fff", "#fff", "#fff"]}
-              />
-            )}
-          </Button>
-          <Button
-            disabled={loading || analysing || deleting}
-            onClick={() => {
-              setSpecialRateType("buy");
-              setShowCalcDialog(true);
-            }}
-            className="mr-2"
-          >
-            Recalculate Buy Rate{" "}
-            {loading && (
-              <ColorRing
-                visible={true}
-                height="25"
-                width="25"
-                ariaLabel="color-ring-loading"
-                wrapperStyle={{}}
-                wrapperClass={`color-ring-wrapper `}
-                colors={["#fff", "#fff", "#fff", "#fff", "#fff"]}
-              />
-            )}
-          </Button>
-          <Button
-            disabled={loading || analysing || deleting}
-            onClick={() => {
-              // BUY CAD/NGN i have cad and i want to buy ngn
-              //SELL NGN/CAD
-              setAnalysisType("buy")
-              handleAnalysis(pair);
-            }}
-            className="mr-2"
-          >
-            Analyze Buy{" "}
-            {analysing && (
-              <ColorRing
-                visible={true}
-                height="25"
-                width="25"
-                ariaLabel="color-ring-loading"
-                wrapperStyle={{}}
-                wrapperClass={`color-ring-wrapper `}
-                colors={["#fff", "#fff", "#fff", "#fff", "#fff"]}
-              />
-            )}
-          </Button>
-          <Button
-            disabled={loading || analysing || deleting}
-            onClick={() => {
-              setAnalysisType("sell")
-              handleAnalysis(inversePair(pair));
-            }}
-            className="mr-2"
-          >
-            Analyze Sell{" "}
-            {analysing && (
-              <ColorRing
-                visible={true}
-                height="25"
-                width="25"
-                ariaLabel="color-ring-loading"
-                wrapperStyle={{}}
-                wrapperClass={`color-ring-wrapper `}
-                colors={["#fff", "#fff", "#fff", "#fff", "#fff"]}
-              />
-            )}
-          </Button>
-          <Button
-            disabled={loading || analysing || deleting}
-            onClick={() => {
-              setDeleteConfirm(true);
-            }}
-            className="mr-2 bg-red-500 hover:bg-red-500/80"
-          >
-            Delete{" "}
-            {deleting && (
-              <ColorRing
-                visible={true}
-                height="25"
-                width="25"
-                ariaLabel="color-ring-loading"
-                wrapperStyle={{}}
-                wrapperClass={`color-ring-wrapper `}
-                colors={["#fff", "#fff", "#fff", "#fff", "#fff"]}
-              />
-            )}
-          </Button>
+        {type === "buy" && (
+          <>
+            <TableCell>{editedRates.bpay_buy_adder}</TableCell>
+            <TableCell>
+              {editedRates.buy_rate.toFixed(2)}
+              {/* {rateData?.toFixed(2).toLocaleString("en-US") || "N/A"} */}
+            </TableCell>
+          </>
+        )}
+        {type === "sell" && (
+          <>
+            <TableCell>{editedRates.bpay_sell_reduct}</TableCell>
+            <TableCell>{editedRates.sell_rate.toFixed(2)}</TableCell>
+          </>
+        )}
+        <TableCell className="flex items-center gap-3">
+          {type === "sell" && (
+            <div className="flex items-center space-x-2">
+              <Button
+                disabled={loading || analysing || deleting}
+                onClick={() => {
+                  setSpecialRateType("sell");
+                  setShowCalcDialog(true);
+                }}
+                className="mr-2"
+              >
+                Recalculate Sell Rate{" "}
+                {loading && (
+                  <ColorRing
+                    visible={true}
+                    height="25"
+                    width="25"
+                    ariaLabel="color-ring-loading"
+                    wrapperStyle={{}}
+                    wrapperClass={`color-ring-wrapper `}
+                    colors={["#fff", "#fff", "#fff", "#fff", "#fff"]}
+                  />
+                )}
+              </Button>
+              <Button
+                disabled={loading || analysing || deleting}
+                onClick={() => {
+                  setAnalysisType("sell");
+                  handleAnalysis(inversePair(pair));
+                }}
+                className="mr-2"
+              >
+                Analyze Sell{" "}
+                {analysing && (
+                  <ColorRing
+                    visible={true}
+                    height="25"
+                    width="25"
+                    ariaLabel="color-ring-loading"
+                    wrapperStyle={{}}
+                    wrapperClass={`color-ring-wrapper `}
+                    colors={["#fff", "#fff", "#fff", "#fff", "#fff"]}
+                  />
+                )}
+              </Button>
+            </div>
+          )}
+          {type === "buy" && (
+            <div className="flex items-center space-x-2">
+              <Button
+                disabled={loading || analysing || deleting}
+                onClick={() => {
+                  setSpecialRateType("buy");
+                  setShowCalcDialog(true);
+                }}
+                className="mr-2"
+              >
+                Recalculate Buy Rate{" "}
+                {loading && (
+                  <ColorRing
+                    visible={true}
+                    height="25"
+                    width="25"
+                    ariaLabel="color-ring-loading"
+                    wrapperStyle={{}}
+                    wrapperClass={`color-ring-wrapper `}
+                    colors={["#fff", "#fff", "#fff", "#fff", "#fff"]}
+                  />
+                )}
+              </Button>{" "}
+              <Button
+                disabled={loading || analysing || deleting}
+                onClick={() => {
+                  // BUY CAD/NGN i have cad and i want to buy ngn
+                  //SELL NGN/CAD
+                  setAnalysisType("buy");
+                  handleAnalysis(pair);
+                }}
+                className="mr-2"
+              >
+                Analyze Buy{" "}
+                {analysing && (
+                  <ColorRing
+                    visible={true}
+                    height="25"
+                    width="25"
+                    ariaLabel="color-ring-loading"
+                    wrapperStyle={{}}
+                    wrapperClass={`color-ring-wrapper `}
+                    colors={["#fff", "#fff", "#fff", "#fff", "#fff"]}
+                  />
+                )}
+              </Button>
+            </div>
+          )}
+
+          {type === "buy" && (
+            <Button
+              disabled={loading || analysing || deleting}
+              onClick={() => {
+                setDeleteConfirm(true);
+              }}
+              className="mr-2 bg-red-500 hover:bg-red-500/80"
+            >
+              Delete{" "}
+              {deleting && (
+                <ColorRing
+                  visible={true}
+                  height="25"
+                  width="25"
+                  ariaLabel="color-ring-loading"
+                  wrapperStyle={{}}
+                  wrapperClass={`color-ring-wrapper `}
+                  colors={["#fff", "#fff", "#fff", "#fff", "#fff"]}
+                />
+              )}
+            </Button>
+          )}
         </TableCell>
       </TableRow>
 
@@ -483,7 +504,9 @@ export const SpecialAdminRateRowChn = ({
         <TableRow>
           <TableCell colSpan="5">
             <div className="p-4 space-y-4">
-              <h4 className="font-semibold capitalize text-lg mb-4">Analysis Data ({analysisType} Rate)</h4>
+              <h4 className="font-semibold capitalize text-lg mb-4">
+                Analysis Data ({analysisType} Rate)
+              </h4>
               <div className="grid grid-cols-2 gap-6">
                 <div>
                   <h5 className="font-semibold text-green-600 mb-2">
