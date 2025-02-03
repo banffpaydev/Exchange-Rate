@@ -29,6 +29,6 @@ app.listen(PORT, async () => {
       // sendEmailNotification();
     }
   }
-  await checkServerStatus()
+  // await checkServerStatus()
   console.log(`Server is running on port ${PORT}`);
 });
