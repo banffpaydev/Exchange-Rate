@@ -43,17 +43,17 @@ app.use(errorHandler);
 runAtInterval(handleAllFetch, 1000 * 60 * 60 * 2);//1000 * 5 * 2, 1000 * 7 * 2);//1000 * 60 * 90)
 // runAtInterval(sendRate, 1000 * 60 * 60 * 2);//1000 * 5 * 2, 1000 * 7 * 2);//1000 * 60 * 90)
 cron.schedule('0 8,14,20,2 * * *', async () => {
-  async function checkServerStatus() {
-    try {
-      const response = await axios.get('https://www.api-exchange.bpay.africa/test');
-      if (response.status === 200) {
-        console.log('Server is active');
-      }
-    } catch (error) {
-      console.error('Server is down, sending email...');
-      sendEmailNotification();
-    }
-  }
+  // async function checkServerStatus() {
+  //   try {
+  //     const response = await axios.get('https://www.api-exchange.bpay.africa/test');
+  //     if (response.status === 200) {
+  //       console.log('Server is active');
+  //     }
+  //   } catch (error) {
+  //     console.error('Server is down, sending email...');
+  //     sendEmailNotification();
+  //   }
+  // }
 
   function sendEmailNotification() {
 
@@ -72,7 +72,7 @@ cron.schedule('0 8,14,20,2 * * *', async () => {
     });
   }
 
-  await checkServerStatus();
+  // await checkServerStatus();
   console.log("Sending rate at", new Date().toLocaleString("en-US", { timeZone: "Africa/Lagos" }));
   sendRate();
 });
