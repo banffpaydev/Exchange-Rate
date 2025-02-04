@@ -55,7 +55,7 @@ class UserService {
   `,
     };
     const user = await User.create({ email, password, type: type || "user" });
-    const info =  transporter.sendMail(mailOptions);
+    const info = transporter.sendMail(mailOptions);
     const userWithoutPassword = { ...user.toJSON() } as { password?: string };
     delete userWithoutPassword.password;
 
@@ -101,7 +101,7 @@ class UserService {
   // Generate JWT token
   private static generateToken(user: User) {
     return jwt.sign(
-      { id: user.id, email: user.email },
+      { id: user.id, email: user.email, type: user.type },
       JWT_SECRET,
       { expiresIn: '1h' } // Token valid for 1 hour
     );

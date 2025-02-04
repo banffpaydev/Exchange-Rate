@@ -381,6 +381,7 @@ export const getRemitOneSourceandDest = async (req: Request, res: Response) => {
 };
 
 export const updatePair = async (req: any, res: Response) => {
+    console.log(req?.user)
     if (req.user?.type !== "admin") {
         res.status(401).json({ message: 'Forbidden', });
 
