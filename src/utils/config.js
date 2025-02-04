@@ -39,8 +39,8 @@ http.interceptors.response.use(
   (error) => {
     if (error.response && error.response.status === 401) {
       console.log(error.response.data.message);
-      sessionStorage.removeItem("token");
-      window.location.href = "/login";
+      // sessionStorage.removeItem("token");
+      // window.location.href = "/login";
     }
     // console.log("err", error);
 

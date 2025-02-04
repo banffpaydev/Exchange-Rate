@@ -96,10 +96,10 @@ const AdminRatesChn = () => {
   const fetchRecentRates = async () => {
     try {
       const response = await axios.get(`${basisUrl}/api/current/pairs`);
-      // const countries = await axios.get(
-      //   `${basisUrl}/api/current/remitoneCountries`
-      // );
-      // setRemitOneCountries(countries.data);
+      const countries = await axios.get(
+        `${basisUrl}/api/current/remitoneCountries`
+      );
+      setRemitOneCountries(countries.data);
       setRates(response.data);
       setIsLoading(false);
       toast.success("Rate data fetched");
