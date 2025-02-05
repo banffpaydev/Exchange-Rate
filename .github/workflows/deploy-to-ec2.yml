@@ -122,8 +122,8 @@ jobs:
               --env HOST=mail.bpay.africa \
               --env NODEMAILER_PORT=587 \
               --env PARTNER_REMITONE_BASE_URL=https://remitone.banffapi.com/remitone/ \
-              --env PARTNER_REMITONE_USERNAME=admin_ \
-              --env PARTNER_REMITONE_PASSWORD=admin12345! \
+              --env PARTNER_REMITONE_USERNAME=admin_prod \
+              --env PARTNER_REMITONE_PASSWORD=admin_prod_12345 \
               --env PARTNER_REMITONE_PIN=12345 \
               ${{ env.DOCKER_USERNAME }}/${{ env.CONTAINER_NAME }}:latest
             docker system prune -a -f

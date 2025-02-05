@@ -375,7 +375,11 @@ export const getRemitOneSourceandDest = async (req: Request, res: Response) => {
 
         res.status(200).json(sourceAndDesCountries);
 
-    } catch (error) {
+    } catch (error: any) {
+        if (error.status < 500) {
+            res.status(500).json({ message: 'Error fetching currency pair', error });
+
+        }
         res.status(500).json({ message: 'Error fetching currency pair' });
     }
 };
