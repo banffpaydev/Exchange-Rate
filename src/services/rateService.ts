@@ -57,7 +57,7 @@ export const updateSellRate = async (countryId: string, currency: string, destCo
             mobileTransferRate: rate,
             walletTransferRate: rate,
         })
-        console.log(response, "remitOneRateUpdated")
+        console.log(currency,destCurrency, "remitOneRateUpdated")
         return response;
     } catch (err: any) {
         console.log(err)

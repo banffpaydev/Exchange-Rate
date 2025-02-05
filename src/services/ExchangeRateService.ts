@@ -9,7 +9,7 @@ import RawCurrencyPair from "../models/RawCurrencyPair";
 import nodemailer from "nodemailer";
 import ExchangeCountries from "../models/ExchangeCountries";
 import sequelize from "../config/db";
-import { getPairById } from "../controllers/currencyPairController";
+import { getPairById, updateRemitOneRate } from "../controllers/currencyPairController";
 import InternalRate from "../models/internalRate";
 import { autoUpdateInternalRatesOnFetch, getInternalRateByPair } from "./internalRateService";
 import { matchesGlob } from "path";
@@ -689,14 +689,25 @@ export const handleAllFetch = async () => {
         // console.log(results[pair], "raw-pair-result")
 
         // console.log(rawPairData,"paidata", rawResults[pair], "raw-results")
-        await createCurrencyPair(pairData);
-        await createRawCurrencyPair(rawPairData);
+
 
         await saveExchangeRate(pair, results[pair]);
         await saveRawExchangeRate(pair, rawResults[pair]);
         // await clearAllRawExchangeRates()
+
+
         try {
+            const rate = await getAnalyzedRates(pair, "startDate", "endDate"); // Ensure to pass the correct dates
+            await createCurrencyPair({ ...pairData, exchangeRate: rate.banffPayRate });
+
+            await createRawCurrencyPair({ ...rawPairData, exchangeRate: rate.banffPayRate });
+
+            const splitPair = pair.split("/");
+            if (rate.banffPayRate) {
+                await updateRemitOneRate(splitPair[0], splitPair[1], rate.banffPayRate)
+            }
             await autoUpdateInternalRatesOnFetch(pair, results[pair]);
+
 
         } catch (error) {
 

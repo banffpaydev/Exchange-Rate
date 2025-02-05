@@ -99,22 +99,22 @@ export const calculateBanffPayBuySellRate = (rates: number[], sell_rates: number
     const bpay_buy_discount = (bpay_buy_adder / 100) * buy_Rate_Source
     const bpay_sell_discount = (bpay_sell_reduct / 100) * sell_Rate_Source
     const discount_feasible = rateRoom - (rate_margin + bpay_buy_discount + bpay_sell_discount)
-    console.log(discount_feasible,rateRoom ,sell_Rate_Source,buy_Rate_Source)
+    console.log(discount_feasible, rateRoom, sell_Rate_Source, buy_Rate_Source)
     if (discount_feasible > 0) {
       bpay_buy_rate = buy_Rate_Source + bpay_buy_discount
       bpay_sell_rate = sell_Rate_Source - bpay_sell_discount
     } else {
       throw new CustomError("Sell rate cannot be lower than buy rate", 400);
-      if (bpay_buy_adder === 0) {
-        bpay_buy_adder = buy_Rate_Source
-        return
-      }
-      if (bpay_sell_reduct === 0) {
-        bpay_buy_adder = sell_Rate_Source
-        return
-      }
-      bpay_buy_adder = bpay_buy_adder - 0.05;
-      bpay_sell_reduct = bpay_buy_adder - 0.05;
+      // if (bpay_buy_adder === 0) {
+      //   bpay_buy_adder = buy_Rate_Source
+      //   return
+      // }
+      // if (bpay_sell_reduct === 0) {
+      //   bpay_buy_adder = sell_Rate_Source
+      //   return
+      // }
+      // bpay_buy_adder = bpay_buy_adder - 0.05;
+      // bpay_sell_reduct = bpay_buy_adder - 0.05;
 
     }
     return {

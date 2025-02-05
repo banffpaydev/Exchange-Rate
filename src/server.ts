@@ -15,11 +15,11 @@ app.listen(PORT, async () => {
   // removeRateKeyForAllPairs("xchangeRt exchange")
   // removeRateKeyForAllPairs("abokifxng")
 
-  // handleAllFetch()
+  handleAllFetch()
   // sendRate()
   async function checkServerStatus() {
     try {
-      const response = await axios.get('https://www.api-exchange.bpay.africa/test');
+      const response = await axios.get('https://api-exchange.bpay.africa/test');
       console.log(response)
       if (response.status === 200) {
         console.log('Server is active');

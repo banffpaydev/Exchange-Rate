@@ -385,21 +385,13 @@ export const getRemitOneSourceandDest = async (req: Request, res: Response) => {
 };
 
 export const updatePair = async (req: any, res: Response) => {
-    console.log(req?.user)
     if (req.user?.type !== "admin") {
         res.status(401).json({ message: 'Forbidden', });
 
     }
     try {
 
-        // Fetch source and destination countries from the cache or API
-        const sourceAndDesCountries = await getSourceAndDesCountries();
-        const findSourceCountry = sourceAndDesCountries.source.find((country) => country.currency === req.body.from)
-        const findDestCountry = sourceAndDesCountries.destination.find((country) => country.currency === req.body.to)
-
-        if (findSourceCountry && findDestCountry) {
-            const response = await updateSellRate(findSourceCountry?.id, findSourceCountry?.currency, findDestCountry?.id, findDestCountry?.currency, +req.body.exchangeRate)
-        }
+        await updateRemitOneRate(req.body.from, req.body.to, req.body.exchangeRate)
         const updatedPair = await updateCurrencyPair(Number(req.params.id), req.body);
         if (updatedPair) {
             res.status(200).json(updatedPair);
@@ -411,7 +403,58 @@ export const updatePair = async (req: any, res: Response) => {
     }
 };
 
+export const updateMultiplePairs = async (req: any, res: Response) => {
+    if (req.user?.type !== "admin") {
+        res.status(401).json({ message: 'Forbidden' });
+        return;
+    }
 
+    const { pairs } = req.body;
+
+    if (!pairs || pairs.length === 0) {
+        res.status(400).json({ message: 'Currency pairs are required' });
+        return;
+    }
+
+    try {
+        const results = [];
+
+        for (const pairData of pairs) {
+            const { from, to, exchangeRate, id } = pairData;
+
+            if (!from || !to || !exchangeRate || !id) {
+                continue; // Skip invalid entries
+            }
+
+            await updateRemitOneRate(from, to, exchangeRate);
+            const updatedPair = await updateCurrencyPair(Number(id), pairData);
+
+            if (updatedPair) {
+                results.push(updatedPair);
+            }
+        }
+
+        res.status(200).json(results);
+    } catch (error) {
+        res.status(500).json({ message: 'Error updating currency pairs', error });
+    }
+};
+
+export const updateRemitOneRate = async (from: string, to: string, rate: string | number) => {
+    try {
+        // Fetch source and destination countries from the cache or API
+        const sourceAndDesCountries = await getSourceAndDesCountries();
+        const findSourceCountry = sourceAndDesCountries.source.find((country) => country.currency === from)
+        const findDestCountry = sourceAndDesCountries.destination.find((country) => country.currency === to)
+
+        if (findSourceCountry && findDestCountry) {
+            const response = await updateSellRate(findSourceCountry?.id, findSourceCountry?.currency, findDestCountry?.id, findDestCountry?.currency, +rate)
+        }
+    } catch (error) {
+        throw new CustomError("error updating currency pair", 500);
+
+    }
+}
 export const deletePair = async (req: Request, res: Response) => {
     try {
         const deleted = await deleteCurrencyPair(Number(req.params.id));

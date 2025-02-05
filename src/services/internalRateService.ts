@@ -1,3 +1,4 @@
+import { updateRemitOneRate } from "../controllers/currencyPairController";
 import { calculateBanffPayBuySellRate, inversePair } from "../controllers/treps";
 import InternalRate, { InternalRateAttributes } from "../models/internalRate";
 import { getSourceAndDesCountries, updateSellRate } from "./rateService";
@@ -29,12 +30,7 @@ export const saveMultipleInternalRates = async (data: InternalRateAttributes[]) 
             const from = rate.pair.split("/")[0]
             const to = rate.pair.split("/")[1]
 
-            const sourceAndDesCountries = await getSourceAndDesCountries();
-            const findSourceCountry = sourceAndDesCountries.source.find((country) => country.currency === from)
-            const findDestCountry = sourceAndDesCountries.destination.find((country) => country.currency === to)
-            if (findSourceCountry && findDestCountry) {
-                const response = await updateSellRate(findSourceCountry?.id, findSourceCountry?.currency, findDestCountry?.id, findDestCountry?.currency, rate.buy_rate)
-            }
+            await updateRemitOneRate(from, to, rate.buy_rate)
         }
 
     } catch (error) {
@@ -101,7 +97,7 @@ export const updateInternalRateByPair = async (newRateData: InternalRateAttribut
         console.error('Error updating internal rate:', error);
         throw error;
     }
-}; 
+};
 
 export const autoUpdateInternalRatesOnFetch = async (pair: string, fetchedRates: Record<string, number | null>) => {
     const cleanedFetchedRates: Record<string, number> = Object.fromEntries(
@@ -136,11 +132,11 @@ export const autoUpdateInternalRatesOnFetch = async (pair: string, fetchedRates:
         const updatedSellRates = Object.entries(cleanedFetchedRates)
             .filter(([exchange]) => sell_exchanges_considered?.hasOwnProperty(exchange)) // Match only the exchanges considered for selling
             .map(([, rate]) => rate);
-        const buyRates = buy_exchanges_considered 
+        const buyRates = buy_exchanges_considered
             ? Object.entries(buy_exchanges_considered)
-            .filter(([exchange]) => exchange !== 'BanffPay Rate')
-            .map(([key, rate]) => rate)
-            .filter(rate => rate != null) 
+                .filter(([exchange]) => exchange !== 'BanffPay Rate')
+                .map(([key, rate]) => rate)
+                .filter(rate => rate != null)
             : [];
         // console.log(sell_exchanges_considered,"sell", cleanedFetchedRates, confirmExchangesFetched(cleanedFetchedRates, sell_exchanges_considered))
         if (!confirmExchangesFetched(cleanedFetchedRates, sell_exchanges_considered)) {
@@ -168,7 +164,6 @@ export const autoUpdateInternalRatesOnFetch = async (pair: string, fetchedRates:
         const updatedBuyRates = Object.entries(cleanedFetchedRates)
             .filter(([exchange]) => buy_exchanges_considered?.hasOwnProperty(exchange) && exchange !== "Abokifx") // Match only the exchanges considered for buying
             .map(([, rate]) => rate);
-            console.log(updatedBuyRates)
         const sellRates = sell_exchanges_considered ? Object.entries(sell_exchanges_considered).map(([, rate]) => rate).filter(rate => rate != null) : [];
         // Recalculate buy rates based on updated buy rates
         recalculatedRates = calculateBanffPayBuySellRate(
@@ -189,6 +184,8 @@ export const autoUpdateInternalRatesOnFetch = async (pair: string, fetchedRates:
     const { bpay_buy_rate, bpay_sell_rate, buy_Rate_Source, sell_Rate_Source } = recalculatedRates;
 
     // Update the internal rate model (only update relevant fields)
+    const splitRate = internalRate.pair.split("/");
+    await updateRemitOneRate(splitRate[0], splitRate[1], isInverse ? internalRate.buy_rate : bpay_buy_rate)
     await InternalRate.update(
         {
             buy_rate: isInverse ? internalRate.buy_rate : bpay_buy_rate, // Update only buy rate if it's a normal pair
