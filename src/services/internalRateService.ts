@@ -101,7 +101,7 @@ export const updateInternalRateByPair = async (newRateData: InternalRateAttribut
         console.error('Error updating internal rate:', error);
         throw error;
     }
-};
+}; 
 
 export const autoUpdateInternalRatesOnFetch = async (pair: string, fetchedRates: Record<string, number | null>) => {
     const cleanedFetchedRates: Record<string, number> = Object.fromEntries(
