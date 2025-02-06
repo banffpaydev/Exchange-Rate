@@ -1,6 +1,7 @@
 import { updateRemitOneRate } from "../controllers/currencyPairController";
 import { calculateBanffPayBuySellRate, inversePair } from "../controllers/treps";
 import InternalRate, { InternalRateAttributes } from "../models/internalRate";
+import { updateLatestCurrencyPair } from "./currencyPairService";
 import { getSourceAndDesCountries, updateSellRate } from "./rateService";
 
 export const saveInternalRate = async (data: InternalRateAttributes) => {
@@ -31,6 +32,7 @@ export const saveMultipleInternalRates = async (data: InternalRateAttributes[]) 
             const to = rate.pair.split("/")[1]
 
             await updateRemitOneRate(from, to, rate.buy_rate)
+            
         }
 
     } catch (error) {
@@ -69,7 +71,7 @@ export const getAllDBInternalRates = async () => {
 };
 
 
-export const updateInternalRateByPair = async (newRateData: InternalRateAttributes) => {
+export const updateInternalRateByPair = async (newRateData: InternalRateAttributes, type: string) => {
     try {
         const existingRate = await InternalRate.findOne({
             where: { pair: newRateData.pair },
@@ -78,20 +80,17 @@ export const updateInternalRateByPair = async (newRateData: InternalRateAttribut
         if (!existingRate) {
             throw new Error(`Pair ${newRateData.pair} not found`);
         }
-
-        const [updatedCount] = await InternalRate.update(newRateData, {
-            where: { pair: newRateData.pair },  // Condition to match the pair
-        });
-
         const from = newRateData.pair.split("/")[0]
         const to = newRateData.pair.split("/")[1]
 
-        const sourceAndDesCountries = await getSourceAndDesCountries();
-        const findSourceCountry = sourceAndDesCountries.source.find((country) => country.currency === from)
-        const findDestCountry = sourceAndDesCountries.destination.find((country) => country.currency === to)
-        if (findSourceCountry && findDestCountry) {
-            const response = await updateSellRate(findSourceCountry?.id, findSourceCountry?.currency, findDestCountry?.id, findDestCountry?.currency, newRateData.buy_rate)
-        }
+        await updateRemitOneRate(from, to, newRateData.buy_rate)
+        const [updatedCount] = await InternalRate.update(newRateData, {
+            where: { pair: newRateData.pair },  // Condition to match the pair
+        });
+        const pairToUpdate = type === "buy" ? newRateData.pair : inversePair(newRateData.pair)
+        await updateLatestCurrencyPair(pairToUpdate, { currencyPair: pairToUpdate, exchangeRate: type === "buy" ? newRateData.buy_rate : newRateData.sell_rate })
+
+
         console.log(`Successfully updated internal rate for pair: ${newRateData.pair}`);
     } catch (error) {
         console.error('Error updating internal rate:', error);

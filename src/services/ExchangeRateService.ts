@@ -687,6 +687,7 @@ export const handleAllFetch = async () => {
         }
         results[pair]["BanffPay Rate"] = stats[pair].mean;
         // console.log(results[pair], "raw-pair-result")
+        await createRawCurrencyPair(rawPairData);
 
         // console.log(rawPairData,"paidata", rawResults[pair], "raw-results")
 
@@ -698,9 +699,9 @@ export const handleAllFetch = async () => {
 
         try {
             const rate = await getAnalyzedRates(pair, "startDate", "endDate"); // Ensure to pass the correct dates
+            // console.log(rate, pair)
             await createCurrencyPair({ ...pairData, exchangeRate: rate.banffPayRate });
 
-            await createRawCurrencyPair({ ...rawPairData, exchangeRate: rate.banffPayRate });
 
             const splitPair = pair.split("/");
             if (rate.banffPayRate) {

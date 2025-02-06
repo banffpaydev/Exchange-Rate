@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { analysisReVamp, getAnalyzedRates, getRatesFromDB, getRatesFromDBPairs, getRatesFromDBWithDateFilter, handleAllFetch, saveDatatoDb } from '../services/ExchangeRateService';
-import { createCurrencyPair } from "../services/currencyPairService";
+import { createCurrencyPair, getSingleCurrencyPair } from "../services/currencyPairService";
 import { fetchLatestExchangeRates } from "../services/exchangeNew";
 
 
@@ -181,20 +181,20 @@ class RateController {
         if (!currency || !startDate || !endDate) {
             return res.status(400).json({ message: 'Please provide currency, startDate, and endDate' });
         }
-
         try {
             const analysis = await getAnalyzedRates(currency as string, startDate as string, endDate as string);
+            const pair = await getSingleCurrencyPair(currency as string)
             // if (save === 'yes') {
             //     await createCurrencyPair({
             //         currencyPair: currency,
             //         exchangeRate: analysis.minAvg,
             //     })
             // }
-            await createCurrencyPair({
-                currencyPair: currency,
-                exchangeRate: analysis.minAvg,
-            })
-            res.status(200).json(analysis);
+            // await createCurrencyPair({
+            //     currencyPair: currency,
+            //     exchangeRate: analysis.minAvg,
+            // })
+            res.status(200).json({...analysis,banffPayRate:pair?.exchangeRate});
         } catch (error) {
             res.status(500).json({ message: 'Error fetching exchange rates', error });
         }

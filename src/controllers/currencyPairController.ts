@@ -231,6 +231,8 @@ export const calculateMulipleInternalRates = async (req: any, res: Response) => 
                     //     }
 
                     // Add result to the array
+
+
                     results.push({
                         mainPair: pair,
                         sellPair: invertedPair,
@@ -238,10 +240,14 @@ export const calculateMulipleInternalRates = async (req: any, res: Response) => 
                         filteredBuyRates,
                         filteredSellRates
                     });
+                    await createCurrencyPair({ currencyPair: pair, exchangeRate: result?.bpay_buy_rate?.toFixed(2) });
+                    await createCurrencyPair({ currencyPair: invertedPair, exchangeRate: result?.bpay_sell_rate?.toFixed(2) });
+
                 }
-            }
+            } 
         }
         const formattedResult = results.map((result) => {
+
             return {
                 pair: result.mainPair,
                 bpay_buy_adder: Number(result.result?.bpay_buy_adder?.toFixed(2)) ?? 0.2,
@@ -297,7 +303,8 @@ export const updateInternalRates = async (req: any, res: Response) => {
         bpay_buy_adder,
         bpay_sell_reduct,
         inverse_vendors_considered,
-        vendors_considered
+        vendors_considered,
+        type
     } = req.body;
 
     if (!pair || inverse_vendors_considered.length < 1) {
@@ -330,6 +337,7 @@ export const updateInternalRates = async (req: any, res: Response) => {
             const result = calculateBanffPayBuySellRate(buyValues, sellValues, +bpay_buy_adder, +bpay_sell_reduct);
 
             if (result) {
+                console.log(type)
                 const data = await updateInternalRateByPair({
                     pair,
                     buy_rate: result?.bpay_buy_rate,
@@ -340,7 +348,7 @@ export const updateInternalRates = async (req: any, res: Response) => {
                     bpay_sell_reduct: result?.bpay_sell_reduct,
                     buy_exchanges_considered: filteredBuyRates,
                     sell_exchanges_considered: filteredSellRates,
-                });
+                }, type);
 
                 res.status(200).json({ message: "Success", data: data });
                 return
@@ -415,7 +423,6 @@ export const updateMultiplePairs = async (req: any, res: Response) => {
         res.status(400).json({ message: 'Currency pairs are required' });
         return;
     }
-
     try {
         const results = [];
 
@@ -427,6 +434,7 @@ export const updateMultiplePairs = async (req: any, res: Response) => {
             }
 
             await updateRemitOneRate(from, to, exchangeRate);
+
             const updatedPair = await updateCurrencyPair(Number(id), pairData);
 
             if (updatedPair) {
@@ -436,6 +444,7 @@ export const updateMultiplePairs = async (req: any, res: Response) => {
 
         res.status(200).json(results);
     } catch (error) {
+        console.log(error)
         res.status(500).json({ message: 'Error updating currency pairs', error });
     }
 };

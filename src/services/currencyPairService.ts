@@ -83,6 +83,13 @@ export const getAllCurrencyPairs = async () => {
   });
 };
 
+export const getSingleCurrencyPair = async (pair: string) => {
+  return await CurrencyPair.findOne({
+    where: { currencyPair: pair },
+    order: [['createdAt', 'DESC']] // Get the latest record
+  });
+};
+
 export const getAllRawCurrencyPairs = async () => {
 
 
@@ -120,6 +127,20 @@ export const updateCurrencyPair = async (id: number, data: any) => {
   }
   return null;
 };
+
+export const updateLatestCurrencyPair = async (pair: string, data: any) => {
+  const latestPair = await CurrencyPair.findOne({
+    where: { currencyPair: pair },
+    order: [['createdAt', 'DESC']], // Get the newest entry
+  });
+
+  if (latestPair) {
+    return await latestPair.update(data);
+  }
+
+  return null;
+};
+
 
 export const deleteCurrencyPair = async (id: number) => {
   const currencyPair = await CurrencyPair.findByPk(id);

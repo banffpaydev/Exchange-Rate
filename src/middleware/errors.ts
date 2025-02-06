@@ -16,7 +16,6 @@ export const errorHandler = (
   res: Response,
   next: NextFunction
 ) => {
-  console.error(err);
   if (err instanceof CustomError) {
     const { statusCode, message } = err;
 
