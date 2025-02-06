@@ -2,7 +2,7 @@ import rateRoutes from './routes/rateRoutes';
 import userRoutes from './routes/userRoutes';
 import currentPlay from './routes/currencyPairRoutes'
 import cors from 'cors'
-import { abokifxng, handleAllFetch, sendRate, transporter, xeRates } from './services/ExchangeRateService';
+import { abokifxng, handleAllFetch, sendRate, sendRateToPartners, transporter, xeRates } from './services/ExchangeRateService';
 import { runAtInterval } from './services/jobs';
 import { runCreateTables, seedCountries } from './services/currencyPairService';
 import cron from 'node-cron';
@@ -40,20 +40,20 @@ app.use(errorHandler);
 
 // app.use('/api/momo', momoRoutes);
 
-runAtInterval(handleAllFetch, 1000 * 60 * 60 * 2);//1000 * 5 * 2, 1000 * 7 * 2);//1000 * 60 * 90)
+// runAtInterval(handleAllFetch, 1000 * 60 * 60 * 2);//1000 * 5 * 2, 1000 * 7 * 2);//1000 * 60 * 90)
 // runAtInterval(sendRate, 1000 * 60 * 60 * 2);//1000 * 5 * 2, 1000 * 7 * 2);//1000 * 60 * 90)
 cron.schedule('0 8,14,20,2 * * *', async () => {
-  // async function checkServerStatus() {
-  //   try {
-  //     const response = await axios.get('https://www.api-exchange.bpay.africa/test');
-  //     if (response.status === 200) {
-  //       console.log('Server is active');
-  //     }
-  //   } catch (error) {
-  //     console.error('Server is down, sending email...');
-  //     sendEmailNotification();
-  //   }
-  // }
+  async function checkServerStatus() {
+    try {
+      const response = await axios.get('https://www.api-exchange.bpay.africa/test');
+      if (response.status === 200) {
+        console.log('Server is active');
+      }
+    } catch (error) {
+      console.error('Server is down, sending email...');
+      sendEmailNotification();
+    }
+  }
 
   function sendEmailNotification() {
 
@@ -74,7 +74,9 @@ cron.schedule('0 8,14,20,2 * * *', async () => {
 
   // await checkServerStatus();
   console.log("Sending rate at", new Date().toLocaleString("en-US", { timeZone: "Africa/Lagos" }));
-  sendRate();
+  await  handleAllFetch()
+  await sendRate();
+  await sendRateToPartners()
 });
 // seedCountries()
 runCreateTables();
