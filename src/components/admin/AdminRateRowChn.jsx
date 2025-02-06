@@ -13,7 +13,13 @@ import { http } from "@/utils/config";
 import { ConfirmDeleteDialog } from "./confirmDeleteDialog";
 import { inversePair } from "@/lib/utils";
 
-export const AdminRateRowChn = ({ pair, rateData, id, remitOneEnabled }) => {
+export const AdminRateRowChn = ({
+  pair,
+  rateData,
+  id,
+  remitOneEnabled,
+  onRateChange,
+}) => {
   // console.log("mape: ", formatNumberStr(rateData))
   const [editedRates, setEditedRates] = useState(formatNumberStr(rateData));
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -110,23 +116,18 @@ export const AdminRateRowChn = ({ pair, rateData, id, remitOneEnabled }) => {
             </small>
           )}
         </TableCell>
+
         <TableCell>
           <Input
             type="number"
             step="0.0001"
             className="bg-slate-400 w-32"
             value={editedRates || ""}
-            onChange={(e) => setEditedRates(e.target.value)}
-          />
-          {/* {rateData?.toFixed(2).toLocaleString("en-US") || "N/A"} */}
-        </TableCell>
-        <TableCell>
-          <Input
-            type="number"
-            step="0.0001"
-            className="bg-slate-400 w-32"
-            value={editedRates || ""}
-            onChange={(e) => setEditedRates(e.target.value)}
+            onChange={(e) => {
+              const value =e.target.value
+              setEditedRates(value);
+              onRateChange(pair, id,value )
+            }}
           />
         </TableCell>
         <TableCell>

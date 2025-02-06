@@ -38,7 +38,7 @@ export const SpecialRatesDialog = ({
   bpay_sell_reduct,
   inverse_vendors_considered,
   type,
-  vendors_considered
+  vendors_considered,
 }) => {
   const [formData, setData] = useState({
     bpay_buy_adder: bpay_buy_adder ?? 0.2,
@@ -47,13 +47,15 @@ export const SpecialRatesDialog = ({
       ? Object.keys(inverse_vendors_considered)
       : [],
     pair: pair ?? "",
-    vendors_considered:  vendors_considered
-    ? Object.keys(vendors_considered)
-    : [],
+    vendors_considered: vendors_considered
+      ? Object.keys(vendors_considered)
+      : [],
   });
 
   const [loading, setLoading] = useState(false);
   const [pairVendors, setPairVendors] = useState([]);
+  const [buyPairVendors, setBuyPairVendors] = useState([]);
+
   const handleSave = async () => {
     setLoading(true);
 
@@ -61,6 +63,7 @@ export const SpecialRatesDialog = ({
       if (pair) {
         await http.put(`current/update-internal`, {
           ...formData,
+          type,
         });
       } else {
         await http.post(`current/calculate-internal`, {
@@ -95,9 +98,21 @@ export const SpecialRatesDialog = ({
       try {
         const response = await axios.get(
           `${basisUrl}/api/current/dbrate-by-Pair?pair=${
-            !type || type === "buy" ? pair : inversePair(pair)
+             type === "buy" ? pair : inversePair(pair)
           }`
         );
+        if (!type) {
+          const response = await axios.get(
+            `${basisUrl}/api/current/dbrate-by-Pair?pair=${pair}`
+          );
+          const keys = Object.entries(response.data?.rates || {})
+            .filter(
+              ([key, value]) =>
+                key !== undefined && key !== "BanffPay Rate" && value != null
+            )
+            .map(([key, value]) => ({ key, value }));
+          setBuyPairVendors(keys);
+        }
         setLoading(false);
         const keys = Object.entries(response.data?.rates || {})
           .filter(
@@ -191,7 +206,7 @@ export const SpecialRatesDialog = ({
               />
             </div>
           )}
-           {type !== "sell" && (
+          {type !== "sell" && (
             <div>
               <p>Buy Rates to Consider</p>
               <MultipleSelector
@@ -202,12 +217,14 @@ export const SpecialRatesDialog = ({
                     vendors_considered: value,
                   }));
                 }}
-                options={pairVendors.map((vendor) => {
-                  return {
-                    label: `${vendor.key}(${vendor.value})`,
-                    value: vendor.key,
-                  };
-                })}
+                options={(!type ? buyPairVendors : pairVendors).map(
+                  (vendor) => {
+                    return {
+                      label: `${vendor.key}(${vendor.value})`,
+                      value: vendor.key,
+                    };
+                  }
+                )}
               />
             </div>
           )}
