@@ -1,6 +1,6 @@
 import app from './app';
 import dotenv from 'dotenv';
-import { handleAllFetch, removeRateKeyForAllPairs, sendRate, sendWaveRate } from './services/ExchangeRateService';
+import { handleAllFetch, removeRateKeyForAllPairs, sendRate, sendRateToPartners, sendWaveRate } from './services/ExchangeRateService';
 import { calculateBanffPayBuySellRate } from './controllers/treps';
 import axios from 'axios';
 
@@ -15,8 +15,9 @@ app.listen(PORT, async () => {
   // removeRateKeyForAllPairs("xchangeRt exchange")
   // removeRateKeyForAllPairs("abokifxng")
 
-  handleAllFetch()
+  // handleAllFetch()
   // sendRate()
+  sendRateToPartners()
   async function checkServerStatus() {
     try {
       const response = await axios.get('https://api-exchange.bpay.africa/test');
@@ -24,7 +25,8 @@ app.listen(PORT, async () => {
       if (response.status === 200) {
         console.log('Server is active');
       }
-    } catch (error) { console.log(error)
+    } catch (error) {
+      console.log(error)
       console.error('Server is down, sending email...');
       // sendEmailNotification();
     }

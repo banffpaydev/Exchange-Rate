@@ -568,6 +568,8 @@ const getCurrencyRate = async (gofrom: string, goto: string): Promise<number | n
 // ];
 
 export const pairs = [
+    "NGN/LRD", "LRD/NGN", "USD/GAM", "GBP/GAM",
+    "CAD/GAM", "EUR/GAM",
     'CAD/NGN', 'NGN/CAD', 'GHS/EUR', 'GHS/CAD',
     'GHS/USD', 'GHS/GBP', 'EUR/GHS', 'CAD/GHS',
     'USD/GHS', 'GBP/GHS', 'GBP/GMD', 'GMD/GBP',
@@ -1213,6 +1215,76 @@ export const sendRate = async () => {
                     </tbody>
                 </table>
                 <p>Best Regards,</p>
+            `,
+        };
+        const info = await transporter.sendMail(mailOptions);
+        console.log("email sent")
+    } catch (error) {
+
+        console.log(error)
+
+    }
+
+}
+
+export const sendRateToPartners = async () => {
+    try {
+        const mailList = ["dharold@bpay.africa", "mebitanmi@banffpay.com", "care@banffpay.com", "mlawal@bpay.africa", "care@bpay.africa"]
+        // const mailList = ["dharold@bpay.africa"]
+        const buyCurrencies = ["USD", "GBP", "CAD", "EUR"]
+
+        const sellCurrencies = ["NGN", "GHS", "XAF", "XOF", "SLL", "GAM"];
+        const pairsCombo = [
+            "USD/NGN", "USD/GHS", "USD/XAF", "USD/XOF", "USD/SLL", "USD/GAM",
+            "GBP/NGN", "GBP/GHS", "GBP/XAF", "GBP/XOF", "GBP/SLL", "GBP/GAM",
+            "CAD/NGN", "CAD/GHS", "CAD/XAF", "CAD/XOF", "CAD/SLL", "CAD/GAM",
+            "EUR/NGN", "EUR/GHS", "EUR/XAF", "EUR/XOF", "EUR/SLL", "EUR/GAM"
+        ]
+
+
+        const exchangeRates: { [key: string]: { [key: string]: number } } = {};
+        for (let pair of pairsCombo) {
+            const rate = await getAnalyzedRates(pair, "startDate", "endDate"); // Ensure to pass the correct dates
+            const [from, to] = pair.split("/");
+            if (!exchangeRates[from]) exchangeRates[from] = {};
+            exchangeRates[from][to] = rate?.banffPayRate ? +rate?.banffPayRate : 0; // Use the banffpayRate from the analysis
+        }
+        const tableRows = buyCurrencies.map(rowCurrency => `
+            <tr>
+                <td style="background-color: #4CAF50; color: white;">${rowCurrency}</td>
+                ${sellCurrencies.map(colCurrency => {
+            const rate = rowCurrency === colCurrency ? 1 : exchangeRates[rowCurrency]?.[colCurrency] || '';
+            const bgColor = rowCurrency === colCurrency ? '#FFFF00' : ''; // Highlight diagonal cells in yellow
+            // { console.log(typeof rate === 'number' && isFinite(rate) && rate.toFixed(2), rate) }
+            return `<td style="background-color: ${bgColor}; text-align: center;">${typeof rate === 'number' && isFinite(rate) ? rate.toFixed(2) : 0}</td>`;
+        }).join('')}
+            </tr>
+        `).join('');
+        const mailOptions = {
+            from: `rate@banffpay.com`,
+            to: mailList,
+            subject: `BanffPay Daily Exchange Rate Update   ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`,
+
+            html: `
+                <h1>Exchange Rate Update</h1>
+                <p>Dear Partner,</p>
+                <p>Find below our exchange rate at ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}</p>
+                <table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; width: 100%;">
+                    <thead>
+                        <tr>
+                            <th style="background-color: #4CAF50; color: white;">&nbsp;</th>
+                            ${sellCurrencies.map(currency => `
+                                <th style="background-color: #4CAF50; color: white;">${currency}</th>
+                            `).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${tableRows}
+                    </tbody>
+                </table>
+                <p>Best Regards,</p>
+                <p>Banffpay Ltd</p>
+
             `,
         };
         const info = await transporter.sendMail(mailOptions);
