@@ -1271,7 +1271,7 @@ export const sendRateToPartners = async () => {
                 <h1>Exchange Rate Update</h1>
                 <p>Dear Partner,</p>
                 <p>Find below our exchange rate at ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}</p>
-                <table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; width: 100%;">
+                <table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; width: 100%; max-width: 550px;">
                     <thead>
                         <tr>
                             <th style="background-color: #0097ff; color: white;">&nbsp;</th>
