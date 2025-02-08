@@ -569,9 +569,9 @@ const getCurrencyRate = async (gofrom: string, goto: string): Promise<number | n
 // ];
 
 export const pairs = [
-    'NGN/SLE', 'SLE/LRD', 'SLE/NGN', "NGN/LRD", 
-    "LRD/NGN",' LRD/SLE', 'USD/SLE', 'SLE/NGN', 
-    'SLE/LRD', 'NGN/SLE', 'CAD/SLE', 'GBP/SLE', 
+    'NGN/SLE', 'SLE/LRD', 'SLE/NGN', "NGN/LRD",
+    "LRD/NGN", ' LRD/SLE', 'USD/SLE', 'SLE/NGN',
+    'SLE/LRD', 'NGN/SLE', 'CAD/SLE', 'GBP/SLE',
     'EUR/SLE',
     'CAD/NGN', 'NGN/CAD', 'GHS/EUR', 'GHS/CAD',
     'GHS/USD', 'GHS/GBP', 'EUR/GHS', 'CAD/GHS',
@@ -885,7 +885,7 @@ export const getRatesFromDB = async () => {
         throw new Error(`Failed to fetch exchange rates: ${error.message}`);
     }
 };
-export const getRatesFromDBWithDateFilter = async (startDate?: string, endDate?: string) => {
+export const getRatesFromDBWithDateFilter = async (startDate?: string, endDate?: string, pair?: string, page: number = 1, pageSize: number = 50) => {
     try {
         const whereClause: any = {};
 
@@ -895,12 +895,21 @@ export const getRatesFromDBWithDateFilter = async (startDate?: string, endDate?:
             };
         }
 
+        if (pair) {
+            whereClause.pair = pair;
+        }
+
+        // Calculate offset for pagination
+        const offset = (page - 1) * pageSize;
+
         // Fetch all exchange rates with raw data
         const exchangeRates = await ExchangeRate.findAll({
             raw: true,
             attributes: ['id', 'pair', 'rates', 'createdAt', 'updatedAt'],
             where: whereClause,
-            order: [['createdAt', 'ASC']] // Ensure the rates are ordered by creation date
+            order: [['createdAt', 'ASC']], // Ensure the rates are ordered by creation date
+            limit: pageSize,
+            offset: offset
         });
 
         if (!exchangeRates || exchangeRates.length === 0) {
@@ -923,7 +932,19 @@ export const getRatesFromDBWithDateFilter = async (startDate?: string, endDate?:
             return acc;
         }, {} as { [key: string]: any[] }); // Initial accumulator is an empty object
 
-        return groupedByDate;
+        // return groupedByDate;
+    const totalRecords = await ExchangeRate.count({ where: whereClause });
+    const totalPages = Math.ceil(totalRecords / pageSize);
+
+    return {
+        data: groupedByDate,
+        meta: {
+        currentPage: page,
+        totalPages: totalPages,
+        pageSize: pageSize,
+        totalRecords: totalRecords
+        }
+    };
     } catch (error: any) {
         throw new Error(`Failed to fetch exchange rates: ${error.message}`);
     }
@@ -1188,7 +1209,7 @@ export const sendRate = async () => {
         }
         const tableRows = currencies.map(rowCurrency => `
             <tr>
-                <td style="background-color: #4CAF50; color: white;">${rowCurrency}</td>
+                <td style="background-color: #0097ff; color: white;">${rowCurrency}</td>
                 ${currencies.map(colCurrency => {
             const rate = rowCurrency === colCurrency ? 1 : exchangeRates[rowCurrency]?.[colCurrency] || '';
             const bgColor = rowCurrency === colCurrency ? '#FFFF00' : ''; // Highlight diagonal cells in yellow
@@ -1206,9 +1227,9 @@ export const sendRate = async () => {
                 <table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; width: 100%;">
                     <thead>
                         <tr>
-                            <th style="background-color: #4CAF50; color: white;">&nbsp;</th>
+                            <th style="background-color: #0097ff; color: white;">&nbsp;</th>
                             ${currencies.map(currency => `
-                                <th style="background-color: #4CAF50; color: white;">${currency}</th>
+                                <th style="background-color: #0097ff; color: white;">${currency}</th>
                             `).join('')}
                         </tr>
                     </thead>
@@ -1268,6 +1289,15 @@ export const sendRateToPartners = async () => {
             subject: `BanffPay Daily Exchange Rate Update   ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`,
 
             html: `
+           
+         
+              <table width="100%" style="max-width: 550px;">
+                <tr>
+                  <td align="right">
+                    <img src="https://res.cloudinary.com/djrjesruj/image/upload/v1739023485/bzdy6wpitcd5dpycowbm.png" alt="Bpay Logo" style="width: 125px;">
+                  </td>
+                </tr>
+              </table>
                 <h1>Exchange Rate Update</h1>
                 <p>Dear Partner,</p>
                 <p>Find below our exchange rate at ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}</p>

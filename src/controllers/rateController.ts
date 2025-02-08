@@ -97,7 +97,7 @@ class RateController {
     }
     static async getFilteredDBRATES(req: Request, res: Response) {
         try {
-            const { fromDate, toDate } = req.query;
+            const { fromDate, toDate, pair, page, pageSize } = req.query;
 
             if (!fromDate || !toDate) {
                 return res.status(400).json({
@@ -106,7 +106,7 @@ class RateController {
                 });
             }
             // Fetch all rates from the database
-            const rates = await getRatesFromDBWithDateFilter(fromDate as string, toDate as string);
+            const rates = await getRatesFromDBWithDateFilter(fromDate as string, toDate as string, pair as string, +page! as number);
 
             // Parse rates field in each record from JSON string to object
             // const parsedRates = rates.map((rate: any) => {
@@ -194,7 +194,7 @@ class RateController {
             //     currencyPair: currency,
             //     exchangeRate: analysis.minAvg,
             // })
-            res.status(200).json({...analysis,banffPayRate:pair?.exchangeRate});
+            res.status(200).json({ ...analysis, banffPayRate: pair?.exchangeRate });
         } catch (error) {
             res.status(500).json({ message: 'Error fetching exchange rates', error });
         }
