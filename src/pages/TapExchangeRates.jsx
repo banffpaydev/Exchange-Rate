@@ -19,6 +19,8 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { Button } from "@/components/ui/button";
 import { CSVLink } from "react-csv";
 import { fetchDbRates } from "@/utils/api";
+import Pagination from "@/components/ui/paginate";
+import { usePaginationStore } from "../../store/store";
 
 // Filtering function
 export function filterRates(responseData, pair, fromDate, toDate) {
@@ -47,6 +49,7 @@ export function filterRates(responseData, pair, fromDate, toDate) {
 // ];
 
 const currencyPairs = [
+  "CAD/NGN",
   "GHS/EUR",
   "GHS/CAD",
   "GHS/USD",
@@ -71,7 +74,6 @@ const currencyPairs = [
   "USD/NGN",
   "EUR/NGN",
   "GBP/NGN",
-  "CAD/NGN",
   "USD/LRD",
   "EUR/LRD",
   "GBP/LRD",
@@ -182,6 +184,8 @@ const TapExchangeRates = () => {
   );
   const [endDate, setEndDate] = useState(new Date());
   const [vendors, setVendors] = useState([]);
+  const [pageMeta, setPageMeta] = useState({});
+  const { currentPage } = usePaginationStore();
 
   function dataVendors(data) {
     let uniqueVendors = new Set();
@@ -194,7 +198,6 @@ const TapExchangeRates = () => {
       ratesArray.forEach((rateObj) => {
         // Iterate through the vendors in the rates object
         for (let vendor in rateObj.rates) {
-          console.log(vendor);
           if (vendor !== "undefined") {
             uniqueVendors.add(vendor);
           }
@@ -208,9 +211,10 @@ const TapExchangeRates = () => {
   const fetchRates = async () => {
     setLoading(true);
     try {
-      const response = await fetchDbRates();
-      const data = response.data;
+      const response = await fetchDbRates(selectedPair, startDate, endDate,currentPage);
+      const data = response.data?.data;
       setExchangeRates(data);
+      setPageMeta(response.data?.meta);
 
       const vendorsAll = dataVendors(data);
 
@@ -218,11 +222,9 @@ const TapExchangeRates = () => {
       const vendorList = Object.keys(firstDateRates.rates).filter(
         (v) => v !== "undefined"
       );
-      console.log(vendorsAll);
       setVendors(vendorsAll);
 
       // Apply filtering
-      console.log(selectedPair, startDate, endDate);
       const filtered = filterRates({ data }, selectedPair, startDate, endDate);
       setFilteredRates(filtered);
     } catch (error) {
@@ -234,7 +236,7 @@ const TapExchangeRates = () => {
 
   useEffect(() => {
     fetchRates();
-  }, [selectedPair, startDate, endDate]);
+  }, [selectedPair, startDate, endDate, currentPage]);
 
   useEffect(() => {
     const token = sessionStorage.getItem("token");
@@ -257,7 +259,6 @@ const TapExchangeRates = () => {
   return (
     <div className="container mx-auto py-10">
       <h1 className="text-2xl font-bold mb-5">Historical Exchange Rates</h1>
-
       <div className="flex space-x-4 mb-5">
         <Select onValueChange={setSelectedPair} value={selectedPair}>
           <SelectTrigger className="w-[180px]">
@@ -334,6 +335,10 @@ const TapExchangeRates = () => {
               ))}
             </TableBody>
           </Table>
+          <Pagination
+            currentPage={pageMeta?.currentPage}
+            totalPages={pageMeta?.totalPages}
+          />
         </div>
       )}
     </div>

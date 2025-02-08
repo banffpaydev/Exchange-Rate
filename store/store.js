@@ -21,9 +21,9 @@ export const useStore = create((set) => ({
 }));
 
 
-// export const usePaginationStore = create<PaginationState>((set) => ({
-//   currentPage: 1,
-//   setCurrentPage: (page) => {
-//     set((state) => ({ currentPage: page }));
-//   },
-// }));
+export const usePaginationStore = create((set) => ({
+  currentPage: 1,
+  setCurrentPage: (page) => {
+    set((state) => ({ currentPage: page }));
+  },
+}));
