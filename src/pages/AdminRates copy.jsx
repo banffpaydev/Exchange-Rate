@@ -24,6 +24,7 @@ import { useStore } from "../../store/store";
 import { SpecialRatesDialog } from "@/components/admin/specialRatesDialog";
 import { Input } from "@/components/ui/input";
 import { http } from "@/utils/config";
+import { UploadCSVModal } from "@/components/admin/uploadCsv";
 export const prioritizedPairs = [
   "USD/NGN",
   "USD/GHS",
@@ -344,6 +345,13 @@ const AdminRatesChn = () => {
         editedRates={editedRates}
         loading={loading}
         // remitOne={remitOneEnabled}
+      />
+
+      <UploadCSVModal
+        isOpen={showUploadRateDialog}
+        onClose={() => {
+          setShowUploadRateDialog(true);
+        }}
       />
     </div>
   );
