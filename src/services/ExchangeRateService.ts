@@ -13,6 +13,7 @@ import { getPairById, updateRemitOneRate } from "../controllers/currencyPairCont
 import InternalRate from "../models/internalRate";
 import { autoUpdateInternalRatesOnFetch, getInternalRateByPair } from "./internalRateService";
 import { matchesGlob } from "path";
+import { addCommasToNumber } from "../controllers/utility";
 
 dotenv.config();
 export const username = process.env.USER_NAME;
@@ -568,8 +569,10 @@ const getCurrencyRate = async (gofrom: string, goto: string): Promise<number | n
 // ];
 
 export const pairs = [
-    "NGN/LRD", "LRD/NGN", "USD/GAM", "GBP/GAM",
-    "CAD/GAM", "EUR/GAM",
+    'NGN/SLE', 'SLE/LRD', 'SLE/NGN', "NGN/LRD", 
+    "LRD/NGN",' LRD/SLE', 'USD/SLE', 'SLE/NGN', 
+    'SLE/LRD', 'NGN/SLE', 'CAD/SLE', 'GBP/SLE', 
+    'EUR/SLE',
     'CAD/NGN', 'NGN/CAD', 'GHS/EUR', 'GHS/CAD',
     'GHS/USD', 'GHS/GBP', 'EUR/GHS', 'CAD/GHS',
     'USD/GHS', 'GBP/GHS', 'GBP/GMD', 'GMD/GBP',
@@ -578,12 +581,12 @@ export const pairs = [
     'GBP/USD', 'GBP/CAD', 'GBP/EUR',
     'USD/NGN', 'EUR/NGN', 'GBP/NGN',
     'USD/LRD', 'EUR/LRD', 'GBP/LRD', 'CAD/LRD',
-    'GHS/NGN', 'AED/NGN', 'SLL/NGN', 'RWF/NGN',
-    'GHS/LRD', 'AED/LRD', 'SLL/LRD', 'RWF/LRD',
+    'GHS/NGN', 'AED/NGN', 'RWF/NGN',
+    'GHS/LRD', 'AED/LRD', 'RWF/LRD',
     'NGN/USD', 'NGN/EUR', 'NGN/GBP',
     'LRD/USD', 'LRD/EUR', 'LRD/GBP', 'LRD/CAD',
-    'NGN/GHS', 'NGN/AED', 'NGN/SLL', 'NGN/RWF',
-    'LRD/GHS', 'LRD/AED', 'LRD/SLL', 'LRD/RWF',
+    'NGN/GHS', 'NGN/AED', 'NGN/RWF',
+    'LRD/GHS', 'LRD/AED', 'LRD/RWF',
     'USD/KES', 'EUR/KES', 'GBP/KES', 'CAD/KES',
     'USD/ZMW', 'EUR/ZMW', 'GBP/ZMW', 'CAD/ZMW',
     'USD/TZS', 'EUR/TZS', 'GBP/TZS', 'CAD/TZS',
@@ -597,9 +600,8 @@ export const pairs = [
     'KES/ZMW', 'KES/TZS', 'KES/XOF', 'KES/XAF',
     'ZMW/TZS', 'ZMW/XOF', 'ZMW/XAF', 'USD/CAD',
     'TZS/XOF', 'TZS/XAF', 'USD/GBP', 'USD/EUR',
-    'XOF/XAF', 'USD/SLL', 'SLL/NGN', 'SLL/LRD',
-    'NGN/SLL', 'CAD/GMD', 'EUR/GMD', 'USD/GMD',
-    'CAD/SLL', 'GBP/SLL', 'EUR/SLL', 'GMD/USD',
+    'XOF/XAF', 'CAD/GMD', 'EUR/GMD', 'USD/GMD',
+    'GMD/USD',
 
 ];
 export const handleAllFetch = async () => {
@@ -1172,7 +1174,7 @@ export const analysisReVamp = async (currency: string) => {
 
 export const sendRate = async () => {
     try {
-        const mailList = ["dharold@bpay.africa", "mlawal@bpay.africa", "eamrovhe@bpay.africa", "osaliu@banffpay.com", "mebitanmi@banffpay.com", "eakinlua@bpay.africa", "cidefoh@banffpay.com"]
+        const mailList = ["dharold@bpay.africa", "mlawal@bpay.africa", "eamrovhe@bpay.africa", "osaliu@banffpay.com", "mebitanmi@banffpay.com", "eakinlua@bpay.africa", "cidefoh@banffpay.com", "gbolaide@banffpay.ca"]
         // const mailList = ["dharold@bpay.africa"]
         const currencies = ["USD", "CAD", "GBP", "EUR", "NGN", "GHS", "XAF", "XOF", "SLL", "LRD", "GMD", "KES", "ZMW", "TZS"];
         const pairsCombo = currencies.flatMap(from => currencies.map(to => `${from}/${to}`));
@@ -1229,16 +1231,16 @@ export const sendRate = async () => {
 
 export const sendRateToPartners = async () => {
     try {
-        const mailList = ["dharold@bpay.africa", "mebitanmi@banffpay.com", "care@banffpay.com", "mlawal@bpay.africa", "care@bpay.africa"]
+        const mailList = ["dharold@bpay.africa", "mebitanmi@banffpay.com", "care@banffpay.com", "mlawal@bpay.africa", "care@bpay.africa", "gbolaide@banffpay.ca"]
         // const mailList = ["dharold@bpay.africa"]
         const buyCurrencies = ["USD", "GBP", "CAD", "EUR"]
 
-        const sellCurrencies = ["NGN", "GHS", "XAF", "XOF", "SLL", "GAM"];
+        const sellCurrencies = ["NGN", "GHS", "XAF", "XOF", "SLE", "GMD"];
         const pairsCombo = [
-            "USD/NGN", "USD/GHS", "USD/XAF", "USD/XOF", "USD/SLL", "USD/GAM",
-            "GBP/NGN", "GBP/GHS", "GBP/XAF", "GBP/XOF", "GBP/SLL", "GBP/GAM",
-            "CAD/NGN", "CAD/GHS", "CAD/XAF", "CAD/XOF", "CAD/SLL", "CAD/GAM",
-            "EUR/NGN", "EUR/GHS", "EUR/XAF", "EUR/XOF", "EUR/SLL", "EUR/GAM"
+            "USD/NGN", "USD/GHS", "USD/XAF", "USD/XOF", "USD/SLE", "USD/GMD",
+            "GBP/NGN", "GBP/GHS", "GBP/XAF", "GBP/XOF", "GBP/SLE", "GBP/GMD",
+            "CAD/NGN", "CAD/GHS", "CAD/XAF", "CAD/XOF", "CAD/SLE", "CAD/GMD",
+            "EUR/NGN", "EUR/GHS", "EUR/XAF", "EUR/XOF", "EUR/SLE", "EUR/GMD"
         ]
 
 
@@ -1251,18 +1253,18 @@ export const sendRateToPartners = async () => {
         }
         const tableRows = buyCurrencies.map(rowCurrency => `
             <tr>
-                <td style="background-color: #4CAF50; color: white;">${rowCurrency}</td>
+                <td style="background-color: #0097ff; color: white;">${rowCurrency}</td>
                 ${sellCurrencies.map(colCurrency => {
             const rate = rowCurrency === colCurrency ? 1 : exchangeRates[rowCurrency]?.[colCurrency] || '';
             const bgColor = rowCurrency === colCurrency ? '#FFFF00' : ''; // Highlight diagonal cells in yellow
             // { console.log(typeof rate === 'number' && isFinite(rate) && rate.toFixed(2), rate) }
-            return `<td style="background-color: ${bgColor}; text-align: center;">${typeof rate === 'number' && isFinite(rate) ? rate.toFixed(2) : 0}</td>`;
+            return `<td style="background-color: ${bgColor}; text-align: center;">${typeof rate === 'number' && isFinite(rate) ? addCommasToNumber(+rate.toFixed(2)) : 0}</td>`;
         }).join('')}
             </tr>
         `).join('');
         const mailOptions = {
             from: `rate@banffpay.com`,
-            to: mailList,
+            bcc: mailList,
             subject: `BanffPay Daily Exchange Rate Update   ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`,
 
             html: `
@@ -1272,9 +1274,9 @@ export const sendRateToPartners = async () => {
                 <table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; width: 100%;">
                     <thead>
                         <tr>
-                            <th style="background-color: #4CAF50; color: white;">&nbsp;</th>
+                            <th style="background-color: #0097ff; color: white;">&nbsp;</th>
                             ${sellCurrencies.map(currency => `
-                                <th style="background-color: #4CAF50; color: white;">${currency}</th>
+                                <th style="background-color: #0097ff; color: white;">${currency}</th>
                             `).join('')}
                         </tr>
                     </thead>
