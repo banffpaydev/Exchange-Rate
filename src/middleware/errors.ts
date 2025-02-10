@@ -26,4 +26,4 @@ export const errorHandler = (
     .status(500)
     .json({ statusCode: 500, success: false, message: "Something went wrong" });
 };
- 
+  

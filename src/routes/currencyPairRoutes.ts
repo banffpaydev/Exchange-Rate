@@ -2,6 +2,7 @@ import express from 'express';
 import { createPair, getPairs, getPairById, updatePair, deletePair, getRecentRates, getRecentRawRates, getPaginatedPairs, getRemitOneSourceandDest, calculateMulipleInternalRates, getSingleInternalRates, getAllInternalRates, updateInternalRates, getDbRateByPair, deleteInternalRate, uploadRate, updateMultiplePairs } from '../controllers/currencyPairController';
 import { authenticateToken } from '../middleware/auth';
 import multer from 'multer';
+import { CustomError } from '../middleware/errors';
 
 //multer config
 export const upload = multer({
@@ -14,7 +15,7 @@ export const upload = multer({
         ) {
             cb(null, true); // Accept file
         } else {
-            cb(new Error("Only CSV and Excel files are allowed!")); // Reject file
+            cb(new CustomError("Only CSV and Excel files are allowed!", 400)); // Reject file
         }
     },
 });

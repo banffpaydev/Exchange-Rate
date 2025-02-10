@@ -569,11 +569,11 @@ const getCurrencyRate = async (gofrom: string, goto: string): Promise<number | n
 // ];
 
 export const pairs = [
-    'NGN/SLE', 'SLE/LRD', 'SLE/NGN', "NGN/LRD",
+    'CAD/NGN', 'NGN/SLE', 'SLE/LRD', 'SLE/NGN', "NGN/LRD",
     "LRD/NGN", ' LRD/SLE', 'USD/SLE', 'SLE/NGN',
     'SLE/LRD', 'NGN/SLE', 'CAD/SLE', 'GBP/SLE',
     'EUR/SLE',
-    'CAD/NGN', 'NGN/CAD', 'GHS/EUR', 'GHS/CAD',
+    'NGN/CAD', 'GHS/EUR', 'GHS/CAD',
     'GHS/USD', 'GHS/GBP', 'EUR/GHS', 'CAD/GHS',
     'USD/GHS', 'GBP/GHS', 'GBP/GMD', 'GMD/GBP',
     'GMD/CAD', 'GMD/EUR', 'CAD/USD', 'CAD/EUR',
@@ -933,18 +933,18 @@ export const getRatesFromDBWithDateFilter = async (startDate?: string, endDate?:
         }, {} as { [key: string]: any[] }); // Initial accumulator is an empty object
 
         // return groupedByDate;
-    const totalRecords = await ExchangeRate.count({ where: whereClause });
-    const totalPages = Math.ceil(totalRecords / pageSize);
+        const totalRecords = await ExchangeRate.count({ where: whereClause });
+        const totalPages = Math.ceil(totalRecords / pageSize);
 
-    return {
-        data: groupedByDate,
-        meta: {
-        currentPage: page,
-        totalPages: totalPages,
-        pageSize: pageSize,
-        totalRecords: totalRecords
-        }
-    };
+        return {
+            data: groupedByDate,
+            meta: {
+                currentPage: page,
+                totalPages: totalPages,
+                pageSize: pageSize,
+                totalRecords: totalRecords
+            }
+        };
     } catch (error: any) {
         throw new Error(`Failed to fetch exchange rates: ${error.message}`);
     }

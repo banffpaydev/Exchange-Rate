@@ -152,10 +152,35 @@ export const uploadRate = async (req: Request, res: Response) => {
         return
     }
 
-    console.log(filePath)
-    const fileContents = await readFile((req as any).file.path);
-    try {
 
+    try {
+        const fileContents: {
+            pair: string;
+            exchange_rate: string;
+        }[] = await readFile((req as any).file.path);
+
+        if (Array.isArray(fileContents)) {
+            for (const data of fileContents) {
+                const internalRate = await getInternalRateByPair(data.pair)
+                const inverseInternalRate = await getInternalRateByPair(inversePair(data.pair))
+
+                if (internalRate || inverseInternalRate) {
+                    res.status(400).json({ message: 'Error uploading rates internal rate', });
+
+                    // throw new CustomError("Cannot update internal rate via CSV", 400);
+
+                }
+                const splitPair = data.pair.split("/");
+
+                await updateRemitOneRate(splitPair[0], splitPair[1], data.exchange_rate)
+                console.log("done1")
+                await createCurrencyPair({ currencyPair: data.pair, exchangeRate: data.exchange_rate });
+                console.log("done2")
+
+            }
+        } else {
+            await CurrencyPair.create(fileContents);
+        }
         fs.unlink(filePath, (err) => {
             if (err) console.error("Error deleting file:", err);
         });
@@ -244,7 +269,7 @@ export const calculateMulipleInternalRates = async (req: any, res: Response) => 
                     await createCurrencyPair({ currencyPair: invertedPair, exchangeRate: result?.bpay_sell_rate?.toFixed(2) });
 
                 }
-            } 
+            }
         }
         const formattedResult = results.map((result) => {
 
@@ -459,6 +484,7 @@ export const updateRemitOneRate = async (from: string, to: string, rate: string 
         if (findSourceCountry && findDestCountry) {
             const response = await updateSellRate(findSourceCountry?.id, findSourceCountry?.currency, findDestCountry?.id, findDestCountry?.currency, +rate)
         }
+
     } catch (error) {
         throw new CustomError("error updating currency pair", 500);
 
