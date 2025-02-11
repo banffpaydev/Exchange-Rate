@@ -14,6 +14,7 @@ import axios from "axios";
 import { basisUrl } from "@/utils/api";
 import { useNavigate } from "react-router-dom";
 import { useStore } from "../../store/store";
+import { adminUsers } from "./AdminRates copy";
 
 const Register = () => {
   const form = useForm({
@@ -53,7 +54,7 @@ const Register = () => {
       // Redirect after successful login
       setTimeout(() => {
         navigate(
-          response.data?.data?.user.type === "admin" ? "/admin/rates" : "/"
+           adminUsers.includes(response.data?.data?.user.type) ? "/admin/rates" : "/"
         );
       }, 1000);
     } catch (error) {

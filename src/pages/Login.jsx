@@ -15,6 +15,7 @@ import axios from "axios";
 import { basisUrl } from "@/utils/api";
 import { toast } from "sonner";
 import { useStore } from "../../store/store";
+import { adminUsers } from "./AdminRates copy";
 
 const Login = () => {
   const form = useForm();
@@ -41,7 +42,9 @@ const Login = () => {
       // Redirect after successful login
       setTimeout(() => {
         navigate(
-          response.data?.data?.user.type === "admin" ? "/admin/rates" : "/"
+          adminUsers.includes(response.data?.data?.user.type)
+            ? "/admin/rates"
+            : "/"
         );
       }, 1000);
     } catch (error) {

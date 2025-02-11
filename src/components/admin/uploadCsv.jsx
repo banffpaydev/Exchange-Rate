@@ -101,9 +101,7 @@ export function UploadCSVModal({ isOpen, onClose }) {
               if (file) {
                 handleUpload(file);
               } else {
-                toast.error({
-                  msg: "Please Upload a csv file",
-                });
+                toast.error("Please Upload a csv file");
               }
             }}
             type="submit"

@@ -13,7 +13,6 @@ import { toast } from "sonner";
 import { basisUrl } from "@/utils/api";
 import {
   SaveBulkRatesDialog,
-  SaveRatesDialog,
 } from "@/components/admin/SaveRatesDialog";
 import axios from "axios";
 import {
@@ -51,6 +50,8 @@ export const prioritizedPairs = [
   "EUR/SLL",
   "EUR/GAM",
 ];
+export const adminUsers = ["admin", "sub-admin"];
+
 const AdminRatesChn = () => {
   const navigate = useNavigate();
   const [editedRates, setEditedRates] = useState({});
@@ -67,14 +68,16 @@ const AdminRatesChn = () => {
   const [remitOneCountries, setRemitOneCountries] = useState({});
   const [specialRates, setSpecialRates] = useState([]);
   const [searchedRates, setSearchedRates] = useState([]);
-
+  const [adminType, setAdminType] = useState();
   const { user } = useStore();
 
   React.useEffect(() => {
     if (user)
-      if (user?.type !== "admin") {
+      if (!adminUsers.includes(user?.type)) {
         navigate("/login");
         return;
+      } else {
+        setAdminType(user?.type);
       }
   }, [navigate]);
 
@@ -184,74 +187,81 @@ const AdminRatesChn = () => {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Admin Rate Management</h1>
         <div className="flex items-center gap-3">
-          <Button onClick={() => setShowRateDialog(true)}>
-            Create Special Rate
-          </Button>
+          {adminType === "admin" && (
+            <Button onClick={() => setShowRateDialog(true)}>
+              Create Special Rate
+            </Button>
+          )}
           <Button onClick={() => setShowUploadRateDialog(true)}>
             Upload Rate CSV
           </Button>
         </div>
       </div>
-      <h1 className="text-xl font-bold mb-2">Special Buy Rates</h1>
-      <div className="rounded-md mb-4 border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Currency Pair</TableHead>
-              <TableHead>Buy Adder</TableHead>
-              <TableHead>BanffPay Buy Rate</TableHead>
-            </TableRow>
-          </TableHeader>
+      {adminType === "admin" && (
+        <>
+          <h1 className="text-xl font-bold mb-2">Special Buy Rates</h1>
+          <div className="rounded-md mb-4 border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Currency Pair</TableHead>
+                  <TableHead>Buy Adder</TableHead>
+                  <TableHead>BanffPay Buy Rate</TableHead>
+                </TableRow>
+              </TableHeader>
 
-          <TableBody>
-            {specialRates?.map((data) => {
-              return (
-                <SpecialAdminRateRowChn
-                  key={data.id}
-                  id={data.id}
-                  pair={data.pair}
-                  onRateChange={handleRateChange}
-                  remitOneEnabled={true}
-                  special
-                  fetchSpecialRates={fetchSpecialRates}
-                  type="buy"
-                  {...data}
-                />
-              );
-            })}
-          </TableBody>
-        </Table>
-      </div>
+              <TableBody>
+                {specialRates?.map((data) => {
+                  return (
+                    <SpecialAdminRateRowChn
+                      key={data.id}
+                      id={data.id}
+                      pair={data.pair}
+                      onRateChange={handleRateChange}
+                      remitOneEnabled={true}
+                      special
+                      fetchSpecialRates={fetchSpecialRates}
+                      type="buy"
+                      {...data}
+                    />
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
 
-      <h1 className="text-xl font-bold mb-2">Special Sell Rates</h1>
-      <div className="rounded-md mb-4 border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Currency Pair</TableHead>
-              <TableHead>Sell Reduct</TableHead>
-              <TableHead>Banffpay Sell Rate</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {specialRates?.map((data) => {
-              return (
-                <SpecialAdminRateRowChn
-                  key={data.id}
-                  id={data.id}
-                  pair={data.pair}
-                  onRateChange={handleRateChange}
-                  remitOneEnabled={true}
-                  special
-                  type="sell"
-                  fetchSpecialRates={fetchSpecialRates}
-                  {...data}
-                />
-              );
-            })}
-          </TableBody>
-        </Table>
-      </div>
+          <h1 className="text-xl font-bold mb-2">Special Sell Rates</h1>
+          <div className="rounded-md mb-4 border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Currency Pair</TableHead>
+                  <TableHead>Sell Reduct</TableHead>
+                  <TableHead>Banffpay Sell Rate</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {specialRates?.map((data) => {
+                  return (
+                    <SpecialAdminRateRowChn
+                      key={data.id}
+                      id={data.id}
+                      pair={data.pair}
+                      onRateChange={handleRateChange}
+                      remitOneEnabled={true}
+                      special
+                      type="sell"
+                      fetchSpecialRates={fetchSpecialRates}
+                      {...data}
+                    />
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
+        </>
+      )}
+
       <div className="flex mb-3 items-center gap-3">
         <h1 className="text-xl whitespace-nowrap font-bold mb-2">
           Other Rates

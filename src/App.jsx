@@ -17,6 +17,7 @@ import { ErrorFallback } from "./components/ErrorBoundary";
 import { Loader2 } from "lucide-react";
 import { getUser } from "./utils/api";
 import { useStore } from "../store/store";
+import { adminUsers } from "./pages/AdminRates copy";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -58,7 +59,7 @@ const Layout = ({ children }) => {
             {navItems
               .filter((item) => {
                 if (isLoggedIn) {
-                  if (user?.type !== "admin") {
+                  if (!adminUsers.includes(user?.type)) {
                     // Show only items relevant to admins when the user is an admin
                     return (
                       item.title.toLowerCase() !== "register" &&

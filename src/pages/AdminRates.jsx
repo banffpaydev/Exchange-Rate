@@ -15,6 +15,7 @@ import { fetchDbRates } from "@/utils/api";
 import { AdminRateRow } from "@/components/admin/AdminRateRow";
 import { SaveRatesDialog } from "@/components/admin/SaveRatesDialog";
 import { useStore } from "../../store/store";
+import { adminUsers } from "./AdminRates copy";
 
 const AdminRates = () => {
   const navigate = useNavigate();
@@ -29,7 +30,7 @@ const AdminRates = () => {
 
   React.useEffect(() => {
     if (user)
-      if (user?.type !== "admin") {
+     if (!adminUsers.includes(user?.type)) {
         navigate("/login");
         return;
       }
