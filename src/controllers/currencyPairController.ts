@@ -173,9 +173,7 @@ export const uploadRate = async (req: Request, res: Response) => {
                 const splitPair = data.pair.split("/");
 
                 await updateRemitOneRate(splitPair[0], splitPair[1], data.exchange_rate)
-                console.log("done1")
                 await createCurrencyPair({ currencyPair: data.pair, exchangeRate: data.exchange_rate });
-                console.log("done2")
 
             }
         } else {
