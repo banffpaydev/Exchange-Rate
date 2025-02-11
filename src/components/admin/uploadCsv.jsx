@@ -5,12 +5,12 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { useState } from "react";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
 import { http } from "@/utils/config";
+import { ColorRing } from "react-loader-spinner";
 
 export function UploadCSVModal({ isOpen, onClose }) {
   const [file, setFile] = useState(null);
@@ -32,7 +32,7 @@ export function UploadCSVModal({ isOpen, onClose }) {
           },
         });
       }
-
+      onClose();
       toast.success("Rate data uploaded");
     } catch (error) {
       console.log(error);
@@ -96,7 +96,7 @@ export function UploadCSVModal({ isOpen, onClose }) {
         </div>
         <DialogFooter>
           <Button
-            loading={loading}
+            disabled={loading}
             onClick={() => {
               if (file) {
                 handleUpload(file);
@@ -106,7 +106,17 @@ export function UploadCSVModal({ isOpen, onClose }) {
             }}
             type="submit"
           >
-            Upload
+            Upload   {loading && (
+              <ColorRing
+                visible={true}
+                height="25"
+                width="25"
+                ariaLabel="color-ring-loading"
+                wrapperStyle={{}}
+                wrapperClass={`color-ring-wrapper `}
+                colors={["#fff", "#fff", "#fff", "#fff", "#fff"]}
+              />
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>
