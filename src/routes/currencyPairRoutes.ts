@@ -37,7 +37,7 @@ router.delete('/internal', authenticateToken, deleteInternalRate);
 
 router.get('/dbrate-by-Pair', getDbRateByPair);
 // @ts-ignore
-router.post("/upload-rates", upload.single("file"), uploadRate);
+router.post("/upload-rates", upload.single("file"),authenticateToken, uploadRate);
 
 // @ts-ignore
 router.put('/update-internal', authenticateToken, updateInternalRates);
