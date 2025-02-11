@@ -48,6 +48,22 @@ class UserController {
     } catch (error: any) {
       return res.status(400).json({ error: error.message });
     }
+
+
+  }
+
+  // update user type
+  static async updateUserType(req: any, res: Response) {
+    const { email, type } = req.body;
+
+    try {
+      const data = await UserService.updateUserTypeByEmail(email, type);
+      return res.status(200).json({ message: 'Successful', data });
+    } catch (error: any) {
+      return res.status(400).json({ error: error.message });
+    }
+
+
   }
 }
 

@@ -59,6 +59,7 @@ User.init(
     type:{
       type: DataTypes.STRING,
       allowNull: true,
+      defaultValue: 'user',
     },
   },
   {

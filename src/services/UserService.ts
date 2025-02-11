@@ -81,7 +81,20 @@ class UserService {
 
     return users;
   }
+  // Update user type by email
+  static async updateUserTypeByEmail(email: string, newType: string) {
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      throw new Error('User not found');
+    }
+    user.type = newType;
+    await user.save();
 
+    const userWithoutPassword = { ...user.toJSON() } as { password?: string };
+    delete userWithoutPassword.password;
+
+    return userWithoutPassword;
+  }
   // Retrieve a specific user by ID
   static async getUserById(id: string) {
     try {

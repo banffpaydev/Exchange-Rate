@@ -144,9 +144,12 @@ export const getDbRateByPair = async (req: Request, res: Response) => {
     }
 }
 
-export const uploadRate = async (req: Request, res: Response) => {
+export const uploadRate = async (req: any, res: Response) => {
     const filePath = req.file?.path;
+    // if (req.user?.type !== "admin") {
+    //     res.status(401).json({ message: 'Forbidden', });
 
+    // }
     if (!filePath) {
         res.status(400).json({ message: 'No file uploaded' });
         return
@@ -158,15 +161,16 @@ export const uploadRate = async (req: Request, res: Response) => {
             pair: string;
             exchange_rate: string;
         }[] = await readFile((req as any).file.path);
-
+        fs.unlink(filePath, (err) => {
+            if (err) console.error("Error deleting file:", err);
+        });
         if (Array.isArray(fileContents)) {
             for (const data of fileContents) {
                 const internalRate = await getInternalRateByPair(data.pair)
                 const inverseInternalRate = await getInternalRateByPair(inversePair(data.pair))
 
                 if (internalRate || inverseInternalRate) {
-                    res.status(400).json({ message: 'Error uploading rates internal rate', });
-
+                    return res.status(400).json({ message: 'Cannot update internal rate via CSV', });
                     // throw new CustomError("Cannot update internal rate via CSV", 400);
 
                 }
@@ -179,10 +183,9 @@ export const uploadRate = async (req: Request, res: Response) => {
         } else {
             await CurrencyPair.create(fileContents);
         }
-        fs.unlink(filePath, (err) => {
-            if (err) console.error("Error deleting file:", err);
-        });
-        res.status(200).json({ message: 'Agent Upload Successful', data: fileContents });
+
+        return res.status(200).json({ message: 'Agent Upload Successful', data: fileContents });
+
     } catch (error) {
         console.log(error);
         res.status(500).json({ message: 'Error uploading rates internal rate', error });

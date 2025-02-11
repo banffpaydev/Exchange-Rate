@@ -17,5 +17,7 @@ router.post('/login', UserController.login);
 
 // @ts-ignore
 router.get('/user', authenticateToken, UserController.getuser);
+// @ts-ignore
+// router.post('/user-type', UserController.updateUserType);
 
 export default router;
