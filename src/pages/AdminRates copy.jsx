@@ -350,7 +350,7 @@ const AdminRatesChn = () => {
       <UploadCSVModal
         isOpen={showUploadRateDialog}
         onClose={() => {
-          setShowUploadRateDialog(true);
+          setShowUploadRateDialog(false);
         }}
       />
     </div>

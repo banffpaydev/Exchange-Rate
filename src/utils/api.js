@@ -3,8 +3,8 @@ import { http } from "./config";
 // import dotenv from 'dotenv';
 // dotenv.config();
 
-export const basisUrl = "https://www.api-exchange.bpay.africa";
-// export const basisUrl = "http://localhost:5000";
+// export const basisUrl = "https://www.api-exchange.bpay.africa";
+export const basisUrl = "http://localhost:5000";
 // export const basisUrl = "https://xchangerate-banf.onrender.com"
 
 // Base URL for your backend API  process.env.REACT_APP_API_BASE_URL ||  'https://xchangerate-banf.onrender.com' || ''http://localhost:5000'

@@ -26,7 +26,7 @@ export function UploadCSVModal({ isOpen, onClose }) {
     formData.append("file", file);
     try {
       if (file) {
-        await http.put(`current/update-internal`, formData, {
+        await http.post(`current/upload-rates`, formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
