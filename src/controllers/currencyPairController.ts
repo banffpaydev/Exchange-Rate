@@ -144,12 +144,12 @@ export const getDbRateByPair = async (req: Request, res: Response) => {
     }
 }
 
+const adminTypes = ["admin", "sub-admin"]
 export const uploadRate = async (req: any, res: Response) => {
     const filePath = req.file?.path;
-    // if (req.user?.type !== "admin") {
-    //     res.status(401).json({ message: 'Forbidden', });
-
-    // }
+    if (!adminTypes.includes(req.user?.type)) {
+        res.status(401).json({ message: 'Forbidden', });
+    }
     if (!filePath) {
         res.status(400).json({ message: 'No file uploaded' });
         return
