@@ -167,7 +167,6 @@ export const uploadRate = async (req: any, res: Response) => {
             if (err) console.error("Error deleting file:", err);
         });
 
-        console.log(fileContents)
         if (Array.isArray(fileContents)) {
 
             for (const data of fileContents) {
