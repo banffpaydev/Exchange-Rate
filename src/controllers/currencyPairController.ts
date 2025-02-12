@@ -149,6 +149,7 @@ export const uploadRate = async (req: any, res: Response) => {
     const filePath = req.file?.path;
     if (!adminTypes.includes(req.user?.type)) {
         res.status(401).json({ message: 'Forbidden', });
+        return
     }
     if (!filePath) {
         res.status(400).json({ message: 'No file uploaded' });
@@ -161,13 +162,26 @@ export const uploadRate = async (req: any, res: Response) => {
             pair: string;
             exchange_rate: string;
         }[] = await readFile((req as any).file.path);
+
         fs.unlink(filePath, (err) => {
             if (err) console.error("Error deleting file:", err);
         });
+
+        console.log(fileContents)
         if (Array.isArray(fileContents)) {
+
             for (const data of fileContents) {
+                if (!data.pair) {
+                    res.status(400).json({ message: 'Invalid pair' });
+                    return
+                }
+                if (!data.exchange_rate) {
+                    res.status(400).json({ message: 'Invalid Exchange rate' });
+                    return
+                }
                 const internalRate = await getInternalRateByPair(data.pair)
-                const inverseInternalRate = await getInternalRateByPair(inversePair(data.pair))
+                const inverse = await inversePair(data.pair)
+                const inverseInternalRate = await getInternalRateByPair(inverse)
 
                 if (internalRate || inverseInternalRate) {
                     return res.status(400).json({ message: 'Cannot update internal rate via CSV', });
@@ -188,7 +202,7 @@ export const uploadRate = async (req: any, res: Response) => {
 
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: 'Error uploading rates internal rate', error });
+        res.status(500).json({ message: 'Error uploading rates ', error });
 
     }
 };

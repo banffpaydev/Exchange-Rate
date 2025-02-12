@@ -31,7 +31,6 @@ export const runCreateTables = async () => {
 }
 
 export const createCurrencyPair = async (data: any) => {
-
   return await CurrencyPair.create(data);
 };
 
