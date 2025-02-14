@@ -569,13 +569,14 @@ const getCurrencyRate = async (gofrom: string, goto: string): Promise<number | n
 // ];
 
 export const pairs = [
-    'CAD/NGN', 'NGN/SLE', 'SLE/LRD', 'SLE/NGN', "NGN/LRD",
-    "LRD/NGN", ' LRD/SLE', 'USD/SLE', 'SLE/NGN',
-    'SLE/LRD', 'NGN/SLE', 'CAD/SLE', 'GBP/SLE',
-    'EUR/SLE',
+    'USD/XAF', 'USD/GHS', 'CAD/NGN', 'NGN/SLE', 
+    'SLE/NGN', "NGN/LRD", 'SLE/LRD',
+    "LRD/NGN", 'LRD/SLE', 'USD/SLE', 
+    'SLE/LRD', 'NGN/SLE', 'CAD/SLE', 
+    'EUR/SLE', 'SLE/NGN', 'GBP/SLE',
     'NGN/CAD', 'GHS/EUR', 'GHS/CAD',
     'GHS/USD', 'GHS/GBP', 'EUR/GHS', 'CAD/GHS',
-    'USD/GHS', 'GBP/GHS', 'GBP/GMD', 'GMD/GBP',
+    'GBP/GHS', 'GBP/GMD', 'GMD/GBP',
     'GMD/CAD', 'GMD/EUR', 'CAD/USD', 'CAD/EUR',
     'CAD/GBP', 'EUR/USD', 'EUR/CAD', 'EUR/GBP',
     'GBP/USD', 'GBP/CAD', 'GBP/EUR',
@@ -591,7 +592,7 @@ export const pairs = [
     'USD/ZMW', 'EUR/ZMW', 'GBP/ZMW', 'CAD/ZMW',
     'USD/TZS', 'EUR/TZS', 'GBP/TZS', 'CAD/TZS',
     'USD/XOF', 'EUR/XOF', 'GBP/XOF', 'CAD/XOF',
-    'USD/XAF', 'EUR/XAF', 'GBP/XAF', 'CAD/XAF',
+    'EUR/XAF', 'GBP/XAF', 'CAD/XAF',
     'KES/USD', 'KES/EUR', 'KES/GBP', 'KES/CAD',
     'ZMW/USD', 'ZMW/EUR', 'ZMW/GBP', 'ZMW/CAD',
     'TZS/USD', 'TZS/EUR', 'TZS/GBP', 'TZS/CAD',

@@ -15,7 +15,7 @@ app.listen(PORT, async () => {
   // removeRateKeyForAllPairs("xchangeRt exchange")
   // removeRateKeyForAllPairs("abokifxng")
 
-  // handleAllFetch()
+  handleAllFetch()
   // sendRate()
   // sendRateToPartners()
   async function checkServerStatus() {

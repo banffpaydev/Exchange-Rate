@@ -9,6 +9,7 @@ export const readFile = (fileName: string) =>
     fs.createReadStream(fileName)
       .pipe(csv())
       .on("data", (data) => {
+        console.log(data, "csv")
         // const {  ...rest } = data;
       
         stream.push(data);
