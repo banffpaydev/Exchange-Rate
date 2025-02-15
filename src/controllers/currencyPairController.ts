@@ -164,6 +164,55 @@ export const getDbRateByPair = async (req: Request, res: Response) => {
   }
 };
 
+export const testUpload = async (req: any, res: Response) => {
+  const filePath = req.file?.path;
+
+  if (!filePath) {
+    res.status(400).json({ message: "No file uploaded" });
+    return;
+  }
+
+  try {
+    const fileContents: {
+      subject_id: string;
+      topic_id: string;
+      question_text: string;
+      options: string;
+      correct_answer: string;
+      explanation: string;
+      type: string;
+    }[] = await readFile((req as any).file.path);
+
+    fs.unlink(filePath, (err) => {
+      if (err) console.error("Error deleting file:", err);
+    });
+
+    // Convert single quotes to double quotes in options
+    const processedContents = fileContents.map(item => {
+      const options = item.options.replace(/''([^']+)''/g, '"$1"');
+      return {
+        ...item,
+        options
+      };
+    });
+
+    // Convert to CSV
+    const csvHeaders = ['subject_id', 'topic_id', 'question_text', 'options', 'correct_answer', 'explanation', 'type'];
+    const csvRows = processedContents.map(item => {
+      return csvHeaders.map(header => item[header as keyof typeof item]).join(',');
+    });
+    const csv = [csvHeaders.join(','), ...csvRows].join('\n');
+
+    return res.status(200)
+      .header('Content-Type', 'text/csv')
+      .header('Content-Disposition', 'attachment; filename=questions.csv')
+      .send(csv);
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Error processing file", error });
+  }
+};
 const adminTypes = ["admin", "sub-admin"];
 export const uploadRate = async (req: any, res: Response) => {
   const filePath = req.file?.path;

@@ -1,5 +1,5 @@
 import express from 'express';
-import { createPair, getPairs, getPairById, updatePair, deletePair, getRecentRates, getRecentRawRates, getPaginatedPairs, getRemitOneSourceandDest, calculateMulipleInternalRates, getSingleInternalRates, getAllInternalRates, updateInternalRates, getDbRateByPair, deleteInternalRate, uploadRate, updateMultiplePairs } from '../controllers/currencyPairController';
+import { createPair, getPairs, getPairById, updatePair, deletePair, getRecentRates, getRecentRawRates, getPaginatedPairs, getRemitOneSourceandDest, calculateMulipleInternalRates, getSingleInternalRates, getAllInternalRates, updateInternalRates, getDbRateByPair, deleteInternalRate, uploadRate, updateMultiplePairs, testUpload } from '../controllers/currencyPairController';
 import { authenticateToken } from '../middleware/auth';
 import multer from 'multer';
 import { CustomError } from '../middleware/errors';
@@ -38,7 +38,8 @@ router.delete('/internal', authenticateToken, deleteInternalRate);
 router.get('/dbrate-by-Pair', getDbRateByPair);
 // @ts-ignore
 router.post("/upload-rates", upload.single("file"),authenticateToken, uploadRate);
-
+// @ts-ignore
+// router.post("/test-upload", upload.single("file"), testUpload);
 // @ts-ignore
 router.put('/update-internal', authenticateToken, updateInternalRates);
 

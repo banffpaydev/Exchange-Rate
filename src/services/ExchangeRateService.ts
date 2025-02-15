@@ -1292,13 +1292,7 @@ export const sendRateToPartners = async () => {
             html: `
            
          
-              <table width="100%" style="max-width: 550px;">
-                <tr>
-                  <td align="right">
-                    <img src="https://res.cloudinary.com/djrjesruj/image/upload/v1739023485/bzdy6wpitcd5dpycowbm.png" alt="Bpay Logo" style="width: 85px;">
-                  </td>
-                </tr>
-              </table>
+             
                 <h1>Exchange Rate Update</h1>
                 <p>Dear Partner,</p>
                 <p>Find below our exchange rate at ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}</p>

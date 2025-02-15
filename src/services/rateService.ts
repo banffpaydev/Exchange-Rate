@@ -85,14 +85,7 @@ export const updateSellRate = async (
         IsHQAgent: true,
       }
     );
-    console.log(
-      currency,
-      destCurrency,
-      rate,
-      countryId,
-      destCountryId,
-      "remitOneRateUpdated"
-    );
+   
     return response;
   } catch (err: any) {
     console.log(err);
