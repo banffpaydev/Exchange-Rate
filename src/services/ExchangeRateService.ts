@@ -690,7 +690,7 @@ export const handleAllFetch = async () => {
             currencyPair: pair,
             exchangeRate: rawStats[pair].mean
         }
-        results[pair]["BanffPay Rate"] = stats[pair].mean;
+        // results[pair]["BanffPay Rate"] = stats[pair].mean;
         // console.log(results[pair], "raw-pair-result")
         await createRawCurrencyPair(rawPairData);
 
@@ -986,7 +986,7 @@ export const getRawRatesFromDB = async () => {
     }
 };
 
-const buyPairs = [
+export const buyPairs = [
     "USD/CAD", "USD/GBP", "USD/EUR", "USD/NGN", "USD/GHS", "USD/XAF", "USD/XOF", "USD/SLL", "USD/LRD", "USD/GMD", "USD/KES", "USD/ZMW", "USD/TZS",
     "CAD/NGN", "CAD/GHS", "CAD/XAF", "CAD/XOF", "CAD/SLL", "CAD/LRD", "CAD/GMD", "CAD/KES", "CAD/ZMW", "CAD/TZS",
     "GBP/NGN", "GBP/GHS", "GBP/XAF", "GBP/XOF", "GBP/SLL", "GBP/LRD", "GBP/GMD", "GBP/KES", "GBP/ZMW", "GBP/TZS",
@@ -994,6 +994,46 @@ const buyPairs = [
     "NGN/GHS", "NGN/XAF", "NGN/XOF", "NGN/SLL", "NGN/LRD", "NGN/GMD", "NGN/KES", "NGN/ZMW", "NGN/TZS",
     "GHS/LRD",
 ];
+type VendorRate = {
+    vendor: string;
+    rate: number;
+};
+
+export function getTopAndBottomRatesWithAverages(rates: VendorRate[]): {
+    top3: VendorRate[],
+    bottom3: VendorRate[],
+    top3Avg: number,
+    bottom3Avg: number,
+    minAvg: number,
+    buyRate: number;
+    sellRate: number;
+
+} {
+    // Sort rates in ascending order by rate and remove duplicates
+    const sortedRates = rates.slice().sort((a, b) => a.rate - b.rate);
+    const uniqueRates = sortedRates.filter((item, index, arr) =>
+        index === 0 || item.rate !== arr[index - 1].rate
+    );
+
+    // Get the bottom 3 (smallest rates) and top 3 (largest rates)
+    const bottom3 = uniqueRates.slice(0, 3);
+    const top3 = uniqueRates.slice(-3).reverse(); // Get last 3 and reverse for descending order
+    // Helper function to calculate average
+    const calculateAverage = (items: VendorRate[]): number => {
+        // @ts-ignore
+        return items.reduce((sum, item) => sum + parseFloat(item.rate), 0) / items.length;
+    };
+    // Calculate averages
+    const top3Avg = calculateAverage(top3);
+    const bottom3Avg = calculateAverage(bottom3);
+    const minAvg = (top3Avg + bottom3Avg) / 2
+    const maxRate = Math.max(...top3.map((vendRate) => vendRate.rate))
+    const minRate = Math.min(...top3.map((vendRate) => vendRate.rate))
+
+    const buyRate = maxRate * (1 + central_adder / 100) // Increase by 0.2%
+    const sellRate = minRate * (1 - central_reduct / 100); // Decrease by 0.2%
+    return { top3, bottom3, top3Avg, bottom3Avg, minAvg, buyRate, sellRate };
+}
 
 export const getAnalyzedRates = async (currency: string, startDate: string, endDate: string) => {
     let latestRates: Record<string, any> = {};
@@ -1058,58 +1098,21 @@ export const getAnalyzedRates = async (currency: string, startDate: string, endD
         // For each pair (e.g., 'CAD/NGN'), filter the vendors to get only valid rates
         return Object.entries(vendors).filter(([vendor, rateValue]) => {
             return rateValue !== null && rateValue !== 0 && vendor !== "BanffPay Rate"; // Filter out invalid rates
-        }).map(([vendor, rateValue]) => ({
-            pair, // Add the currency pair as part of the result
-            vendor,
-            rate: rateValue as number
-        }));
+        }).map(([vendor, rateValue]) => {
+            console.log(rateValue,pair,"notews");
+            return {
+                pair, // Add the currency pair as part of the result
+                vendor,
+                rate: rateValue as number
+            }
+        });
     });
-
 
     // console.log("Updated Rates: ", rateVendorPairs);
 
-    type VendorRate = {
-        vendor: string;
-        rate: number;
-    };
+   
 
-
-    function getTopAndBottomRatesWithAverages(rates: VendorRate[]): {
-        top3: VendorRate[],
-        bottom3: VendorRate[],
-        top3Avg: number,
-        bottom3Avg: number,
-        minAvg: number,
-        buyRate: number;
-        sellRate: number;
-
-    } {
-        // Sort rates in ascending order by rate and remove duplicates
-        const sortedRates = rates.slice().sort((a, b) => a.rate - b.rate);
-        const uniqueRates = sortedRates.filter((item, index, arr) =>
-            index === 0 || item.rate !== arr[index - 1].rate
-        );
-
-        // Get the bottom 3 (smallest rates) and top 3 (largest rates)
-        const bottom3 = uniqueRates.slice(0, 3);
-        const top3 = uniqueRates.slice(-3).reverse(); // Get last 3 and reverse for descending order
-        // Helper function to calculate average
-        const calculateAverage = (items: VendorRate[]): number => {
-            // @ts-ignore
-            return items.reduce((sum, item) => sum + parseFloat(item.rate), 0) / items.length;
-        };
-        // Calculate averages
-        const top3Avg = calculateAverage(top3);
-        const bottom3Avg = calculateAverage(bottom3);
-        const minAvg = (top3Avg + bottom3Avg) / 2
-        const maxRate = Math.max(...top3.map((vendRate) => vendRate.rate))
-        const minRate = Math.min(...top3.map((vendRate) => vendRate.rate))
-
-        const buyRate = maxRate * (1 + central_adder / 100) // Increase by 0.2%
-        const sellRate = minRate * (1 - central_reduct / 100); // Decrease by 0.2%
-        return { top3, bottom3, top3Avg, bottom3Avg, minAvg, buyRate, sellRate };
-    }
-
+    
     // //console.log(getTopAndBottomRatesWithAverages(rateVendorPairs))
 
     const rateValues = rates.map((rate: any) => rate.rates);
@@ -1145,7 +1148,6 @@ export const getAnalyzedRates = async (currency: string, startDate: string, endD
     // const bottom5Avg = bottom5Rates.reduce((acc, rate) => acc + rate, 0) / bottom5Rates.length;
 
     const answer = getTopAndBottomRatesWithAverages(rateVendorPairs);
-    const banffPayRate = await getCurrencyPairByPair(currency)
     const internalRate = await getInternalRateByPair(currency)
     const inverse = await getInternalRateByPair(inversePair(currency))
     //    const anffP  const recentRates = await CurrencyPair.findAll({
