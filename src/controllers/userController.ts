@@ -1,5 +1,10 @@
-import { Request, Response } from 'express';
-import UserService from '../services/UserService';
+import { Request, Response } from "express";
+import UserService from "../services/UserService";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+const userType = process.env.DEFAULT_LOGIN;
 
 class UserController {
   // Register a new user
@@ -8,8 +13,10 @@ class UserController {
 
     try {
       const cleanEmail = email?.toLowerCase()?.trim();
-      const data = await UserService.register(cleanEmail, password, "user");
-      return res.status(201).json({ message: 'User registered successfully', data });
+      const data = await UserService.register(cleanEmail, password, userType || "user");
+      return res
+        .status(201)
+        .json({ message: "User registered successfully", data });
     } catch (error: any) {
       return res.status(400).json({ error: error.message });
     }
@@ -19,7 +26,7 @@ class UserController {
   static async getAll(req: Request, res: Response) {
     try {
       const users = await UserService.getAllUsers();
-      return res.status(200).json({ message: 'successful', users });
+      return res.status(200).json({ message: "successful", users });
     } catch (error: any) {
       return res.status(400).json({ error: error.message });
     }
@@ -32,7 +39,7 @@ class UserController {
       const cleanEmail = email?.toLowerCase()?.trim();
 
       const data = await UserService.login(cleanEmail, password);
-      return res.status(200).json({ message: 'Login successful', data });
+      return res.status(200).json({ message: "Login successful", data });
     } catch (error: any) {
       return res.status(400).json({ error: error.message });
     }
@@ -44,12 +51,10 @@ class UserController {
 
     try {
       const data = await UserService.getUserById(id);
-      return res.status(200).json({ message: 'Successful', data });
+      return res.status(200).json({ message: "Successful", data });
     } catch (error: any) {
       return res.status(400).json({ error: error.message });
     }
-
-
   }
 
   // update user type
@@ -58,12 +63,10 @@ class UserController {
 
     try {
       const data = await UserService.updateUserTypeByEmail(email, type);
-      return res.status(200).json({ message: 'Successful', data });
+      return res.status(200).json({ message: "Successful", data });
     } catch (error: any) {
       return res.status(400).json({ error: error.message });
     }
-
-
   }
 }
 

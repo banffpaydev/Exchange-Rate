@@ -125,6 +125,7 @@ jobs:
               --env PARTNER_REMITONE_USERNAME=admin_prod \
               --env PARTNER_REMITONE_PASSWORD=admin_prod_12345 \
               --env PARTNER_REMITONE_PIN=12345 \
+              --env DEFAULT_LOGIN=user \
               ${{ env.DOCKER_USERNAME }}/${{ env.CONTAINER_NAME }}:latest
             docker system prune -a -f
           EOF
