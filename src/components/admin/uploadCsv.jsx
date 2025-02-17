@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { http } from "@/utils/config";
 import { ColorRing } from "react-loader-spinner";
 
-export function UploadCSVModal({ isOpen, onClose }) {
+export function UploadCSVModal({ isOpen, onClose, onComplete }) {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const handleFileChange = (event) => {
@@ -32,6 +32,7 @@ export function UploadCSVModal({ isOpen, onClose }) {
           },
         });
       }
+      onComplete()
       onClose();
       toast.success("Rate data uploaded");
     } catch (error) {

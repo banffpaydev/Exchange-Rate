@@ -12,7 +12,7 @@ const ngnPairs = [
   "CAD/NGN",
   "GHS/NGN",
   "AED/NGN",
-  "SLL/NGN",
+  "SLE/NGN",
   "RWF/NGN",
   "NGN/USD",
   "NGN/EUR",
@@ -20,7 +20,7 @@ const ngnPairs = [
   "NGN/CAD",
   "NGN/GHS",
   "NGN/AED",
-  "NGN/SLL",
+  "NGN/SLE",
   "NGN/RWF",
 ];
 const lrdPairs = [

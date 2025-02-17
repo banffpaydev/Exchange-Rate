@@ -19,6 +19,7 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { Button } from "@/components/ui/button";
 import { CSVLink } from "react-csv";
 import { getRates } from "@/utils/api";
+import { Input } from "@/components/ui/input";
 
 // const currencyPairs = [
 //   'USD/NGN', 'EUR/NGN', 'GBP/NGN', 'CAD/NGN', 'CNY/NGN',
@@ -156,6 +157,7 @@ const ExchangeRates = () => {
   const [loading, setLoading] = useState(true);
   const [vendors, setVendors] = useState([]);
   const [selectedPair, setSelectedPair] = useState(currencyPairs[0]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [startDate, setStartDate] = useState(
     new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
   );
@@ -210,24 +212,37 @@ const ExchangeRates = () => {
     }));
   };
 
+  const hideRates = ["abokifxng", "cadrRemitRate"];
+
+  const filteredCurrencyPairs = Object.keys(exchangeRates || {}).filter(
+    (pair) => pair.toLowerCase().includes(searchQuery.toLowerCase())
+  );
   return (
     <div className="container mx-auto py-10">
       <h1 className="text-2xl font-bold mb-5">Exchange Rates</h1>
 
       <div className="flex space-x-4 mb-5">
-        <Select onValueChange={setSelectedPair} value={selectedPair}>
+        {/* <Select onValueChange={setSelectedPair} value={selectedPair}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Select currency pair" />
           </SelectTrigger>
           <SelectContent>
-            {currencyPairs.map((pair) => (
+            {filteredCurrencyPairs.map((pair) => (
               <SelectItem key={pair} value={pair}>
                 {pair}
               </SelectItem>
             ))}
           </SelectContent>
-        </Select>
-        <DatePicker
+        </Select> */}
+        <Input
+          type="text"
+          className="max-w-[200px]"
+          placeholder="search pair"
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+          }}
+        />
+        {/* <DatePicker
           date={startDate}
           onDateChange={setStartDate}
           className="w-[180px]"
@@ -236,7 +251,7 @@ const ExchangeRates = () => {
           date={endDate}
           onDateChange={setEndDate}
           className="w-[180px]"
-        />
+        /> */}
         <Button onClick={fetchRates}>Refresh</Button>
         <CSVLink
           data={getCSVData()}
@@ -257,35 +272,39 @@ const ExchangeRates = () => {
             <TableHeader>
               <TableRow>
                 <TableHead>Currency Pair</TableHead>
-                {vendors.map((vendor) => (
-                  <TableHead key={vendor}>{vendor}</TableHead>
-                ))}
+                {vendors
+                  .filter((ven) => !hideRates.includes(ven))
+                  .map((vendor) => (
+                    <TableHead key={vendor}>{vendor}</TableHead>
+                  ))}
               </TableRow>
             </TableHeader>
             <TableBody>
-              {exchangeRates &&
-                Object.entries(exchangeRates).map(([pair, rates]) => (
-                  <TableRow
-                    key={pair}
-                    className="cursor-pointer hover:bg-gray-100"
+              {filteredCurrencyPairs.map((pair) => (
+                <TableRow
+                  key={pair}
+                  className="cursor-pointer hover:bg-gray-100"
+                >
+                  <TableCell
+                    className="font-medium"
+                    onClick={() => handleRowClick(pair)}
                   >
-                    <TableCell
-                      className="font-medium"
-                      onClick={() => handleRowClick(pair)}
-                    >
-                      {pair}
-                    </TableCell>
-                    {vendors.map((vendor, index) => (
+                    {pair}
+                  </TableCell>
+                  {vendors
+                    .filter((ven) => !hideRates.includes(ven))
+                    .map((vendor, index) => (
                       <TableCell key={index}>
-                        {rates[vendor] !== undefined && rates[vendor] !== null
-                          ? parseFloat(rates[vendor])
+                        {exchangeRates[pair][vendor] !== undefined &&
+                        exchangeRates[pair][vendor] !== null
+                          ? parseFloat(exchangeRates[pair][vendor])
                               .toFixed(2)
                               .toLocaleString("en-US")
                           : "N/A"}
                       </TableCell>
                     ))}
-                  </TableRow>
-                ))}
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         </div>

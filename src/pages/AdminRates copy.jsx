@@ -29,25 +29,25 @@ export const prioritizedPairs = [
   "USD/GHS",
   "USD/XAF",
   "USD/XOF",
-  "USD/SLL",
+  "USD/SLE",
   "USD/GAM",
   "GBP/NGN",
   "GBP/GHS",
   "GBP/XAF",
   "GBP/XOF",
-  "GBP/SLL",
+  "GBP/SLE",
   "GBP/GAM",
   "CAD/NGN",
   "CAD/GHS",
   "CAD/XAF",
   "CAD/XOF",
-  "CAD/SLL",
+  "CAD/SLE",
   "CAD/GAM",
   "EUR/NGN",
   "EUR/GHS",
   "EUR/XAF",
   "EUR/XOF",
-  "EUR/SLL",
+  "EUR/SLE",
   "EUR/GAM",
 ];
 export const adminUsers = ["admin", "sub-admin"];
@@ -361,6 +361,9 @@ const AdminRatesChn = () => {
         isOpen={showUploadRateDialog}
         onClose={() => {
           setShowUploadRateDialog(false);
+        }}
+        onComplete={()=>{
+          fetchRecentRates()
         }}
       />
     </div>
