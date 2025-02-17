@@ -8,7 +8,10 @@ export interface CurrencyPairAttributes {
     buy_Rate?: number;
     sell_Rate?: number;
     createdAt: Date;
-    updatedAt: Date;
+    updatedAt: Date; 
+    action?: string;
+    actionBy?: string;
+    actionDate?: Date;
 }
 
 export interface CurrencyPairCreationAttributes extends Optional<CurrencyPairAttributes, 'id' | 'createdAt' | 'updatedAt'> { }
@@ -21,6 +24,9 @@ class CurrencyPair extends Model<CurrencyPairAttributes, CurrencyPairCreationAtt
     public sell_Rate?: number;
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
+    public action?: string;
+    public actionBy?: string;
+    public actionDate?: Date;
 }
 
 CurrencyPair.init(
@@ -53,6 +59,18 @@ CurrencyPair.init(
         updatedAt: {
             type: DataTypes.DATE,
             defaultValue: DataTypes.NOW
+        },
+        action: {
+            type: DataTypes.STRING,
+            allowNull: true
+        },
+        actionBy: {
+            type: DataTypes.STRING,
+            allowNull: true
+        },
+        actionDate: {
+            type: DataTypes.DATE,
+            allowNull: true
         }
     },
     {

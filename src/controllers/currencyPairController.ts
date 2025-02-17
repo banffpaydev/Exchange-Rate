@@ -268,6 +268,9 @@ export const uploadRate = async (req: any, res: Response) => {
         await createCurrencyPair({
           currencyPair: data.pair,
           exchangeRate: data.exchange_rate,
+          action: "Uploaded via CSV",
+          actionBy: req.user?.email,
+          actionDate: new Date(),
         });
         updatedRates.push(data.pair);
       }
@@ -393,10 +396,16 @@ export const calculateMulipleInternalRates = async (
           await createCurrencyPair({
             currencyPair: pair,
             exchangeRate: result?.bpay_buy_rate?.toFixed(2),
+            action: "Created internal rate",
+            actionBy: req.user?.email,
+            actionDate: new Date(),
           });
           await createCurrencyPair({
             currencyPair: invertedPair,
             exchangeRate: result?.bpay_sell_rate?.toFixed(2),
+            action: "Created internal rate",
+            actionBy: req.user?.email,
+            actionDate: new Date(),
           });
         }
       }
