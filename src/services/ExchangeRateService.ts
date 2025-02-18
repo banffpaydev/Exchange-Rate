@@ -1549,7 +1549,7 @@ export const sendRate = async () => {
 
 export const sendRateToPartners = async () => {
   try {
-    const mailList = ["dharold@bpay.africa"];
+    // const mailList = ["dharold@bpay.africa"];
 
     const mailList = [
       // Unity Link emails
