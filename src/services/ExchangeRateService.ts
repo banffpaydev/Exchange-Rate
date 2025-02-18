@@ -32,6 +32,7 @@ import {
 } from "./internalRateService";
 import { matchesGlob } from "path";
 import { addCommasToNumber } from "../controllers/utility";
+import CountryList from "country-list-with-dial-code-and-flag";
 
 dotenv.config();
 export const username = process.env.USER_NAME;
@@ -276,6 +277,59 @@ const cadrRemitRate = async (from: string, to: string) => {
 //     rate: 0.06551546424270462,
 //     rawRate: 0.06551546424270462
 //   }
+
+export const bnbCash = async (from: string, to: string) => {
+  // console.log("wave started")
+  interface IExchange {
+    currency: string;
+    rate: string;
+    country_code: string | null;
+  }
+  try {
+    const response = await axios.get(
+      `https://bnbcash.app/api/web/v3/sendingReceivingCountryList`
+    );
+    // Find the sending country (Canada) in the response data
+    const sendingCountry: {
+      phone_code: string;
+      country_id: number;
+      country_name: string;
+      country_code: string;
+      country_code2: string;
+      taxes: [];
+      country_flag: string;
+      currency_name: string;
+      currency_code: string;
+      exchange: IExchange[];
+    } = response.data.data.transfer.countries.send.find(
+      (country: any) => country.currency_code === from
+    );
+
+    if (!sendingCountry) {
+      return { msg: `Sending currency ${from} not found` };
+    }
+
+    // Find the exchange rate for the target currency
+    const exchangeRate: IExchange | undefined = sendingCountry.exchange.find(
+      (rate: any) => rate.currency === to
+    );
+
+    if (!exchangeRate) {
+      return { msg: `Exchange rate for ${to} not found` };
+    }
+    return {
+      name: "BNB Cash",
+      rate: +exchangeRate.rate,
+      rawRate: +exchangeRate.rate,
+    };
+
+    // const url = "https://app.sendwave.com/v2/pricing-public?amountType=SEND&receiveCurrency=NGN&amount=1&sendCurrency=USD&sendCountryIso2=us&receiveCountryIso2=ng"
+    // const response = await axios.get(url);
+  } catch (err: any) {
+    // console.error('Error fetching Afri Exchange rate:', err);
+    return { msg: "error message", err };
+  }
+};
 
 export const sendWaveRate = async (from: string, to: string) => {
   // console.log("wave started")
@@ -760,6 +814,7 @@ export const handleAllFetch = async () => {
   //     // 'USD/LRD', 'EUR/LRD', 'GBP/LRD', 'CAD/LRD'
   // ];
   const apis = [
+    bnbCash,
     sendWaveRate,
     afriXchangeRate,
     wiseRate,
@@ -1212,7 +1267,8 @@ export function getTopAndBottomRatesWithAverages(rates: VendorRate[]): {
   const calculateAverage = (items: VendorRate[]): number => {
     // @ts-ignore
     return (
-      items.reduce((sum, item) => sum + parseFloat(item.rate.toString()), 0) / items.length
+      items.reduce((sum, item) => sum + parseFloat(item.rate.toString()), 0) /
+      items.length
     );
   };
   // Calculate averages
@@ -1238,7 +1294,7 @@ export const getAnalyzedRates = async (
     where: { pair: currency },
     limit: 1,
     order: [["createdAt", "DESC"]],
-  }); 
+  });
 
   const currency_split = currency.split("/");
 
@@ -1302,7 +1358,6 @@ export const getAnalyzedRates = async (
           ); // Filter out invalid rates
         })
         .map(([vendor, rateValue]) => {
-          console.log(rateValue, pair, "notews");
           return {
             pair, // Add the currency pair as part of the result
             vendor,
@@ -1544,7 +1599,9 @@ export const sendRateToPartners = async () => {
       .map(
         (rowCurrency) => `
             <tr>
-                <td style="background-color: #0097ff; color: white;">${rowCurrency}</td>
+                <td style="background-color: #0097ff; color: white;">${rowCurrency}<span class="fi fi-${
+          CountryList.findOneByCurrencyCode(rowCurrency)?.code
+        } fis" ></span></td>
                 ${sellCurrencies
                   .map((colCurrency) => {
                     const rate =
@@ -1568,15 +1625,20 @@ export const sendRateToPartners = async () => {
     const mailOptions = {
       from: `rate@banffpay.com`,
       bcc: mailList,
-      subject: `BanffPay Daily Exchange Rate Update   ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`,
+      subject: `BanffPay Daily Exchange Rate Update   ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} WAT`,
 
       html: `
-           
+                <head>
+                  <link
+                    rel="stylesheet" 
+                    href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/css/flag-icons.min.css"
+                  />
+                </head>
          
              
                 <h1>Exchange Rate Update</h1>
                 <p>Dear Partner,</p>
-                <p>Find below our exchange rate at ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}</p>
+                <p>Find below our exchange rate at ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} WAT</p>
                 <table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; width: 100%; max-width: 550px;">
                     <thead>
                         <tr>
@@ -1584,7 +1646,13 @@ export const sendRateToPartners = async () => {
                             ${sellCurrencies
                               .map(
                                 (currency) => `
-                                <th style="background-color: #0097ff; color: white;">${currency}</th>
+                                <th style="background-color: #0097ff; color: white;">${currency}<span class="fi fi-${
+                                  CountryList.findOneByCurrencyCode(
+                                    currency.toLowerCase() === "sle"
+                                      ? "SLL"
+                                      : currency
+                                  )?.code
+                                } fis" ></span></th>
                             `
                               )
                               .join("")}

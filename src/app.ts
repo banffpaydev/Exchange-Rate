@@ -76,6 +76,13 @@ cron.schedule('0 8,14,20,2 * * *', async () => {
   console.log("Sending rate at", new Date().toLocaleString("en-US", { timeZone: "Africa/Lagos" }));
   await  handleAllFetch()
   await sendRate();
+});
+
+cron.schedule('0 9 * * *', async () => {
+ 
+  // await checkServerStatus();
+  console.log("Sending rate to partners at", new Date().toLocaleString("en-US", { timeZone: "Africa/Lagos" }));
+ 
   await sendRateToPartners()
 });
 // seedCountries()
