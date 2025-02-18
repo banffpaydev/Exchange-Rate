@@ -212,7 +212,7 @@ const ExchangeRates = () => {
     }));
   };
 
-  const hideRates = ["abokifxng", "cadrRemitRate"];
+  const hideRates = ["abokifxng", "cadrRemitRate", "sendWaveRate"];
 
   const filteredCurrencyPairs = Object.keys(exchangeRates || {}).filter(
     (pair) => pair.toLowerCase().includes(searchQuery.toLowerCase())
@@ -274,8 +274,15 @@ const ExchangeRates = () => {
                 <TableHead>Currency Pair</TableHead>
                 {vendors
                   .filter((ven) => !hideRates.includes(ven))
+                  .sort((a, b) => {
+                    if (a === "BanffPay Rate") return -1;
+                    if (b === "BanffPay Rate") return 1;
+                    return 0;
+                  })
                   .map((vendor) => (
-                    <TableHead key={vendor}>{vendor}</TableHead>
+                    <TableHead key={vendor} className={vendor === "BanffPay Rate" ? "text-[#0097ff] font-bold" : ""}>
+                      {vendor === "CadRemit Exchange" ? "CadRemit" : vendor}
+                    </TableHead>
                   ))}
               </TableRow>
             </TableHeader>
@@ -293,8 +300,13 @@ const ExchangeRates = () => {
                   </TableCell>
                   {vendors
                     .filter((ven) => !hideRates.includes(ven))
+                    .sort((a, b) => {
+                      if (a === "BanffPay Rate") return -1;
+                      if (b === "BanffPay Rate") return 1;
+                      return 0;
+                    })
                     .map((vendor, index) => (
-                      <TableCell key={index}>
+                      <TableCell key={index} className={vendor === "BanffPay Rate" ? "text-[#0097ff] font-bold" : ""}>
                         {exchangeRates[pair][vendor] !== undefined &&
                         exchangeRates[pair][vendor] !== null
                           ? parseFloat(exchangeRates[pair][vendor])
