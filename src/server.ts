@@ -23,9 +23,9 @@ app.listen(PORT, async () => {
   // removeRateKeyForAllPairs("xchangeRt exchange")
   // removeRateKeyForAllPairs("abokifxng")
 
-  handleAllFetch()
+  // handleAllFetch()
   // sendRate()
-  sendRateToPartners()
+  // sendRateToPartners()
   async function checkServerStatus() {
     try {
       const response = await axios.get("https://api-exchange.bpay.africa/test");

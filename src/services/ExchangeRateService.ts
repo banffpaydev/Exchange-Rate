@@ -1549,14 +1549,42 @@ export const sendRate = async () => {
 
 export const sendRateToPartners = async () => {
   try {
+    const mailList = ["dharold@bpay.africa"];
+
     const mailList = [
-      "dharold@bpay.africa",
-      "mebitanmi@banffpay.com",
+      // Unity Link emails
+      "curtly.felix@unitylink.com",
+      "gboateng@unitylink.com",
+      "mquail@unitylink.com",
+      "nowusu-ansah@unitylink.com",
+      "dolufuwa@unitylink.com",
+      "harry.ouedr@unitylink.com",
+
+      // Viamericas emails
+      "iris.pinedo@viamericas.com",
+      "carina.flores@viamericas.com",
+      "diego.estupinan@viamericas.com",
+      "maria.gutierrezmazo@viamericas.com",
+
+      // Money Exchange emails
+      "arico@moneyexchange.es",
+      "ecarranque@moneyexchange.es",
+      "sistemas@moneyexchange.es",
+
+      // APS International emails
+      "sait@apsinternational.com",
+      "marketing@apsinternational.com",
+      "fatimadukureh@apsinternational.co.uk",
+
+      // Banff Pay and BPay emails
       "care@banffpay.com",
       "mlawal@bpay.africa",
-      "care@bpay.africa",
-      "gbolaide@banffpay.ca",
+      "godita@bpay.africa",
+      "osaliu@banffpay.com",
+      "account@bpay.africa",
+      "dharold@bpay.africa",
     ];
+
     // const mailList = ["dharold@bpay.africa"]
     const buyCurrencies = ["USD", "GBP", "CAD", "EUR"];
 
@@ -1566,7 +1594,7 @@ export const sendRateToPartners = async () => {
       "USD/GHS",
       "USD/XAF",
       "USD/XOF",
-      "USD/SLE",
+      "USD/SLE", 
       "USD/GMD",
       "GBP/NGN",
       "GBP/GHS",
@@ -1629,10 +1657,9 @@ export const sendRateToPartners = async () => {
 
       html: `
                 <head>
-                  <link
-                    rel="stylesheet" 
-                    href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/css/flag-icons.min.css"
-                  />
+                  <style>
+                    @import url('https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/css/flag-icons.min.css');
+                  </style>
                 </head>
          
              
