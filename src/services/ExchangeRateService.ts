@@ -1571,6 +1571,7 @@ export const sendRateToPartners = async () => {
       "arico@moneyexchange.es",
       "ecarranque@moneyexchange.es",
       "sistemas@moneyexchange.es",
+      "tasas@moneyexchange.es",
 
       // APS International emails
       "sait@apsinternational.com",
