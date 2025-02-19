@@ -67,12 +67,12 @@ const lemfiRate = async (from: string, to: string) => {
     const data = response.data.data;
     const vape = Number(data.rate);
 
-    if (from === "NGN" || from === "ngn" || from === "LRD" || from === "lrd") {
-      // console.log(1/vape)
-      return { name: "Lemfi", rate: 1 / vape, rawRate: vape };
-    }
+    // if (from === "NGN" || from === "ngn" || from === "LRD" || from === "lrd") {
+    //   // console.log(1/vape)
+    //   return { name: "Lemfi", rate: 1 / vape, rawRate: vape };
+    // }
 
-    return { name: "Lemfi", rate: Number(data.rate), rawRate: vape };
+    return { name: "Lemfi", rate: vape, rawRate: vape };
   } catch (err: any) {
     //console.error('Error fetching Afri Exchange rate:', err);
     return { msg: "error message", err };
@@ -148,10 +148,10 @@ const getRateByCurrency = (data: any, isoCode: string, from: string) => {
 
   const realRate = rate / fromRate;
 
-  if (from === "NGN" || from === "ngn" || from === "LRD" || from === "lrd") {
-    const vape = realRate;
-    return { rate: 1 / vape, rawRate: vape };
-  }
+  // if (from === "NGN" || from === "ngn" || from === "LRD" || from === "lrd") {
+  //   const vape = realRate;
+  //   return { rate: 1 / vape, rawRate: vape };
+  // }
 
   // //console.log('realRate: ', realRate, 'from: ', from ,fromRate, 'to: ', isoCode, rate);
 
@@ -317,6 +317,7 @@ export const bnbCash = async (from: string, to: string) => {
     if (!exchangeRate) {
       return { msg: `Exchange rate for ${to} not found` };
     }
+   
     return {
       name: "BNB Cash",
       rate: +exchangeRate.rate,
@@ -389,11 +390,11 @@ const wiseRate = async (from: string, to: string) => {
     const data = response.data;
     const vape = Number(data.value);
 
-    if (from === "NGN" || from === "ngn" || from === "LRD" || from === "lrd") {
-      return { name: "Wise Exchange", rate: 1 / vape, rawRate: vape };
-    }
+    // if (from === "NGN" || from === "ngn" || from === "LRD" || from === "lrd") {
+    //   return { name: "Wise Exchange", rate:  vape, rawRate: vape };
+    // }
 
-    return { name: "Wise Exchange", rate: Number(data.value), rawRate: vape };
+    return { name: "Wise Exchange", rate: vape, rawRate: vape };
   } catch (err: any) {
     // //console.error('Error fetching Afri Exchange rate:', err);
     return { msg: "error message", err };
@@ -413,13 +414,13 @@ const transfergoRate = async (from: string, to: string) => {
     const data = response.data;
     const vape = Number(data.rate);
 
-    if (from === "NGN" || from === "ngn" || from === "LRD" || from === "lrd") {
-      return { name: "TransferGo Exchange", rate: 1 / vape, rawRate: vape };
-    }
+    // if (from === "NGN" || from === "ngn" || from === "LRD" || from === "lrd") {
+    //   return { name: "TransferGo Exchange", rate: 1 / vape, rawRate: vape };
+    // }
 
     return {
       name: "TransferGo Exchange",
-      rate: Number(data.rate),
+      rate: vape,
       rawRate: vape,
     };
   } catch (err: any) {
@@ -672,14 +673,14 @@ const getCurrencyRate = async (
 // ];
 
 export const pairs = [
+  "NGN/LRD",
+  "LRD/NGN",
   "USD/XAF",
   "USD/GHS",
   "CAD/NGN",
   "NGN/SLE",
   "SLE/NGN",
-  "NGN/LRD",
   "SLE/LRD",
-  "LRD/NGN",
   "LRD/SLE",
   "USD/SLE",
   "SLE/LRD",
@@ -888,7 +889,7 @@ export const handleAllFetch = async () => {
       exchangeRate: rawStats[pair].mean,
     };
     // results[pair]["BanffPay Rate"] = stats[pair].mean;
-    // console.log(results[pair], "raw-pair-result")
+    console.log(pair, results[pair], "raw-pair-result");
     await createRawCurrencyPair(rawPairData);
 
     // console.log(rawPairData,"paidata", rawResults[pair], "raw-results")
@@ -1594,7 +1595,7 @@ export const sendRateToPartners = async () => {
       "USD/GHS",
       "USD/XAF",
       "USD/XOF",
-      "USD/SLE", 
+      "USD/SLE",
       "USD/GMD",
       "GBP/NGN",
       "GBP/GHS",
