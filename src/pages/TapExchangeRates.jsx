@@ -166,6 +166,8 @@ const currencyPairs = [
   "GBP/SLL",
   "EUR/SLL",
   "GMD/USD",
+  "NGN/LRD",
+  "LRD/NGN",
 ];
 
 function convertCurrencyPair(currencyPair) {
