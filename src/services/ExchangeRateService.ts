@@ -67,10 +67,16 @@ const lemfiRate = async (from: string, to: string) => {
     const data = response.data.data;
     const vape = Number(data.rate);
 
-    // if (from === "NGN" || from === "ngn" || from === "LRD" || from === "lrd") {
-    //   // console.log(1/vape)
-    //   return { name: "Lemfi", rate: 1 / vape, rawRate: vape };
-    // }
+    if (
+      (from.toLowerCase() === "ngn" && to.toLowerCase() === "lrd") ||
+      (from.toLowerCase() === "lrd" && to.toLowerCase() === "ngn")
+    ) {
+      return { name: "Lemfi", rate: vape, rawRate: vape };
+    }
+    if (from === "NGN" || from === "ngn" || from === "LRD" || from === "lrd") {
+      // console.log(1/vape)
+      return { name: "Lemfi", rate: 1 / vape, rawRate: vape };
+    }
 
     return { name: "Lemfi", rate: vape, rawRate: vape };
   } catch (err: any) {
@@ -317,7 +323,7 @@ export const bnbCash = async (from: string, to: string) => {
     if (!exchangeRate) {
       return { msg: `Exchange rate for ${to} not found` };
     }
-   
+
     return {
       name: "BNB Cash",
       rate: +exchangeRate.rate,
@@ -390,9 +396,15 @@ const wiseRate = async (from: string, to: string) => {
     const data = response.data;
     const vape = Number(data.value);
 
-    // if (from === "NGN" || from === "ngn" || from === "LRD" || from === "lrd") {
-    //   return { name: "Wise Exchange", rate:  vape, rawRate: vape };
-    // }
+    if (
+      (from.toLowerCase() === "ngn" && to.toLowerCase() === "lrd") ||
+      (from.toLowerCase() === "lrd" && to.toLowerCase() === "ngn")
+    ) {
+      return { name: "Wise Exchange", rate: vape, rawRate: vape };
+    }
+    if (from === "NGN" || from === "ngn" || from === "LRD" || from === "lrd") {
+      return { name: "Wise Exchange", rate: 1 / vape, rawRate: vape };
+    }
 
     return { name: "Wise Exchange", rate: vape, rawRate: vape };
   } catch (err: any) {
@@ -414,9 +426,15 @@ const transfergoRate = async (from: string, to: string) => {
     const data = response.data;
     const vape = Number(data.rate);
 
-    // if (from === "NGN" || from === "ngn" || from === "LRD" || from === "lrd") {
-    //   return { name: "TransferGo Exchange", rate: 1 / vape, rawRate: vape };
-    // }
+    if (
+      (from.toLowerCase() === "ngn" && to.toLowerCase() === "lrd") ||
+      (from.toLowerCase() === "lrd" && to.toLowerCase() === "ngn")
+    ) {
+      return { name: "TransferGo Exchange", rate: vape, rawRate: vape };
+    }
+    if (from === "NGN" || from === "ngn" || from === "LRD" || from === "lrd") {
+      return { name: "TransferGo Exchange", rate: 1 / vape, rawRate: vape };
+    }
 
     return {
       name: "TransferGo Exchange",
