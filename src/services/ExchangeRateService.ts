@@ -1603,6 +1603,7 @@ export const sendRateToPartners = async () => {
       "osaliu@banffpay.com",
       "account@bpay.africa",
       "dharold@bpay.africa",
+      "rate@banffpay.ca"
     ];
 
     // const mailList = ["dharold@bpay.africa"]
