@@ -828,9 +828,9 @@ export const handleAllFetch = async () => {
   //   ]
 
   // const pairs = [
-  //     'USD/NGN', 'EUR/NGN', 'GBP/NGN', 'CAD/NGN',
-  //     'NGN/USD', 'NGN/EUR', 'NGN/GBP', 'NGN/CAD',
-  //     // 'USD/LRD', 'EUR/LRD', 'GBP/LRD', 'CAD/LRD'
+  //   "CAD/NGN",
+  //   "NGN/CAD",
+  //   // 'USD/LRD', 'EUR/LRD', 'GBP/LRD', 'CAD/LRD'
   // ];
   const apis = [
     bnbCash,
@@ -946,11 +946,11 @@ export const handleAllFetch = async () => {
 
 export const errorMailOptions = {
   from: `Exchange@bpay.africa`,
-  to: ["olamidedavid10@gmail.com", "dharold@bpay.africa"],
+  to: ["olamidedavid10@gmail.com", "dharold@bpay.africa", "esunday@bpay.africa"],
   subject: "EMERGENCY BanffPay Exchange Rate Update",
   html: `
-        <h1>Exchange Rate Portal Is Having Issues, Review ASAP</h1>
-      
+        <h1>Please review the internal rates on the exchange Rate Portal</h1>
+       <p>There is a case of sell rate being lower than buy rate. Review ASAP</p>
         </table>
         <p>Best Regards,</p>
     `,
@@ -1121,8 +1121,9 @@ export const getRatesFromDBWithDateFilter = async (
 
     // Calculate offset for pagination
     const offset = (page - 1) * pageSize;
-
     // Fetch all exchange rates with raw data
+    // Note: startDate and endDate should be in 'YYYY-MM-DD' format from frontend
+    // Example: '2023-12-25'
     const exchangeRates = await ExchangeRate.findAll({
       raw: true,
       attributes: ["id", "pair", "rates", "createdAt", "updatedAt"],
@@ -1603,7 +1604,7 @@ export const sendRateToPartners = async () => {
       "osaliu@banffpay.com",
       "account@bpay.africa",
       "dharold@bpay.africa",
-      "rate@banffpay.ca"
+      "rate@banffpay.ca",
     ];
 
     // const mailList = ["dharold@bpay.africa"]
