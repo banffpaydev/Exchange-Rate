@@ -21,6 +21,7 @@ import { CSVLink } from "react-csv";
 import { fetchDbRates } from "@/utils/api";
 import Pagination from "@/components/ui/paginate";
 import { usePaginationStore } from "../../store/store";
+import { formatDate } from "@/utils/currencySymbols";
 
 // Filtering function
 export function filterRates(responseData, pair, fromDate, toDate) {
@@ -213,7 +214,7 @@ const TapExchangeRates = () => {
   const fetchRates = async () => {
     setLoading(true);
     try {
-      const response = await fetchDbRates(selectedPair, startDate, endDate,currentPage);
+      const response = await fetchDbRates(selectedPair, formatDate(startDate), formatDate(endDate),currentPage);
       const data = response.data?.data;
       setExchangeRates(data);
       setPageMeta(response.data?.meta);
